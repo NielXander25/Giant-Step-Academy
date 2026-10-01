@@ -13,6 +13,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.49.0",
     "next": "^15.5.27",
+    "next-auth": "^5.0.0-beta.32",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwind-merge": "^3.7.0",
@@ -26,13 +27,15 @@
     "postcss": "^8.5.28",
     "prisma": "^6.19.3",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
   },
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/build.mjs",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest run"
   }
 }
