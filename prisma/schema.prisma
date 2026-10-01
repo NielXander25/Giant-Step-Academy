@@ -1,0 +1,777 @@
+// Giant Step Academy — database schema (PostgreSQL / Neon)
+//
+// Conventions
+//  - All primary keys are random UUIDs (never sequential) to prevent ID guessing.
+//  - Users are never hard-deleted, only deactivated, so "actor" columns
+//    (reviewedById, createdById, ...) are stored as plain UUIDs for history.
+//  - A PIN is NEVER linked to a student. Students are linked to PIN *access events*.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection (runtime)
+  directUrl = env("DIRECT_URL") // direct connection (migrations)
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TEACHER
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum TeacherRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  WITHDRAWN
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PROMOTED
+  REPEATED
+  GRADUATED
+  WITHDRAWN
+}
+
+enum ImportBatchStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  COMMITTED
+  CANCELLED
+}
+
+enum ImportRecordStatus {
+  NEW
+  EXISTING
+  DUPLICATE
+  INVALID
+}
+
+enum ResultStatus {
+  DRAFT
+  SUBMITTED
+  FORM_TEACHER_REVIEW
+  FORM_TEACHER_APPROVED
+  FORM_TEACHER_REJECTED
+  ADMIN_REVIEW
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  READY_FOR_PUBLICATION
+  PUBLISHED
+}
+
+enum Completeness {
+  MISSING
+  INCOMPLETE
+  COMPLETE
+}
+
+enum ApprovalTarget {
+  SUBJECT_BATCH
+  CLASS_SHEET
+}
+
+enum ApprovalAction {
+  SUBMIT
+  APPROVE
+  REJECT
+  REQUEST_CORRECTION
+  PUBLISH
+  UNPUBLISH
+}
+
+enum PinStatus {
+  ACTIVE
+  DISABLED
+  EXHAUSTED
+  EXPIRED
+}
+
+enum PinAccessOutcome {
+  SUCCESS
+  INVALID_CREDENTIALS
+  PIN_EXHAUSTED
+  PIN_EXPIRED
+  PIN_DISABLED
+  RESULT_NOT_PUBLISHED
+  RATE_LIMITED
+  CAPTCHA_FAILED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ───────────────────────────── Users & teachers ─────────────────────────────
+
+model User {
+  id                 String     @id @default(uuid()) @db.Uuid
+  email              String     @unique // always stored lower-case
+  name               String
+  passwordHash       String
+  role               Role
+  status             UserStatus @default(ACTIVE)
+  canCreateAdmins    Boolean    @default(false) // only meaningful for ADMIN
+  mustChangePassword Boolean    @default(false)
+  lastLoginAt        DateTime?
+  createdById        String?    @db.Uuid
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  teacherProfile         TeacherProfile?
+  teacherRequest         TeacherRequest?
+  formTeacherAssignments FormTeacherAssignment[]
+  subjectAssignments     SubjectAssignment[]
+  importBatches          StudentImportBatch[]
+  passwordResetTokens    PasswordResetToken[]
+
+  @@index([role, status])
+}
+
+model TeacherProfile {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @unique @db.Uuid
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone            String?
+  staffNumber      String?
+  qualification    String?
+  bio              String?
+  profileCompleted Boolean  @default(false)
+  extra            Json? // configurable extra profile fields
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TeacherRequest {
+  id              String               @id @default(uuid()) @db.Uuid
+  fullName        String
+  email           String
+  phone           String?
+  passwordHash    String // chosen by the teacher; account becomes usable only after approval
+  note            String?
+  status          TeacherRequestStatus @default(PENDING)
+  reviewedById    String?              @db.Uuid
+  reviewedAt      DateTime?
+  rejectionReason String?
+  userId          String?              @unique @db.Uuid // set once approved
+  user            User?                @relation(fields: [userId], references: [id])
+  createdAt       DateTime             @default(now())
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ───────────────────────────── Academic structure ─────────────────────────────
+
+model Section {
+  id        String @id @default(uuid()) @db.Uuid
+  name      String @unique // e.g. Primary, Secondary
+  sortOrder Int    @default(0)
+
+  levels               ClassLevel[]
+  assessmentComponents AssessmentComponent[]
+  gradingSchemes       GradingScheme[]
+}
+
+model AcademicSession {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique // e.g. 2026/2027
+  startDate DateTime?
+  endDate   DateTime?
+  isCurrent Boolean   @default(false) // only one row may be true (partial unique index in migration)
+  createdAt DateTime  @default(now())
+
+  terms                  Term[]
+  enrollments            Enrollment[]
+  formTeacherAssignments FormTeacherAssignment[]
+  subjectAssignments     SubjectAssignment[]
+  importBatches          StudentImportBatch[]
+}
+
+model Term {
+  id            String          @id @default(uuid()) @db.Uuid
+  sessionId     String          @db.Uuid
+  session       AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  name          String // e.g. First Term
+  sortOrder     Int
+  startDate     DateTime?
+  endDate       DateTime?
+  isCurrent     Boolean         @default(false) // only one row may be true (partial unique index in migration)
+  resultsLocked Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+
+  resultBatches SubjectResultBatch[]
+  classSheets   ClassResultSheet[]
+  accessLogs    PinAccessLog[]
+  viewSessions  ResultViewSession[]
+
+  @@unique([sessionId, name])
+  @@unique([sessionId, sortOrder])
+}
+
+// A level is a stage such as "SS2". A class is one arm of a level such as "SS2A".
+model ClassLevel {
+  id          String      @id @default(uuid()) @db.Uuid
+  sectionId   String      @db.Uuid
+  section     Section     @relation(fields: [sectionId], references: [id])
+  name        String      @unique
+  sortOrder   Int
+  nextLevelId String?     @db.Uuid // used by yearly promotion
+  nextLevel   ClassLevel? @relation("LevelProgression", fields: [nextLevelId], references: [id])
+  isFinal     Boolean     @default(false) // students leaving here become GRADUATED
+
+  previousLevels ClassLevel[] @relation("LevelProgression")
+  classes        SchoolClass[]
+}
+
+model SchoolClass {
+  id       String     @id @default(uuid()) @db.Uuid
+  levelId  String     @db.Uuid
+  level    ClassLevel @relation(fields: [levelId], references: [id])
+  arm      String // e.g. A
+  name     String     @unique // e.g. SS2A
+  isActive Boolean    @default(true)
+
+  enrollments            Enrollment[]
+  classSubjects          ClassSubject[]
+  formTeacherAssignments FormTeacherAssignment[]
+  subjectAssignments     SubjectAssignment[]
+  importBatches          StudentImportBatch[]
+  resultBatches          SubjectResultBatch[]
+  classSheets            ClassResultSheet[]
+
+  @@unique([levelId, arm])
+}
+
+model Subject {
+  id       String  @id @default(uuid()) @db.Uuid
+  name     String  @unique
+  code     String? @unique
+  isActive Boolean @default(true)
+
+  classSubjects      ClassSubject[]
+  studentSubjects    StudentSubject[]
+  subjectAssignments SubjectAssignment[]
+  resultBatches      SubjectResultBatch[]
+}
+
+// Which subjects a class offers
+model ClassSubject {
+  id           String      @id @default(uuid()) @db.Uuid
+  classId      String      @db.Uuid
+  class        SchoolClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subjectId    String      @db.Uuid
+  subject      Subject     @relation(fields: [subjectId], references: [id])
+  isCompulsory Boolean     @default(true)
+
+  @@unique([classId, subjectId])
+}
+
+model FormTeacherAssignment {
+  id        String          @id @default(uuid()) @db.Uuid
+  teacherId String          @db.Uuid
+  teacher   User            @relation(fields: [teacherId], references: [id])
+  classId   String          @db.Uuid
+  class     SchoolClass     @relation(fields: [classId], references: [id])
+  sessionId String          @db.Uuid
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  createdAt DateTime        @default(now())
+
+  @@unique([classId, sessionId]) // one Form Teacher per class per session
+  @@unique([teacherId, sessionId]) // a teacher is Form Teacher of at most one class per session
+}
+
+model SubjectAssignment {
+  id        String          @id @default(uuid()) @db.Uuid
+  teacherId String          @db.Uuid
+  teacher   User            @relation(fields: [teacherId], references: [id])
+  subjectId String          @db.Uuid
+  subject   Subject         @relation(fields: [subjectId], references: [id])
+  classId   String          @db.Uuid
+  class     SchoolClass     @relation(fields: [classId], references: [id])
+  sessionId String          @db.Uuid
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  createdAt DateTime        @default(now())
+
+  @@unique([classId, subjectId, sessionId]) // one teacher per subject per class per session
+  @@index([teacherId, sessionId])
+}
+
+// ───────────────────────────── Students ─────────────────────────────
+
+// A student is a permanent record. Which class they are in for a session lives in Enrollment.
+model Student {
+  id               String        @id @default(uuid()) @db.Uuid
+  admissionNumber  String        @unique
+  fullName         String
+  normalizedName   String // lower-cased, whitespace-collapsed; used for portal matching
+  gender           Gender?
+  dateOfBirth      DateTime?
+  photoUrl         String?
+  status           StudentStatus @default(ACTIVE)
+  extra            Json?
+  createdById      String?       @db.Uuid
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  enrollments  Enrollment[]
+  accessLogs   PinAccessLog[]
+  viewSessions ResultViewSession[]
+
+  @@index([normalizedName])
+}
+
+model Enrollment {
+  id                      String           @id @default(uuid()) @db.Uuid
+  studentId               String           @db.Uuid
+  student                 Student          @relation(fields: [studentId], references: [id])
+  sessionId               String           @db.Uuid
+  session                 AcademicSession  @relation(fields: [sessionId], references: [id])
+  classId                 String           @db.Uuid
+  class                   SchoolClass      @relation(fields: [classId], references: [id])
+  status                  EnrollmentStatus @default(ACTIVE)
+  isRepeater              Boolean          @default(false) // flagged by Admin so promotion skips this student
+  promotedFromEnrollmentId String?         @db.Uuid
+  createdAt               DateTime         @default(now())
+
+  subjects  StudentSubject[]
+  entries   ResultEntry[]
+  summaries StudentTermSummary[]
+
+  @@unique([studentId, sessionId])
+  @@index([classId, sessionId])
+}
+
+// Elective subject choices (only needed for non-compulsory subjects)
+model StudentSubject {
+  id           String     @id @default(uuid()) @db.Uuid
+  enrollmentId String     @db.Uuid
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  subjectId    String     @db.Uuid
+  subject      Subject    @relation(fields: [subjectId], references: [id])
+
+  @@unique([enrollmentId, subjectId])
+}
+
+model StudentImportBatch {
+  id              String            @id @default(uuid()) @db.Uuid
+  uploadedById    String            @db.Uuid
+  uploadedBy      User              @relation(fields: [uploadedById], references: [id])
+  classId         String            @db.Uuid
+  class           SchoolClass       @relation(fields: [classId], references: [id])
+  sessionId       String            @db.Uuid
+  session         AcademicSession   @relation(fields: [sessionId], references: [id])
+  fileName        String
+  status          ImportBatchStatus @default(DRAFT)
+  requiresApproval Boolean          @default(false) // true when uploaded by a non-Form Teacher
+  totalRows       Int               @default(0)
+  newCount        Int               @default(0)
+  existingCount   Int               @default(0)
+  duplicateCount  Int               @default(0)
+  invalidCount    Int               @default(0)
+  reviewedById    String?           @db.Uuid
+  reviewedAt      DateTime?
+  reviewNote      String?
+  committedAt     DateTime?
+  createdAt       DateTime          @default(now())
+
+  records StudentImportRecord[]
+
+  @@index([classId, status])
+}
+
+model StudentImportRecord {
+  id               String             @id @default(uuid()) @db.Uuid
+  batchId          String             @db.Uuid
+  batch            StudentImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  rowNumber        Int
+  data             Json
+  status           ImportRecordStatus
+  errors           Json?
+  matchedStudentId String?            @db.Uuid
+
+  @@index([batchId])
+}
+
+// ───────────────────────────── Grading configuration ─────────────────────────────
+
+// e.g. "CA" (max 40) and "Exam" (max 60). sectionId null = applies to every section.
+model AssessmentComponent {
+  id        String   @id @default(uuid()) @db.Uuid
+  sectionId String?  @db.Uuid
+  section   Section? @relation(fields: [sectionId], references: [id])
+  name      String
+  maxScore  Decimal  @db.Decimal(5, 2)
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  @@index([sectionId])
+}
+
+model GradingScheme {
+  id        String      @id @default(uuid()) @db.Uuid
+  name      String
+  sectionId String?     @db.Uuid
+  section   Section?    @relation(fields: [sectionId], references: [id])
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  bands GradeBand[]
+}
+
+model GradeBand {
+  id        String        @id @default(uuid()) @db.Uuid
+  schemeId  String        @db.Uuid
+  scheme    GradingScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  minScore  Decimal       @db.Decimal(5, 2)
+  maxScore  Decimal       @db.Decimal(5, 2)
+  grade     String
+  remark    String?
+  sortOrder Int           @default(0)
+
+  @@index([schemeId])
+}
+
+// ───────────────────────────── Results ─────────────────────────────
+
+// One subject, one class, one term — the unit a Subject Teacher submits and a Form Teacher reviews.
+model SubjectResultBatch {
+  id                        String       @id @default(uuid()) @db.Uuid
+  classId                   String       @db.Uuid
+  class                     SchoolClass  @relation(fields: [classId], references: [id])
+  subjectId                 String       @db.Uuid
+  subject                   Subject      @relation(fields: [subjectId], references: [id])
+  termId                    String       @db.Uuid
+  term                      Term         @relation(fields: [termId], references: [id])
+  status                    ResultStatus @default(DRAFT)
+  submittedById             String?      @db.Uuid
+  submittedAt               DateTime?
+  formTeacherReviewedById   String?      @db.Uuid
+  formTeacherReviewedAt     DateTime?
+  lastRejectionReason       String?
+  createdAt                 DateTime     @default(now())
+  updatedAt                 DateTime     @updatedAt
+
+  entries   ResultEntry[]
+  approvals ResultApprovalRecord[]
+
+  @@unique([classId, subjectId, termId])
+  @@index([status])
+}
+
+model ResultEntry {
+  id            String             @id @default(uuid()) @db.Uuid
+  batchId       String             @db.Uuid
+  batch         SubjectResultBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  enrollmentId  String             @db.Uuid
+  enrollment    Enrollment         @relation(fields: [enrollmentId], references: [id])
+  scores        Json // { "<componentId>": number }
+  total         Decimal?           @db.Decimal(6, 2)
+  grade         String?
+  remark        String?
+  enteredById   String?            @db.Uuid
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@unique([batchId, enrollmentId])
+  @@index([enrollmentId])
+}
+
+// One class, one term — the unit an Admin reviews, approves and publishes.
+model ClassResultSheet {
+  id                String       @id @default(uuid()) @db.Uuid
+  classId           String       @db.Uuid
+  class             SchoolClass  @relation(fields: [classId], references: [id])
+  termId            String       @db.Uuid
+  term              Term         @relation(fields: [termId], references: [id])
+  status            ResultStatus @default(DRAFT)
+  submittedAt       DateTime?
+  adminReviewedById String?      @db.Uuid
+  adminReviewedAt   DateTime?
+  rejectionReason   String?
+  publishedById     String?      @db.Uuid
+  publishedAt       DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  summaries StudentTermSummary[]
+  approvals ResultApprovalRecord[]
+
+  @@unique([classId, termId])
+  @@index([status])
+}
+
+model StudentTermSummary {
+  id                String           @id @default(uuid()) @db.Uuid
+  sheetId           String           @db.Uuid
+  sheet             ClassResultSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  enrollmentId      String           @db.Uuid
+  enrollment        Enrollment       @relation(fields: [enrollmentId], references: [id])
+  completeness      Completeness     @default(MISSING)
+  subjectsEntered   Int              @default(0)
+  subjectsExpected  Int              @default(0)
+  totalScore        Decimal?         @db.Decimal(8, 2)
+  average           Decimal?         @db.Decimal(5, 2)
+  overallGrade      String?
+  position          Int?
+  formTeacherRemark String?
+  principalRemark   String?
+  attendance        Json?
+  calculatedAt      DateTime?
+
+  @@unique([sheetId, enrollmentId])
+  @@index([enrollmentId])
+}
+
+model ResultApprovalRecord {
+  id         String             @id @default(uuid()) @db.Uuid
+  target     ApprovalTarget
+  batchId    String?            @db.Uuid
+  batch      SubjectResultBatch? @relation(fields: [batchId], references: [id])
+  sheetId    String?            @db.Uuid
+  sheet      ClassResultSheet?  @relation(fields: [sheetId], references: [id])
+  action     ApprovalAction
+  fromStatus ResultStatus?
+  toStatus   ResultStatus
+  actorId    String             @db.Uuid
+  actorRole  Role
+  comment    String?
+  createdAt  DateTime           @default(now())
+
+  @@index([batchId])
+  @@index([sheetId])
+}
+
+// ───────────────────────────── Result PINs ─────────────────────────────
+
+// A PIN is a stand-alone access credential. It is NOT linked to any student.
+// Which student/result it was used for is recorded in PinAccessLog.
+model Pin {
+  id             String    @id @default(uuid()) @db.Uuid
+  pinHash        String    @unique // HMAC-SHA256(PIN_PEPPER, pin); the plain PIN is never stored
+  maskedPin      String // e.g. GSA****42 — for admin identification only
+  status         PinStatus @default(ACTIVE)
+  usageCount     Int       @default(0)
+  maxUses        Int       @default(2)
+  firstUsedAt    DateTime?
+  lastUsedAt     DateTime?
+  expiresAt      DateTime? // set at first successful use (first use + 40 days)
+  label          String?
+  createdById    String    @db.Uuid
+  disabledById   String?   @db.Uuid
+  disabledAt     DateTime?
+  disabledReason String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accessLogs   PinAccessLog[]
+  viewSessions ResultViewSession[]
+
+  @@index([status])
+}
+
+model PinAccessLog {
+  id              String           @id @default(uuid()) @db.Uuid
+  pinId           String?          @db.Uuid
+  pin             Pin?             @relation(fields: [pinId], references: [id])
+  studentId       String?          @db.Uuid
+  student         Student?         @relation(fields: [studentId], references: [id])
+  termId          String?          @db.Uuid
+  term            Term?            @relation(fields: [termId], references: [id])
+  outcome         PinAccessOutcome
+  pinStatusAtTime PinStatus?
+  ipHash          String? // salted hash, never the raw IP
+  userAgent       String?
+  createdAt       DateTime         @default(now())
+
+  @@index([pinId])
+  @@index([studentId])
+  @@index([createdAt])
+}
+
+// Created on a successful view. Lets the user download/print without consuming another use.
+model ResultViewSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  pinId     String   @db.Uuid
+  pin       Pin      @relation(fields: [pinId], references: [id])
+  studentId String   @db.Uuid
+  student   Student  @relation(fields: [studentId], references: [id])
+  termId    String   @db.Uuid
+  term      Term     @relation(fields: [termId], references: [id])
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+// ───────────────────────────── Website content (CMS) ─────────────────────────────
+// isDemo marks fictional sample content so it can be found and replaced easily.
+
+model NewsPost {
+  id            String        @id @default(uuid()) @db.Uuid
+  slug          String        @unique
+  title         String
+  excerpt       String?
+  content       String
+  coverImageUrl String?
+  category      String?
+  authorName    String?
+  status        ContentStatus @default(DRAFT)
+  publishedAt   DateTime?
+  isDemo        Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model SchoolEvent {
+  id          String        @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  imageUrl    String?
+  status      ContentStatus @default(DRAFT)
+  isDemo      Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status, startsAt])
+}
+
+model GalleryItem {
+  id        String        @id @default(uuid()) @db.Uuid
+  imageUrl  String
+  caption   String?
+  category  String?
+  sortOrder Int           @default(0)
+  status    ContentStatus @default(PUBLISHED)
+  isDemo    Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
+
+model StaffProfile {
+  id         String        @id @default(uuid()) @db.Uuid
+  name       String
+  position   String
+  department String?
+  photoUrl   String?
+  bio        String?
+  sortOrder  Int           @default(0)
+  status     ContentStatus @default(PUBLISHED)
+  isDemo     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+}
+
+model Announcement {
+  id        String        @id @default(uuid()) @db.Uuid
+  title     String
+  message   String
+  startsAt  DateTime?
+  endsAt    DateTime?
+  status    ContentStatus @default(DRAFT)
+  isDemo    Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
+
+model Testimonial {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String
+  relationship String?
+  quote        String
+  photoUrl     String?
+  status       ContentStatus @default(DRAFT)
+  isDemo       Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+}
+
+// Editable blocks of page copy, e.g. key "about.mission"
+model PageContent {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  title     String?
+  body      Json
+  isDemo    Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+// ───────────────────────────── Platform ─────────────────────────────
+
+model SchoolProfile {
+  id            String   @id @default("singleton")
+  name          String   @default("Giant Step Academy")
+  motto         String?  @default("[SCHOOL MOTTO]")
+  address       String?  @default("[SCHOOL ADDRESS]")
+  phone         String?  @default("[SCHOOL PHONE]")
+  email         String?  @default("[SCHOOL EMAIL]")
+  logoUrl       String?
+  websiteUrl    String?
+  principalName String?
+  isPlaceholder Boolean  @default(true) // false once real details are entered
+  updatedAt     DateTime @updatedAt
+}
+
+model SystemSetting {
+  key         String   @id
+  value       Json
+  updatedById String?  @db.Uuid
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  actorRole  Role?
+  action     String // e.g. "TEACHER_APPROVED", "PIN_GENERATED"
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ipHash     String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([actorId])
+}
