@@ -1,5 +1,7 @@
 import { LogoPlaceholder } from "@/components/brand/logo-placeholder";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // Temporary home page for Phase 1. The real public website arrives in Phase 9.
 const steps = [
@@ -25,6 +27,9 @@ export default function HomePage() {
           <Badge>Theme ready</Badge>
           <Badge variant="accent">Website coming in a later phase</Badge>
         </div>
+        <Button asChild variant="outline">
+          <Link href="/login">Staff sign in</Link>
+        </Button>
       </section>
 
       <div aria-hidden="true" className="flex h-72 items-end justify-center gap-2 md:justify-end">
