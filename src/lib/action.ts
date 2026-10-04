@@ -1,6 +1,6 @@
 import type { Role } from "@prisma/client";
 import { z } from "zod";
-import { AppError } from "@/lib/errors";
+import { AppError, ForbiddenError } from "@/lib/errors";
 import { assertRole, type SessionUser } from "@/lib/auth/session";
 
 export type ActionResult<T> =
@@ -12,6 +12,8 @@ type ActionConfig<S extends z.ZodTypeAny, T> = {
   roles: Role[];
   /** Input is always validated here, never trusted from the browser. */
   input: S;
+  /** Only the change-password action sets this; everything else is blocked until the password is changed. */
+  allowPasswordChangePending?: boolean;
   handler: (ctx: { user: SessionUser; input: z.infer<S> }) => Promise<T>;
 };
 
@@ -26,6 +28,9 @@ export function defineAction<S extends z.ZodTypeAny, T>(config: ActionConfig<S, 
   return async (raw: z.input<S>): Promise<ActionResult<T>> => {
     try {
       const user = await assertRole(...config.roles);
+      if (user.mustChangePassword && !config.allowPasswordChangePending) {
+        throw new ForbiddenError("Please change your temporary password first.");
+      }
 
       const parsed = config.input.safeParse(raw);
       if (!parsed.success) {

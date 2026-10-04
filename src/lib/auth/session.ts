@@ -11,6 +11,7 @@ export type SessionUser = {
   name: string;
   role: Role;
   canCreateAdmins: boolean;
+  mustChangePassword: boolean;
 };
 
 /**
@@ -25,10 +26,17 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
 
   const user = await db.user.findUnique({
     where: { id },
-    select: { id: true, email: true, name: true, role: true, status: true, canCreateAdmins: true },
+    select: { id: true, email: true, name: true, role: true, status: true, canCreateAdmins: true, mustChangePassword: true },
   });
   if (!user || user.status !== "ACTIVE") return null;
-  return { id: user.id, email: user.email, name: user.name, role: user.role, canCreateAdmins: user.canCreateAdmins };
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    canCreateAdmins: user.canCreateAdmins,
+    mustChangePassword: user.mustChangePassword,
+  };
 });
 
 /** For pages and layouts: sends signed-out visitors to the login page. */
@@ -42,6 +50,8 @@ export async function requireUser(): Promise<SessionUser> {
 export async function requireRole(...roles: Role[]): Promise<SessionUser> {
   const user = await requireUser();
   if (!roles.includes(user.role)) redirect("/dashboard");
+  // Accounts created with a temporary password must set their own before doing anything else.
+  if (user.mustChangePassword) redirect("/account/password");
   return user;
 }
 
