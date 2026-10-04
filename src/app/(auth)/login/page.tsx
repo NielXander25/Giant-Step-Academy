@@ -34,7 +34,9 @@ export default async function LoginPage() {
           <p className="mb-8 mt-2 text-sm text-muted-foreground">For administrators and teachers. Students and parents do not need an account.</p>
           <LoginForm />
           <p className="mt-6 text-sm text-muted-foreground">
-            Teacher without an account? Registration opens in the next phase.{" "}
+            Teacher without an account?{" "}
+            <Link href="/register-teacher" className="text-primary underline underline-offset-4">Request one</Link>
+            {" · "}
             <Link href="/" className="text-primary underline underline-offset-4">Back to home</Link>
           </p>
         </div>
