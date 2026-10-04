@@ -18,6 +18,11 @@ Next.js + TypeScript + Tailwind CSS + Prisma + Neon (PostgreSQL), deployed on Ve
 ### Preview deployments
 Preview builds **skip database migrations** so they can never change your live database by accident.
 
+## Optional: email notifications
+Approval and rejection emails to teachers are sent through [Resend](https://resend.com) when these two variables exist in Vercel.
+Without them the app works normally and simply skips the emails.
+`RESEND_API_KEY` (your Resend key) and `EMAIL_FROM` (for example `Giant Step Academy <no-reply@yourdomain.com>`, on a domain verified in Resend).
+
 ## Changing the brand
 All colours live in `src/app/globals.css` (the `:root` block). Fonts are set in `src/app/layout.tsx`.
 
