@@ -28,7 +28,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "Teacher requests", href: "/admin/teacher-requests", icon: "inbox", ready: true, group: "People" },
     { label: "Teachers", href: "/admin/teachers", icon: "users", ready: true, group: "People" },
     { label: "Assignments", href: "/admin/assignments", icon: "link", ready: true, group: "People" },
-    { label: "Students", href: "/admin/students", icon: "graduation", ready: false, phase: 4, group: "People" },
+    { label: "Students", href: "/admin/students", icon: "graduation", ready: true, group: "People" },
     { label: "Sessions & terms", href: "/admin/sessions", icon: "calendar", ready: true, group: "Academics" },
     { label: "Classes", href: "/admin/classes", icon: "school", ready: true, group: "Academics" },
     { label: "Subjects", href: "/admin/subjects", icon: "book", ready: true, group: "Academics" },
@@ -41,7 +41,7 @@ export const NAV: Record<Role, NavItem[]> = {
   ],
   TEACHER: [
     { label: "Overview", href: "/teacher", icon: "home", ready: true, group: "Overview" },
-    { label: "My students", href: "/teacher/students", icon: "graduation", ready: false, phase: 4, group: "My class" },
+    { label: "My students", href: "/teacher/students", icon: "graduation", ready: true, group: "My class" },
     { label: "Result entry", href: "/teacher/results", icon: "pencil", ready: false, phase: 6, group: "My class" },
     { label: "Reviews", href: "/teacher/reviews", icon: "check", ready: false, phase: 6, group: "My class" },
     { label: "My profile", href: "/teacher/onboarding", icon: "user", ready: true, group: "Account" },
