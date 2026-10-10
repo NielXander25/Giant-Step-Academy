@@ -36,6 +36,8 @@ export const canReviewTeacherRequests = isAdminOrAbove;
 export const canManageTeachers = isAdminOrAbove;
 export const canAssignTeachers = isAdminOrAbove;
 export const canManageAcademicStructure = isAdminOrAbove;
+/** Grade bands, score components and result rules. */
+export const canManageGrading = isAdminOrAbove;
 export const canManageWebsiteContent = isAdminOrAbove;
 export const canViewAccessLogs = isAdminOrAbove;
 export const canManagePins = isAdminOrAbove;
