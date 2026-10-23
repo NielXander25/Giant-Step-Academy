@@ -48,3 +48,5 @@ export const assignFormTeacherInput = z.object({ classId: id, teacherId: id });
 export const clearFormTeacherInput = z.object({ classId: id });
 export const assignSubjectTeacherInput = z.object({ classId: id, subjectId: id, teacherId: id });
 export const clearSubjectTeacherInput = z.object({ classId: id, subjectId: id });
+
+export const setTermLockedInput = z.object({ termId: id, locked: z.boolean() });

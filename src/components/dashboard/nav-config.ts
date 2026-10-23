@@ -19,7 +19,7 @@ export const NAV: Record<Role, NavItem[]> = {
   SUPER_ADMIN: [
     { label: "Overview", href: "/super-admin", icon: "home", ready: true, group: "System" },
     { label: "Admins", href: "/super-admin/admins", icon: "shield", ready: true, group: "System" },
-    { label: "Audit logs", href: "/super-admin/audit-logs", icon: "scroll", ready: false, phase: 10, group: "System" },
+    { label: "Audit logs", href: "/super-admin/audit-logs", icon: "scroll", ready: true, group: "System" },
     { label: "Admin console", href: "/admin", icon: "settings", ready: true, group: "Switch to" },
     { label: "Change password", href: "/account/password", icon: "key", ready: true, group: "Account" },
   ],
@@ -31,6 +31,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "Students", href: "/admin/students", icon: "graduation", ready: true, group: "People" },
     { label: "Sessions & terms", href: "/admin/sessions", icon: "calendar", ready: true, group: "Academics" },
     { label: "Classes", href: "/admin/classes", icon: "school", ready: true, group: "Academics" },
+    { label: "Yearly promotion", href: "/admin/promotion", icon: "graduation", ready: true, group: "Academics" },
     { label: "Subjects", href: "/admin/subjects", icon: "book", ready: true, group: "Academics" },
     { label: "Grading", href: "/admin/settings/grading", icon: "settings", ready: true, group: "Results" },
     { label: "Assessment & rules", href: "/admin/settings/assessment", icon: "chart", ready: true, group: "Results" },

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
-import { setCurrentSession, setCurrentTerm } from "./actions";
+import { setCurrentSession, setCurrentTerm, setTermLocked } from "./actions";
 import { NewSessionForm } from "./session-forms";
 
 export const metadata: Metadata = { title: "Sessions & terms" };
@@ -62,10 +62,19 @@ export default async function SessionsPage() {
                       <div className="flex items-center gap-3">
                         <span>{t.name}</span>
                         {t.isCurrent && <Badge variant="success">Current term</Badge>}
+                        {t.resultsLocked && <Badge variant="destructive">Results locked</Badge>}
                       </div>
-                      {!t.isCurrent && (
-                        <ActionButton action={setCurrentTerm} input={{ termId: t.id }} label="Make current term" />
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {!t.isCurrent && (
+                          <ActionButton action={setCurrentTerm} input={{ termId: t.id }} label="Make current term" />
+                        )}
+                        <ActionButton
+                          action={setTermLocked}
+                          input={{ termId: t.id, locked: !t.resultsLocked }}
+                          label={t.resultsLocked ? "Unlock results" : "Lock results"}
+                          confirm={t.resultsLocked ? undefined : "Lock this term? Nobody will be able to change its scores or remarks until you unlock it."}
+                        />
+                      </div>
                     </li>
                   ))}
                 </ul>
