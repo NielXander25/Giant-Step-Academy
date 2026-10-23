@@ -38,6 +38,8 @@ export const canAssignTeachers = isAdminOrAbove;
 export const canManageAcademicStructure = isAdminOrAbove;
 /** Grade bands, score components and result rules. */
 export const canManageGrading = isAdminOrAbove;
+/** The school name, contact details, logo and report card layout. */
+export const canManageSchoolProfile = isAdminOrAbove;
 export const canManageWebsiteContent = isAdminOrAbove;
 export const canViewAccessLogs = isAdminOrAbove;
 export const canManagePins = isAdminOrAbove;

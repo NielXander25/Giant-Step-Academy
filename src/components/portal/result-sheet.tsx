@@ -10,7 +10,7 @@ const Placeholder = ({ text }: { text: string }) => <span className="text-muted-
 
 /** The student's report card. Designed to print cleanly on A4. */
 export function ResultSheet({ data }: { data: PublishedResult }) {
-  const { school, student, summary } = data;
+  const { school, student, summary, layout } = data;
   const cell = "border border-border px-2 py-1.5";
 
   return (
@@ -34,7 +34,7 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
         <p><span className="text-muted-foreground">Name: </span><strong>{student.name}</strong></p>
         <p><span className="text-muted-foreground">Admission no.: </span><strong>{student.admissionNumber}</strong></p>
         <p><span className="text-muted-foreground">Class: </span><strong>{data.className}</strong></p>
-        <p><span className="text-muted-foreground">Gender: </span><strong>{student.gender ? student.gender.toLowerCase() : "—"}</strong></p>
+        {layout.showGender && <p><span className="text-muted-foreground">Gender: </span><strong>{student.gender ? student.gender.toLowerCase() : "—"}</strong></p>}
       </section>
 
       <div className="overflow-x-auto">
@@ -62,12 +62,12 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
         </table>
       </div>
 
-      <section className="my-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
+      <section className={`my-4 grid grid-cols-2 gap-3 text-center ${layout.showPosition ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
         {[
           ["Total score", summary.totalScore ?? "—"],
           ["Average", summary.average ?? "—"],
           ["Overall grade", summary.overallGrade ?? "—"],
-          ["Position", summary.position ? `${ordinal(summary.position)}${summary.classSize ? ` of ${summary.classSize}` : ""}` : "—"],
+          ...(layout.showPosition ? [["Position", summary.position ? `${ordinal(summary.position)}${layout.showClassSize && summary.classSize ? ` of ${summary.classSize}` : ""}` : "—"]] : []),
         ].map(([label, value]) => (
           <div key={label as string} className="rounded-lg border border-border p-2">
             <p className="text-xs text-muted-foreground">{label}</p>
@@ -81,10 +81,13 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
         <p><strong>Principal's remark: </strong>{summary.principalRemark ?? <Placeholder text="—" />}</p>
       </section>
 
-      <footer className="mt-8 grid grid-cols-2 gap-8 text-xs text-muted-foreground">
-        <p className="border-t border-border pt-1">Form Teacher's signature</p>
-        <p className="border-t border-border pt-1">Principal's signature and stamp{school.principalName ? ` (${school.principalName})` : ""}</p>
-      </footer>
+      {layout.showSignatures && (
+        <footer className="mt-8 grid grid-cols-2 gap-8 text-xs text-muted-foreground">
+          <p className="border-t border-border pt-1">Form Teacher's signature</p>
+          <p className="border-t border-border pt-1">Principal's signature and stamp{school.principalName ? ` (${school.principalName})` : ""}</p>
+        </footer>
+      )}
+      {layout.footerNote && <p className="mt-4 text-center text-xs text-muted-foreground">{layout.footerNote}</p>}
     </article>
   );
 }

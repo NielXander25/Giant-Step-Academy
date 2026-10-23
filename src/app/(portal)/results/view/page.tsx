@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Download } from "lucide-react";
 import { PrintButton } from "@/components/portal/print-button";
 import { ResultSheet } from "@/components/portal/result-sheet";
 import { findViewSession } from "@/lib/pin/access";
@@ -46,6 +46,9 @@ export default async function ViewResultPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
+          <a href="/api/results/pdf" className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-navy">
+            <Download className="size-4" aria-hidden="true" /> Download PDF
+          </a>
           <PrintButton />
           <Link href="/results" className="inline-flex h-10 items-center rounded-lg border border-input px-4 text-sm hover:bg-primary-soft">Close</Link>
         </div>

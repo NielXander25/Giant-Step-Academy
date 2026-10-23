@@ -35,6 +35,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "Grading", href: "/admin/settings/grading", icon: "settings", ready: true, group: "Results" },
     { label: "Assessment & rules", href: "/admin/settings/assessment", icon: "chart", ready: true, group: "Results" },
     { label: "Results", href: "/admin/results", icon: "chart", ready: true, group: "Results" },
+    { label: "School & report card", href: "/admin/settings/school", icon: "school", ready: true, group: "Results" },
     { label: "PINs", href: "/admin/pins", icon: "key", ready: true, group: "Results" },
     { label: "Access logs", href: "/admin/access-logs", icon: "scroll", ready: true, group: "Results" },
     { label: "Website content", href: "/admin/cms", icon: "globe", ready: false, phase: 9, group: "Website" },

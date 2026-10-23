@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { loadCalcConfig } from "@/lib/results/config-store";
+import { getReportLayout } from "@/lib/results/report-layout-store";
 
 export type PublishedResult = NonNullable<Awaited<ReturnType<typeof loadPublishedResult>>>;
 
@@ -21,11 +22,12 @@ export async function loadPublishedResult(studentId: string, termId: string) {
   const summary = sheet?.summaries.find((s) => s.enrollmentId === enrollment.id);
   if (!sheet || !summary) return null;
 
-  const [config, classSubjects, entries, school] = await Promise.all([
+  const [config, classSubjects, entries, school, layout] = await Promise.all([
     loadCalcConfig(enrollment.class.level.sectionId),
     db.classSubject.findMany({ where: { classId: enrollment.classId }, include: { subject: { select: { id: true, name: true } } } }),
     db.resultEntry.findMany({ where: { enrollmentId: enrollment.id, batch: { classId: enrollment.classId, termId } }, include: { batch: { select: { subjectId: true } } } }),
     db.schoolProfile.findUnique({ where: { id: "singleton" } }),
+    getReportLayout(),
   ]);
 
   const entryOf = new Map(entries.map((e) => [e.batch.subjectId, e]));
@@ -49,6 +51,7 @@ export async function loadPublishedResult(studentId: string, termId: string) {
   const ranked = sheet.summaries.filter((s) => s.position !== null).length;
 
   return {
+    layout,
     school: {
       name: school?.name ?? "Giant Step Academy", motto: school?.motto ?? null, address: school?.address ?? null,
       phone: school?.phone ?? null, email: school?.email ?? null, logoUrl: school?.logoUrl ?? null, principalName: school?.principalName ?? null,
