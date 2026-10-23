@@ -1,51 +1,160 @@
-import { LogoPlaceholder } from "@/components/brand/logo-placeholder";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight, BellRing } from "lucide-react";
+import { SiteShell } from "@/components/site/site-shell";
+import { EventRow, NewsCard } from "@/components/site/cards";
+import { RichText } from "@/components/site/rich-text";
+import { Section, SectionHeading } from "@/components/site/section";
+import { SiteImage } from "@/components/site/site-image";
+import { SECTIONS } from "@/components/site/nav";
+import { StepsMotif } from "@/components/site/steps-motif";
 import { Button } from "@/components/ui/button";
+import type { ImageValue, ListValue } from "@/lib/cms/blocks";
+import { isPlaceholder, splitPhones } from "@/lib/cms/helpers";
+import { plainText } from "@/lib/cms/rich-text";
+import { getBlocks, getEvents, getNews, getSchool, getTestimonials } from "@/lib/cms/site-data";
+import { siteUrl } from "@/lib/site-url";
 
-// Temporary home page for Phase 1. The real public website arrives in Phase 9.
-const steps = [
-  { h: "h-16", c: "bg-primary/30" },
-  { h: "h-28", c: "bg-primary/50" },
-  { h: "h-40", c: "bg-primary/70" },
-  { h: "h-52", c: "bg-primary" },
-  { h: "h-64", c: "bg-accent" },
-];
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: { absolute: "Giant Step Academy | Nursery, Primary and Secondary School" },
+  description: "Giant Step Academy, a school in Sabon Tasha, Kaduna, for children from Nursery to Secondary. See admissions, news and results.",
+};
+
+export default async function HomePage() {
+  const [b, school, news, events, testimonials] = await Promise.all([
+    getBlocks(["home", "academics"]), getSchool(), getNews(3, 1), getEvents(), getTestimonials(),
+  ]);
+  const hero = b["home.hero.image"] as ImageValue;
+  const aboutImage = b["home.about.image"] as ImageValue;
+  const values = b["home.values"] as ListValue;
+  const notice = b["admissions.notice"] as string;
+
+  const jsonLd = {
+    "@context": "https://schema.org", "@type": "School", name: school.name, url: siteUrl(),
+    ...(school.address && !isPlaceholder(school.address) ? { address: school.address } : {}),
+    ...(splitPhones(school.phone)[0] ? { telephone: splitPhones(school.phone)[0] } : {}),
+  };
+
   return (
-    <main className="mx-auto grid min-h-screen max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-2">
-      <section className="flex flex-col items-start gap-6">
-        <LogoPlaceholder />
-        <h1 className="text-5xl text-navy md:text-6xl">Giant Step Academy</h1>
-        <p className="max-w-md text-lg text-muted-foreground">
-          The school website, results system and staff tools are being built. This page is a temporary placeholder.
-        </p>
-        <p className="text-muted-foreground">[SCHOOL MOTTO]</p>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="success">Database ready</Badge>
-          <Badge>Theme ready</Badge>
-          <Badge variant="accent">Website coming in a later phase</Badge>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/results">Check results</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/login">Staff sign in</Link>
-          </Button>
-        </div>
-      </section>
+    <SiteShell>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
-      <div aria-hidden="true" className="flex h-72 items-end justify-center gap-2 md:justify-end">
-        {steps.map((s, i) => (
-          <div
-            key={i}
-            className={`step-rise w-14 rounded-t-md md:w-16 ${s.h} ${s.c}`}
-            style={{ animationDelay: `${i * 120}ms` }}
-          />
-        ))}
+      <div className="relative overflow-hidden bg-navy text-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-28 pt-14 sm:px-8 md:grid-cols-[1.1fr_0.9fr] md:pb-36 md:pt-20">
+          <div>
+            <p className="fade-up mb-5 inline-flex rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/85">{b["home.hero.eyebrow"] as string}</p>
+            <h1 className="fade-up text-4xl leading-[1.08] sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
+            <p className="fade-up mt-5 max-w-xl text-lg text-white/80" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
+            <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
+              <Button asChild size="lg" variant="accent"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/results">Check results</Link></Button>
+            </div>
+            {notice && (
+              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm text-white/90" style={{ animationDelay: "320ms" }}>
+                <BellRing className="mt-0.5 size-4 shrink-0 text-accent-soft" aria-hidden="true" />{notice}
+              </p>
+            )}
+          </div>
+          <div className="relative">
+            <div aria-hidden="true" className="absolute -bottom-4 -right-4 h-full w-full rounded-[2rem] bg-accent/80" />
+            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1000} priority className="relative aspect-[4/3] w-full rounded-[2rem] shadow-2xl" />
+          </div>
+        </div>
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-1 left-0 right-0 flex justify-end opacity-50"><StepsMotif className="mr-6 w-72" /></div>
       </div>
-    </main>
+
+      <div className="relative z-10 mx-auto -mt-16 max-w-6xl px-5 sm:px-8 md:-mt-20">
+        <ul className="grid gap-4 md:grid-cols-3">
+          {SECTIONS.map((s) => (
+            <li key={s.key}>
+              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-2xl border border-border bg-white shadow-lg transition-transform hover:-translate-y-1">
+                <div className="h-2" style={{ background: s.color }} />
+                <div className="p-6">
+                  <h2 className="font-serif text-2xl text-navy">{s.name}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{plainText(b[s.block] as string, 110)}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">Learn more <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Section>
+        <div className="grid items-center gap-10 md:grid-cols-2">
+          <div>
+            <SectionHeading eyebrow="About us" title={b["home.about.title"] as string} className="mb-5" />
+            <RichText source={b["home.about.body"] as string} />
+            <Button asChild variant="outline" className="mt-6"><Link href="/about">More about the school</Link></Button>
+          </div>
+          <SiteImage src={aboutImage?.url} alt={aboutImage?.alt ?? ""} width={900} className="aspect-[5/4] w-full rounded-3xl" />
+        </div>
+      </Section>
+
+      {values.length > 0 && (
+        <Section tone="soft">
+          <SectionHeading eyebrow="What we stand for" title="The values behind every school day" />
+          <ul className="grid gap-5 md:grid-cols-3">
+            {values.map((v, i) => (
+              <li key={i} className="rounded-2xl border border-border bg-white p-6">
+                <span className="font-serif text-4xl text-accent/70">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="mt-2 font-serif text-xl text-navy">{v.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {news.items.length > 0 && (
+        <Section>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading eyebrow="News" title="Latest from the school" className="mb-0" />
+            <Link href="/news" className="text-sm font-medium text-primary hover:underline">All news</Link>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">{news.items.map((p) => <NewsCard key={p.id} post={p} />)}</div>
+        </Section>
+      )}
+
+      {events.upcoming.length > 0 && (
+        <Section tone="soft">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading eyebrow="Coming up" title="Upcoming events" className="mb-0" />
+            <Link href="/events" className="text-sm font-medium text-primary hover:underline">All events</Link>
+          </div>
+          <ul className="grid gap-4 md:grid-cols-2">{events.upcoming.slice(0, 4).map((e) => <EventRow key={e.id} event={e} />)}</ul>
+        </Section>
+      )}
+
+      {testimonials.length > 0 && (
+        <Section>
+          <SectionHeading eyebrow="Parents say" title="Words from our families" />
+          <ul className="grid gap-5 md:grid-cols-3">
+            {testimonials.slice(0, 3).map((t) => (
+              <li key={t.id} className="rounded-2xl border border-border bg-card p-6">
+                <p className="font-serif text-lg leading-relaxed text-navy">“{t.quote}”</p>
+                <p className="mt-4 text-sm font-medium">{t.name}</p>
+                {t.relationship && <p className="text-xs text-muted-foreground">{t.relationship}</p>}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      <Section tone="navy">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div>
+            <h2 className="text-3xl text-white md:text-4xl">Ready to give your child a giant step?</h2>
+            <p className="mt-2 max-w-xl text-white/80">{notice || "Talk to us about admission into Nursery, Primary or Secondary."}</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild size="lg" variant="accent"><Link href="/admissions">How to apply</Link></Button>
+            <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/contact">Contact us</Link></Button>
+          </div>
+        </div>
+      </Section>
+    </SiteShell>
   );
 }

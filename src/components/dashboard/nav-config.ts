@@ -38,7 +38,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "School & report card", href: "/admin/settings/school", icon: "school", ready: true, group: "Results" },
     { label: "PINs", href: "/admin/pins", icon: "key", ready: true, group: "Results" },
     { label: "Access logs", href: "/admin/access-logs", icon: "scroll", ready: true, group: "Results" },
-    { label: "Website content", href: "/admin/cms", icon: "globe", ready: false, phase: 9, group: "Website" },
+    { label: "Website content", href: "/admin/cms", icon: "globe", ready: true, group: "Website" },
     { label: "Change password", href: "/account/password", icon: "key", ready: true, group: "Account" },
   ],
   TEACHER: [

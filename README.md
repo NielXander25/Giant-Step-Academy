@@ -28,6 +28,13 @@ Add these in Vercel (Production), then redeploy:
 - `PIN_PEPPER`: **required**. A long random value (40+ characters). It scrambles PINs before they are stored. **Keep a safe copy and never change it**: changing it makes every existing PIN stop working.
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`: optional. Turns on Cloudflare's free "I am not a robot" check on the result page.
 
+## Website pictures (Phase 9)
+Picture uploads use Cloudinary (free plan is fine). Create an account, then add these in Vercel (Production) and redeploy:
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (from your Cloudinary dashboard)
+- `NEXT_PUBLIC_SITE_URL`: the website's address, for example `https://www.giantstepacademy.ng` (used by Google and link previews)
+Without Cloudinary the content manager still works: Admins can paste a picture link instead of uploading.
+Optional: `RESEND_API_KEY` and `EMAIL_FROM` make the contact form also email the school.
+
 ## Changing the brand
 All colours live in `src/app/globals.css` (the `:root` block). Fonts are set in `src/app/layout.tsx`.
 

@@ -122,6 +122,11 @@ enum PinAccessOutcome {
   CAPTCHA_FAILED
 }
 
+enum EnquiryStatus {
+  NEW
+  HANDLED
+}
+
 enum ContentStatus {
   DRAFT
   PUBLISHED
@@ -258,7 +263,7 @@ model ClassLevel {
   nextLevel   ClassLevel? @relation("LevelProgression", fields: [nextLevelId], references: [id])
   isFinal     Boolean     @default(false) // students leaving here become GRADUATED
 
-  previousLevels ClassLevel[] @relation("LevelProgression")
+  previousLevels ClassLevel[]  @relation("LevelProgression")
   classes        SchoolClass[]
 }
 
@@ -339,18 +344,18 @@ model SubjectAssignment {
 
 // A student is a permanent record. Which class they are in for a session lives in Enrollment.
 model Student {
-  id               String        @id @default(uuid()) @db.Uuid
-  admissionNumber  String        @unique
-  fullName         String
-  normalizedName   String // lower-cased, whitespace-collapsed; used for portal matching
-  gender           Gender?
-  dateOfBirth      DateTime?
-  photoUrl         String?
-  status           StudentStatus @default(ACTIVE)
-  extra            Json?
-  createdById      String?       @db.Uuid
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String        @id @default(uuid()) @db.Uuid
+  admissionNumber String        @unique
+  fullName        String
+  normalizedName  String // lower-cased, whitespace-collapsed; used for portal matching
+  gender          Gender?
+  dateOfBirth     DateTime?
+  photoUrl        String?
+  status          StudentStatus @default(ACTIVE)
+  extra           Json?
+  createdById     String?       @db.Uuid
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   enrollments  Enrollment[]
   accessLogs   PinAccessLog[]
@@ -360,17 +365,17 @@ model Student {
 }
 
 model Enrollment {
-  id                      String           @id @default(uuid()) @db.Uuid
-  studentId               String           @db.Uuid
-  student                 Student          @relation(fields: [studentId], references: [id])
-  sessionId               String           @db.Uuid
-  session                 AcademicSession  @relation(fields: [sessionId], references: [id])
-  classId                 String           @db.Uuid
-  class                   SchoolClass      @relation(fields: [classId], references: [id])
-  status                  EnrollmentStatus @default(ACTIVE)
-  isRepeater              Boolean          @default(false) // flagged by Admin so promotion skips this student
-  promotedFromEnrollmentId String?         @db.Uuid
-  createdAt               DateTime         @default(now())
+  id                       String           @id @default(uuid()) @db.Uuid
+  studentId                String           @db.Uuid
+  student                  Student          @relation(fields: [studentId], references: [id])
+  sessionId                String           @db.Uuid
+  session                  AcademicSession  @relation(fields: [sessionId], references: [id])
+  classId                  String           @db.Uuid
+  class                    SchoolClass      @relation(fields: [classId], references: [id])
+  status                   EnrollmentStatus @default(ACTIVE)
+  isRepeater               Boolean          @default(false) // flagged by Admin so promotion skips this student
+  promotedFromEnrollmentId String?          @db.Uuid
+  createdAt                DateTime         @default(now())
 
   subjects  StudentSubject[]
   entries   ResultEntry[]
@@ -392,26 +397,26 @@ model StudentSubject {
 }
 
 model StudentImportBatch {
-  id              String            @id @default(uuid()) @db.Uuid
-  uploadedById    String            @db.Uuid
-  uploadedBy      User              @relation(fields: [uploadedById], references: [id])
-  classId         String            @db.Uuid
-  class           SchoolClass       @relation(fields: [classId], references: [id])
-  sessionId       String            @db.Uuid
-  session         AcademicSession   @relation(fields: [sessionId], references: [id])
-  fileName        String
-  status          ImportBatchStatus @default(DRAFT)
-  requiresApproval Boolean          @default(false) // true when uploaded by a non-Form Teacher
-  totalRows       Int               @default(0)
-  newCount        Int               @default(0)
-  existingCount   Int               @default(0)
-  duplicateCount  Int               @default(0)
-  invalidCount    Int               @default(0)
-  reviewedById    String?           @db.Uuid
-  reviewedAt      DateTime?
-  reviewNote      String?
-  committedAt     DateTime?
-  createdAt       DateTime          @default(now())
+  id               String            @id @default(uuid()) @db.Uuid
+  uploadedById     String            @db.Uuid
+  uploadedBy       User              @relation(fields: [uploadedById], references: [id])
+  classId          String            @db.Uuid
+  class            SchoolClass       @relation(fields: [classId], references: [id])
+  sessionId        String            @db.Uuid
+  session          AcademicSession   @relation(fields: [sessionId], references: [id])
+  fileName         String
+  status           ImportBatchStatus @default(DRAFT)
+  requiresApproval Boolean           @default(false) // true when uploaded by a non-Form Teacher
+  totalRows        Int               @default(0)
+  newCount         Int               @default(0)
+  existingCount    Int               @default(0)
+  duplicateCount   Int               @default(0)
+  invalidCount     Int               @default(0)
+  reviewedById     String?           @db.Uuid
+  reviewedAt       DateTime?
+  reviewNote       String?
+  committedAt      DateTime?
+  createdAt        DateTime          @default(now())
 
   records StudentImportRecord[]
 
@@ -447,12 +452,12 @@ model AssessmentComponent {
 }
 
 model GradingScheme {
-  id        String      @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   name      String
-  sectionId String?     @db.Uuid
-  section   Section?    @relation(fields: [sectionId], references: [id])
-  isActive  Boolean     @default(true)
-  createdAt DateTime    @default(now())
+  sectionId String?  @db.Uuid
+  section   Section? @relation(fields: [sectionId], references: [id])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 
   bands GradeBand[]
 }
@@ -474,21 +479,21 @@ model GradeBand {
 
 // One subject, one class, one term — the unit a Subject Teacher submits and a Form Teacher reviews.
 model SubjectResultBatch {
-  id                        String       @id @default(uuid()) @db.Uuid
-  classId                   String       @db.Uuid
-  class                     SchoolClass  @relation(fields: [classId], references: [id])
-  subjectId                 String       @db.Uuid
-  subject                   Subject      @relation(fields: [subjectId], references: [id])
-  termId                    String       @db.Uuid
-  term                      Term         @relation(fields: [termId], references: [id])
-  status                    ResultStatus @default(DRAFT)
-  submittedById             String?      @db.Uuid
-  submittedAt               DateTime?
-  formTeacherReviewedById   String?      @db.Uuid
-  formTeacherReviewedAt     DateTime?
-  lastRejectionReason       String?
-  createdAt                 DateTime     @default(now())
-  updatedAt                 DateTime     @updatedAt
+  id                      String       @id @default(uuid()) @db.Uuid
+  classId                 String       @db.Uuid
+  class                   SchoolClass  @relation(fields: [classId], references: [id])
+  subjectId               String       @db.Uuid
+  subject                 Subject      @relation(fields: [subjectId], references: [id])
+  termId                  String       @db.Uuid
+  term                    Term         @relation(fields: [termId], references: [id])
+  status                  ResultStatus @default(DRAFT)
+  submittedById           String?      @db.Uuid
+  submittedAt             DateTime?
+  formTeacherReviewedById String?      @db.Uuid
+  formTeacherReviewedAt   DateTime?
+  lastRejectionReason     String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
 
   entries   ResultEntry[]
   approvals ResultApprovalRecord[]
@@ -498,18 +503,18 @@ model SubjectResultBatch {
 }
 
 model ResultEntry {
-  id            String             @id @default(uuid()) @db.Uuid
-  batchId       String             @db.Uuid
-  batch         SubjectResultBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  enrollmentId  String             @db.Uuid
-  enrollment    Enrollment         @relation(fields: [enrollmentId], references: [id])
-  scores        Json // { "<componentId>": number }
-  total         Decimal?           @db.Decimal(6, 2)
-  grade         String?
-  remark        String?
-  enteredById   String?            @db.Uuid
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id           String             @id @default(uuid()) @db.Uuid
+  batchId      String             @db.Uuid
+  batch        SubjectResultBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  enrollmentId String             @db.Uuid
+  enrollment   Enrollment         @relation(fields: [enrollmentId], references: [id])
+  scores       Json // { "<componentId>": number }
+  total        Decimal?           @db.Decimal(6, 2)
+  grade        String?
+  remark       String?
+  enteredById  String?            @db.Uuid
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   @@unique([batchId, enrollmentId])
   @@index([enrollmentId])
@@ -562,19 +567,19 @@ model StudentTermSummary {
 }
 
 model ResultApprovalRecord {
-  id         String             @id @default(uuid()) @db.Uuid
+  id         String              @id @default(uuid()) @db.Uuid
   target     ApprovalTarget
-  batchId    String?            @db.Uuid
+  batchId    String?             @db.Uuid
   batch      SubjectResultBatch? @relation(fields: [batchId], references: [id])
-  sheetId    String?            @db.Uuid
-  sheet      ClassResultSheet?  @relation(fields: [sheetId], references: [id])
+  sheetId    String?             @db.Uuid
+  sheet      ClassResultSheet?   @relation(fields: [sheetId], references: [id])
   action     ApprovalAction
   fromStatus ResultStatus?
   toStatus   ResultStatus
-  actorId    String             @db.Uuid
+  actorId    String              @db.Uuid
   actorRole  Role
   comment    String?
-  createdAt  DateTime           @default(now())
+  createdAt  DateTime            @default(now())
 
   @@index([batchId])
   @@index([sheetId])
@@ -774,4 +779,22 @@ model AuditLog {
   @@index([action])
   @@index([entityType, entityId])
   @@index([actorId])
+}
+
+// Messages sent from the public contact / admissions enquiry form.
+model Enquiry {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  phone       String
+  email       String?
+  interest    String? // Nursery, Primary, Secondary or General
+  message     String
+  status      EnquiryStatus @default(NEW)
+  ipHash      String? // salted hash, never the raw IP
+  handledById String?       @db.Uuid
+  handledAt   DateTime?
+  createdAt   DateTime      @default(now())
+
+  @@index([status, createdAt])
+  @@index([ipHash, createdAt])
 }
