@@ -12,6 +12,7 @@ export const PIN_RULES = {
   digits: 6, // 1,000,000 possible values
   maxUses: 2,
   expiryDaysFromFirstUse: 40,
+  viewSessionMinutes: 30,
 } as const;
 
 /** School-specific rules that are still unconfirmed. Stored as settings so they can change without code. */

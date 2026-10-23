@@ -27,9 +27,14 @@ export default function HomePage() {
           <Badge>Theme ready</Badge>
           <Badge variant="accent">Website coming in a later phase</Badge>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/login">Staff sign in</Link>
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/results">Check results</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/login">Staff sign in</Link>
+          </Button>
+        </div>
       </section>
 
       <div aria-hidden="true" className="flex h-72 items-end justify-center gap-2 md:justify-end">

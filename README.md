@@ -23,6 +23,11 @@ Approval and rejection emails to teachers are sent through [Resend](https://rese
 Without them the app works normally and simply skips the emails.
 `RESEND_API_KEY` (your Resend key) and `EMAIL_FROM` (for example `Giant Step Academy <no-reply@yourdomain.com>`, on a domain verified in Resend).
 
+## Result PINs (Phase 7)
+Add these in Vercel (Production), then redeploy:
+- `PIN_PEPPER`: **required**. A long random value (40+ characters). It scrambles PINs before they are stored. **Keep a safe copy and never change it**: changing it makes every existing PIN stop working.
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`: optional. Turns on Cloudflare's free "I am not a robot" check on the result page.
+
 ## Changing the brand
 All colours live in `src/app/globals.css` (the `:root` block). Fonts are set in `src/app/layout.tsx`.
 
