@@ -36,3 +36,42 @@ export const saveRulesInput = z.object({
   tieMethod: z.enum(["STANDARD_COMPETITION", "DENSE"]),
   incompletePolicy: z.enum(["WITHHOLD_POSITION", "RANK_AVAILABLE"]),
 });
+
+// ─── Result entry and approval ───
+
+const uuid = z.string().uuid();
+
+export const saveScoresInput = z.object({
+  classId: uuid,
+  subjectId: uuid,
+  rows: z
+    .array(
+      z.object({
+        enrollmentId: uuid,
+        // component id -> score (null = not entered yet)
+        scores: z.record(uuid, z.number().min(0).max(1000).nullable()),
+        remark: z.string().trim().max(200).optional(),
+      }),
+    )
+    .max(300),
+});
+export const subjectRefInput = z.object({ classId: uuid, subjectId: uuid });
+export const reviewSubjectInput = z.object({
+  classId: uuid,
+  subjectId: uuid,
+  decision: z.enum(["APPROVE", "REJECT"]),
+  reason: z.string().trim().max(300).optional(),
+});
+export const saveRemarksInput = z.object({
+  classId: uuid,
+  kind: z.enum(["FORM_TEACHER", "PRINCIPAL"]),
+  remarks: z.array(z.object({ enrollmentId: uuid, remark: z.string().trim().max(300) })).max(300),
+});
+export const classRefInput = z.object({ classId: uuid });
+export const adminReviewInput = z.object({
+  classId: uuid,
+  decision: z.enum(["APPROVE", "RETURN", "WITHDRAW"]),
+  reason: z.string().trim().max(300).optional(),
+  subjectIds: z.array(uuid).max(40).optional(),
+});
+export const unpublishInput = z.object({ classId: uuid, reason: z.string().trim().min(3, "Give a short reason.").max(300) });

@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   EMPTY_SCOPE, canAdminReview, canApproveStudentUpload, canCreateAdmin, canEnterScores, canFormTeacherReview,
   canManageAdmins, canManagePins, canManageClassStudents, canPublishResults, canViewAuditLogs, canViewClass,
-  studentUploadRule, type Actor, type TeacherScope,
+  studentUploadRule, canEditFormTeacherRemarks, canEditPrincipalRemarks, canReopenSubject, canSubmitClassSheet, canViewClassSheet, canViewSubjectResults,
+  type Actor, type TeacherScope,
 } from "./policies";
 
 const superAdmin: Actor = { id: "sa", role: "SUPER_ADMIN" };
@@ -122,5 +123,34 @@ describe("student uploads", () => {
     expect(canApproveStudentUpload(formTeacher, scopeForm, { classId: SS2A, uploadedById: "tF" })).toBe(false);
     expect(canApproveStudentUpload(formTeacher, scopeForm, { classId: SS2B, uploadedById: "tA" })).toBe(false);
     expect(canApproveStudentUpload(teacherA, scopeA, { classId: SS2A, uploadedById: "tA" })).toBe(false);
+  });
+});
+
+describe("result viewing, remarks and class sheet", () => {
+  it("only people tied to a subject, its Form Teacher, or an Admin can view its scores", () => {
+    expect(canViewSubjectResults(teacherA, scopeA, { classId: SS2A, subjectId: MATHS })).toBe(true);
+    expect(canViewSubjectResults(teacherA, scopeA, { classId: SS2A, subjectId: BIOLOGY })).toBe(false);
+    expect(canViewSubjectResults(teacherA, scopeA, { classId: SS3B, subjectId: BIOLOGY })).toBe(false);
+    expect(canViewSubjectResults(formTeacher, scopeForm, { classId: SS2A, subjectId: ENGLISH })).toBe(true);
+    expect(canViewSubjectResults(formTeacher, scopeForm, { classId: SS2B, subjectId: ENGLISH })).toBe(false);
+    expect(canViewSubjectResults(admin, EMPTY_SCOPE, { classId: SS2B, subjectId: ENGLISH })).toBe(true);
+  });
+  it("only the Form Teacher of a class (or an Admin) sees and submits its class sheet", () => {
+    expect(canViewClassSheet(formTeacher, scopeForm, SS2A)).toBe(true);
+    expect(canViewClassSheet(formTeacher, scopeForm, SS2B)).toBe(false);
+    expect(canViewClassSheet(teacherA, scopeA, SS2A)).toBe(false);
+    expect(canSubmitClassSheet(admin, EMPTY_SCOPE, SS2A)).toBe(true);
+    expect(canSubmitClassSheet(teacherA, scopeA, SS2A)).toBe(false);
+  });
+  it("reopening and Form Teacher remarks belong to the class's Form Teacher alone", () => {
+    expect(canReopenSubject(formTeacher, scopeForm, SS2A)).toBe(true);
+    expect(canReopenSubject(formTeacher, scopeForm, SS2B)).toBe(false);
+    expect(canReopenSubject(admin, EMPTY_SCOPE, SS2A)).toBe(false);
+    expect(canEditFormTeacherRemarks(teacherA, scopeA, SS2A)).toBe(false);
+  });
+  it("principal remarks are for Admins only", () => {
+    expect(canEditPrincipalRemarks(admin)).toBe(true);
+    expect(canEditPrincipalRemarks(superAdmin)).toBe(true);
+    expect(canEditPrincipalRemarks(formTeacher)).toBe(false);
   });
 });

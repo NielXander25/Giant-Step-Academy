@@ -82,6 +82,23 @@ export function canAdminReview(a: Actor, submission: { submittedById: string | n
   return isAdminOrAbove(a) && submission.submittedById !== a.id;
 }
 
+/** Anyone who may enter a subject, the class's Form Teacher (sees every subject), or an Admin. */
+export const canViewSubjectResults = (a: Actor, scope: TeacherScope, t: { classId: string; subjectId: string }) =>
+  isAdminOrAbove(a) || canEnterScores(a, scope, t) || (isTeacher(a) && isFormTeacherOf(scope, t.classId));
+
+/** The class overview (all subjects, positions, remarks): the Form Teacher of that class, or an Admin. */
+export const canViewClassSheet = (a: Actor, scope: TeacherScope, classId: string) =>
+  isAdminOrAbove(a) || (isTeacher(a) && isFormTeacherOf(scope, classId));
+
+/** The Form Teacher sends the finished class to the Admin. An Admin may do it when a class has no Form Teacher. */
+export const canSubmitClassSheet = canViewClassSheet;
+
+/** Reopening an approved subject for correction, before the class has gone to the Admin. */
+export const canReopenSubject = (a: Actor, scope: TeacherScope, classId: string) => isTeacher(a) && isFormTeacherOf(scope, classId);
+
+export const canEditFormTeacherRemarks = canReopenSubject;
+export const canEditPrincipalRemarks = isAdminOrAbove;
+
 export function canManageClassStudents(a: Actor, scope: TeacherScope, classId: string) {
   if (isAdminOrAbove(a)) return true;
   return isTeacher(a) && isFormTeacherOf(scope, classId);
