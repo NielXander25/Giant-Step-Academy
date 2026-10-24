@@ -35,7 +35,6 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           </Link>
           <div className="flex-1" />
           <SiteNav />
-          <Link href="/results" className="hidden h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-navy lg:inline-flex">Check results</Link>
         </div>
       </header>
 
@@ -52,7 +51,6 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Explore</p>
             <ul className="space-y-2 text-sm">
               {SITE_LINKS.map((l) => <li key={l.href}><Link href={l.href} className="text-white/85 hover:text-white">{l.label}</Link></li>)}
-              <li><Link href="/results" className="text-white/85 hover:text-white">Check results</Link></li>
             </ul>
           </nav>
           <div>

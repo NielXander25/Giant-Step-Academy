@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -16,26 +17,27 @@ export function SiteNav() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const active = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 
   return (
     <>
-      <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+      <nav aria-label="Main" className="hidden items-center gap-0.5 xl:flex">
         {SITE_LINKS.map((l) => (
           <Link key={l.href} href={l.href} aria-current={active(l.href) ? "page" : undefined}
-            className={cn("rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-primary-soft hover:text-navy", active(l.href) && "bg-primary-soft text-navy")}>
+            className={cn("rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/80 hover:bg-primary-soft hover:text-navy", active(l.href) && "bg-primary-soft text-navy")}>
             {l.label}
           </Link>
         ))}
       </nav>
 
       <button type="button" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}
-        className="inline-flex size-10 items-center justify-center rounded-lg hover:bg-primary-soft lg:hidden">
+        className="inline-flex size-10 items-center justify-center rounded-lg hover:bg-primary-soft xl:hidden">
         <Menu className="size-5" />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex justify-end lg:hidden">
+      {/* Rendered into <body>: the header's backdrop blur would otherwise trap this fixed panel inside the header bar. */}
+      {open && createPortal(
+        <div className="fixed inset-0 z-50 flex justify-end xl:hidden">
           <button type="button" aria-label="Close menu" className="flex-1 bg-black/50" onClick={() => setOpen(false)} />
           <div className="flex w-72 max-w-[85%] flex-col gap-1 overflow-y-auto bg-white p-5">
             <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="mb-2 self-end rounded-lg p-2 hover:bg-primary-soft"><X className="size-5" /></button>
@@ -45,9 +47,9 @@ export function SiteNav() {
                 {l.label}
               </Link>
             ))}
-            <Link href="/results" className="mt-3 rounded-lg bg-primary px-3 py-3 text-center font-medium text-primary-foreground">Check results</Link>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

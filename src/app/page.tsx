@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { absolute: "Giant Step Academy | Nursery, Primary and Secondary School" },
-  description: "Giant Step Academy, a school in Sabon Tasha, Kaduna, for children from Nursery to Secondary. See admissions, news and results.",
+  description: "Giant Step Academy, a school in Sabon Tasha, Kaduna, for children from Nursery to Secondary. See admissions, news and events.",
 };
 
 export default async function HomePage() {
@@ -49,7 +49,7 @@ export default async function HomePage() {
             <p className="fade-up mt-5 max-w-xl text-lg text-white/80" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
             <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
               <Button asChild size="lg" variant="accent"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/results">Check results</Link></Button>
+              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/about">About the school</Link></Button>
             </div>
             {notice && (
               <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm text-white/90" style={{ animationDelay: "320ms" }}>
