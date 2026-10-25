@@ -26,15 +26,17 @@ describe("curriculum", () => {
 describe("sample result", () => {
   it("opens only with the sample name, a sample admission number and the sample PIN", () => {
     expect(matchSample({ studentName: "sample  student", admissionNumber: "sample-ss", pin: "gsa sample" })).toBe("SS");
-    expect(matchSample({ studentName: "Sample Student", admissionNumber: "SAMPLE/NUR", pin: "GSA-SAMPLE" })).toBe("NURSERY");
+    expect(matchSample({ studentName: "Sample Student", admissionNumber: "SAMPLE/NUR", pin: "GSA-SAMPLE" })).toBe("NUR");
+    expect(matchSample({ studentName: "tunde ajayi", admissionNumber: "demo/ss2/001", pin: "GSA-SAMPLE" })).toBe("TUNDE2");
+    expect(matchSample({ studentName: "Tunde Ajayi", admissionNumber: "SAMPLE-SS", pin: "GSA-SAMPLE" })).toBeNull(); // name and number must belong together
     expect(matchSample({ studentName: "Sample Student", admissionNumber: "SAMPLE-SS", pin: "GSA123456" })).toBeNull();
     expect(matchSample({ studentName: "Ada Obi", admissionNumber: "SAMPLE-SS", pin: "GSA-SAMPLE" })).toBeNull();
     expect(matchSample({ studentName: "Sample Student", admissionNumber: "GSA/SS2/001", pin: "GSA-SAMPLE" })).toBeNull();
   });
   it("only trusts a well-formed cookie", () => {
-    expect(parseSampleCookie(sampleCookieValue("JSS", "sample"))).toEqual({ stage: "JSS", termId: "sample" });
-    expect(parseSampleCookie("SS:6b1f3c2e-8f6a-4c55-9d0e-2a7b1c9d4e10")).toEqual({ stage: "SS", termId: "6b1f3c2e-8f6a-4c55-9d0e-2a7b1c9d4e10" });
-    for (const bad of [undefined, "", "XX:sample", "SS:", "SS:'; drop", "SS"]) expect(parseSampleCookie(bad)).toBeNull();
+    expect(parseSampleCookie(sampleCookieValue("JSS", "sample"))).toEqual({ key: "JSS", termId: "sample" });
+    expect(parseSampleCookie("TUNDE3:6b1f3c2e-8f6a-4c55-9d0e-2a7b1c9d4e10")).toEqual({ key: "TUNDE3", termId: "6b1f3c2e-8f6a-4c55-9d0e-2a7b1c9d4e10" });
+    for (const bad of [undefined, "", "XX:sample", "SS:", "SS:'; drop", "SS", "toString:sample", "__proto__:sample"]) expect(parseSampleCookie(bad)).toBeNull();
   });
   it("builds a complete made-up card for every level", () => {
     for (const stage of ["NURSERY", "PRIMARY", "JSS", "SS"] as const) {

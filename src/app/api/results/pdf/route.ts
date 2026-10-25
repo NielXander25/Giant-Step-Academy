@@ -19,7 +19,10 @@ const text = (message: string, status: number) => new Response(message, { status
 export async function GET() {
   const jar = await cookies();
   const sample = parseSampleCookie(jar.get(SAMPLE_COOKIE)?.value);
-  if (sample && (await isSampleEnabled())) return pdfResponse(await loadSampleResult(sample.stage, sample.termId), "sample-result");
+  if (sample && (await isSampleEnabled())) {
+    const data = await loadSampleResult(sample.key, sample.termId);
+    return pdfResponse(data, `sample-result-${data.student.name}-${data.className}`);
+  }
 
   const token = jar.get(VIEW_COOKIE)?.value;
   if (!token) return text("Please open the result first.", 401);

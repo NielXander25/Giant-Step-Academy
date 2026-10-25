@@ -26,6 +26,11 @@ type SampleOptions = {
   bands?: GradeBand[];
   sessionName?: string;
   termName?: string;
+  /** Who the made-up card is for, and in which class. Different seeds give different (but repeatable) scores. */
+  student?: Partial<PublishedResult["student"]>;
+  className?: string;
+  seed?: string;
+  remarks?: { formTeacher: string; principal: string };
 };
 
 const SAMPLE_SCHOOL: PublishedResult["school"] = {
@@ -39,7 +44,7 @@ export function buildSampleResult(stage: Stage, o: SampleOptions = {}): Publishe
   const maxTotal = components.reduce((a, c) => a + c.maxScore, 0);
 
   const subjects = SUBJECTS_BY_STAGE[stage].map((name) => {
-    const rnd = seeded(`${stage}:${name}`);
+    const rnd = seeded(`${o.seed ?? stage}:${name}`);
     const level = 0.55 + rnd() * 0.4; // this student scores 55–95% in the subject
     const scores = components.map((c) => Math.min(c.maxScore, Math.round(c.maxScore * Math.min(1, level + (rnd() - 0.5) * 0.15))));
     const total = scores.reduce((a, b) => a + b, 0);
@@ -59,8 +64,11 @@ export function buildSampleResult(stage: Stage, o: SampleOptions = {}): Publishe
   return {
     layout: o.layout ?? DEFAULT_LAYOUT,
     school: o.school ?? SAMPLE_SCHOOL,
-    student: { name: "Sample Student", admissionNumber: `SAMPLE-${stage === "NURSERY" ? "NUR" : stage === "PRIMARY" ? "PRI" : stage}`, gender: "FEMALE", dateOfBirth: "14 March 2015", stateOfOrigin: "Kaduna", photoUrl: null },
-    className: SAMPLE_CLASS[stage],
+    student: {
+      name: "Sample Student", admissionNumber: `SAMPLE-${stage === "NURSERY" ? "NUR" : stage === "PRIMARY" ? "PRI" : stage}`, gender: "FEMALE",
+      dateOfBirth: "14 March 2015", stateOfOrigin: "Kaduna", photoUrl: null, ...o.student,
+    },
+    className: o.className ?? SAMPLE_CLASS[stage],
     classTeacherName: "Mrs. Sample Teacher",
     sessionName: o.sessionName ?? "2026/2027",
     termName: o.termName ?? "First Term",
@@ -68,11 +76,11 @@ export function buildSampleResult(stage: Stage, o: SampleOptions = {}): Publishe
     componentNames: components.map((c) => ({ name: c.name, max: c.maxScore })),
     subjects,
     summary: {
-      totalScore, average, overallGrade: gradeFor(average, bands)?.grade ?? null, position: 3, classSize: 28,
+      totalScore, average, overallGrade: gradeFor(average, bands)?.grade ?? null, position: o.seed ? 1 + Math.floor(seeded(o.seed)() * 10) : 3, classSize: 28,
       attendance: "112 of 120",
       ratings: { sports: "B", craftWork: "A", speechComposition: "B", drawingPainting: "A", socialBehaviour: "A", neatness: "B", punctuality: "A", attentiveness: "B" },
-      formTeacherRemark: "A hardworking and well-behaved pupil. Keep it up.",
-      principalRemark: "A good result. Aim higher next term.",
+      formTeacherRemark: o.remarks?.formTeacher ?? "A hardworking and well-behaved pupil. Keep it up.",
+      principalRemark: o.remarks?.principal ?? "A good result. Aim higher next term.",
       supervisorRemark: null,
     },
   };

@@ -10,12 +10,37 @@ import { getReportLayout } from "@/lib/results/report-layout-store";
 
 export const SAMPLE_PIN = "GSA-SAMPLE";
 export const SAMPLE_NAME = "Sample Student";
-export const SAMPLE_ADMISSION: Record<Stage, string> = { NURSERY: "SAMPLE-NUR", PRIMARY: "SAMPLE-PRI", JSS: "SAMPLE-JSS", SS: "SAMPLE-SS" };
 export const SAMPLE_COOKIE = "gsa_sample_pass";
 export const SAMPLE_TERM = "sample"; // stands in for a term when no results are published yet
 
+type PracticeStudent = {
+  name: string;
+  admissionNumber: string;
+  stage: Stage;
+  className?: string;
+  gender?: "MALE" | "FEMALE";
+  dateOfBirth?: string;
+  remarks?: { formTeacher: string; principal: string };
+};
+
+// Every practice student opens with the sample PIN. Keys are what the cookie remembers.
+export const PRACTICE_STUDENTS: Record<string, PracticeStudent> = {
+  NUR: { name: SAMPLE_NAME, admissionNumber: "SAMPLE-NUR", stage: "NURSERY" },
+  PRI: { name: SAMPLE_NAME, admissionNumber: "SAMPLE-PRI", stage: "PRIMARY" },
+  JSS: { name: SAMPLE_NAME, admissionNumber: "SAMPLE-JSS", stage: "JSS" },
+  SS: { name: SAMPLE_NAME, admissionNumber: "SAMPLE-SS", stage: "SS" },
+  TUNDE1: { name: "Tunde Ajayi", admissionNumber: "DEMO/SS1/001", stage: "SS", className: "SS1A", gender: "MALE", dateOfBirth: "9 June 2011",
+    remarks: { formTeacher: "Tunde has settled well into senior school. Good effort.", principal: "A promising start. Keep it up." } },
+  TUNDE2: { name: "Tunde Ajayi", admissionNumber: "DEMO/SS2/001", stage: "SS", className: "SS2A", gender: "MALE", dateOfBirth: "9 June 2011",
+    remarks: { formTeacher: "Steady improvement this term. Tunde participates well in class.", principal: "Good work. Aim for the top." } },
+  TUNDE3: { name: "Tunde Ajayi", admissionNumber: "DEMO/SS3/001", stage: "SS", className: "SS3A", gender: "MALE", dateOfBirth: "9 June 2011",
+    remarks: { formTeacher: "A focused and mature student. Well prepared for his final exams.", principal: "Excellent. We wish you success in WAEC." } },
+};
+
+/** The Sample Student's admission number for each level (shown to Admins). */
+export const SAMPLE_ADMISSION: Record<Stage, string> = { NURSERY: "SAMPLE-NUR", PRIMARY: "SAMPLE-PRI", JSS: "SAMPLE-JSS", SS: "SAMPLE-SS" };
+
 const SETTING_KEY = "portal.sampleResult";
-const STAGES = Object.keys(SAMPLE_ADMISSION) as Stage[];
 const clean = (v: string) => v.normalize("NFKC").replace(/[\s/_-]+/g, "").toUpperCase();
 
 export async function isSampleEnabled(): Promise<boolean> {
@@ -32,25 +57,26 @@ export async function setSampleEnabled(enabled: boolean, userId: string) {
   });
 }
 
-/** Which sample card the typed details ask for, or null if they are not the sample details. Pure. */
-export function matchSample(input: { studentName: string; admissionNumber: string; pin: string }): Stage | null {
+/** Which practice student the typed details ask for (its key), or null if they are not practice details. Pure. */
+export function matchSample(input: { studentName: string; admissionNumber: string; pin: string }): string | null {
   if (clean(input.pin) !== clean(SAMPLE_PIN)) return null;
-  if (clean(input.studentName) !== clean(SAMPLE_NAME)) return null;
-  return STAGES.find((s) => clean(SAMPLE_ADMISSION[s]) === clean(input.admissionNumber)) ?? null;
+  const hit = Object.entries(PRACTICE_STUDENTS).find(([, p]) => clean(p.name) === clean(input.studentName) && clean(p.admissionNumber) === clean(input.admissionNumber));
+  return hit?.[0] ?? null;
 }
 
-/** The cookie holds only which sample card and which term to show: nothing secret, nothing real. */
-export const sampleCookieValue = (stage: Stage, termId: string) => `${stage}:${termId}`;
+/** The cookie holds only which practice card and which term to show: nothing secret, nothing real. */
+export const sampleCookieValue = (key: string, termId: string) => `${key}:${termId}`;
 
-export function parseSampleCookie(value: string | undefined): { stage: Stage; termId: string } | null {
-  const [stage, termId] = (value ?? "").split(":");
-  if (!STAGES.includes(stage as Stage)) return null;
+export function parseSampleCookie(value: string | undefined): { key: string; termId: string } | null {
+  const [key, termId] = (value ?? "").split(":");
+  if (!key || !Object.hasOwn(PRACTICE_STUDENTS, key)) return null;
   if (termId !== SAMPLE_TERM && !/^[0-9a-f-]{36}$/i.test(termId ?? "")) return null;
-  return { stage: stage as Stage, termId };
+  return { key, termId };
 }
 
 /** The made-up report card, dressed in the school's real details, layout, score columns and grades. */
-export async function loadSampleResult(stage: Stage, termId: string) {
+export async function loadSampleResult(key: string, termId: string) {
+  const who = PRACTICE_STUDENTS[key];
   const [profile, layout, components, bands, term] = await Promise.all([
     db.schoolProfile.findUnique({ where: { id: "singleton" } }),
     getReportLayout(),
@@ -58,12 +84,15 @@ export async function loadSampleResult(stage: Stage, termId: string) {
     resolveBands(null),
     termId === SAMPLE_TERM ? null : db.term.findUnique({ where: { id: termId }, include: { session: { select: { name: true } } } }),
   ]);
-  const result = buildSampleResult(stage, {
+  return buildSampleResult(who.stage, {
     layout,
     components,
     bands,
+    seed: key,
+    className: who.className,
+    remarks: who.remarks,
+    student: { name: who.name, admissionNumber: who.admissionNumber, ...(who.gender ? { gender: who.gender } : {}), ...(who.dateOfBirth ? { dateOfBirth: who.dateOfBirth } : {}) },
     ...(profile ? { school: { name: profile.name, motto: profile.motto, address: profile.address, phone: profile.phone, email: profile.email, logoUrl: profile.logoUrl, principalName: profile.principalName, isPlaceholder: profile.isPlaceholder } } : {}),
     ...(term ? { termName: term.name, sessionName: term.session.name } : {}),
   });
-  return { ...result, student: { ...result.student, admissionNumber: SAMPLE_ADMISSION[stage] } };
 }

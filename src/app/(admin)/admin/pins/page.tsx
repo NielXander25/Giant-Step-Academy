@@ -12,7 +12,7 @@ import { db } from "@/lib/db";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { requireRole } from "@/lib/auth/session";
 import { setPinEnabledAction, setSampleResultAction } from "@/lib/pin/actions";
-import { isSampleEnabled, SAMPLE_ADMISSION, SAMPLE_NAME, SAMPLE_PIN } from "@/lib/pin/sample-access";
+import { isSampleEnabled, PRACTICE_STUDENTS, SAMPLE_PIN } from "@/lib/pin/sample-access";
 import { isPepperConfigured } from "@/lib/pin/hash";
 import { effectivePinStatus } from "@/lib/pin/lifecycle";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
@@ -71,15 +71,19 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-            <dt className="text-muted-foreground">Student's full name</dt><dd className="font-mono font-medium">{SAMPLE_NAME}</dd>
-            <dt className="text-muted-foreground">Admission number</dt>
-            <dd className="font-mono font-medium">
-              {SAMPLE_ADMISSION.NURSERY} (Nursery) · {SAMPLE_ADMISSION.PRIMARY} (Primary) · {SAMPLE_ADMISSION.JSS} (JSS) · {SAMPLE_ADMISSION.SS} (SS)
-            </dd>
-            <dt className="text-muted-foreground">Result PIN</dt><dd className="font-mono font-medium">{SAMPLE_PIN}</dd>
-            <dt className="text-muted-foreground">Term</dt><dd>Any term in the list</dd>
-          </dl>
+          <p className="text-sm">Result PIN for all of them: <span className="font-mono font-medium">{SAMPLE_PIN}</span> · Term: any term in the list</p>
+          <Table>
+            <THead><TR><TH>Student's full name</TH><TH>Admission number</TH><TH>Card</TH></TR></THead>
+            <TBody>
+              {Object.values(PRACTICE_STUDENTS).map((p) => (
+                <TR key={p.admissionNumber}>
+                  <TD className="font-mono">{p.name}</TD>
+                  <TD className="font-mono">{p.admissionNumber}</TD>
+                  <TD>{p.className ?? { NURSERY: "Nursery", PRIMARY: "Primary", JSS: "JSS", SS: "SS" }[p.stage]}</TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
           <div className="flex flex-wrap gap-3">
             <ActionButton action={setSampleResultAction} input={{ enabled: !sampleOn }} label={sampleOn ? "Switch off" : "Switch on"} variant={sampleOn ? "outline" : "default"}
               confirm={sampleOn ? undefined : "Switch the sample result on? Anyone who knows the sample details will be able to open the made-up report card."} />

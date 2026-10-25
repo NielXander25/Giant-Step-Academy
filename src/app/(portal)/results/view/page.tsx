@@ -19,7 +19,7 @@ export default async function ViewResultPage() {
   const jar = await cookies();
   const sample = parseSampleCookie(jar.get(SAMPLE_COOKIE)?.value);
   if (sample && (await isSampleEnabled())) {
-    const data = await loadSampleResult(sample.stage, sample.termId);
+    const data = await loadSampleResult(sample.key, sample.termId);
     return (
       <main className="mx-auto max-w-6xl px-4 py-6 print:p-0">
         <div className="mb-6 flex flex-col gap-4 print:hidden">
