@@ -6,7 +6,7 @@ import { AuditAction, writeAudit } from "@/lib/audit";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { assertAllowed, canManageAcademicStructure } from "@/lib/permissions/policies";
-import { createSessionInput, setCurrentSessionInput, setCurrentTermInput, setTermLockedInput } from "@/lib/validators/academic";
+import { createSessionInput, setCurrentSessionInput, setCurrentTermInput, setResumptionInput, setTermLockedInput } from "@/lib/validators/academic";
 
 const TERM_NAMES = ["First Term", "Second Term", "Third Term"];
 
@@ -88,6 +88,20 @@ export const setTermLocked = defineAction({
     const { count } = await db.term.updateMany({ where: { id: input.termId }, data: { resultsLocked: input.locked } });
     if (count !== 1) throw new NotFoundError("That term could not be found.");
     await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.TERM_LOCK_CHANGED, entityType: "Term", entityId: input.termId, metadata: { locked: input.locked } });
+    return { id: input.termId };
+  },
+});
+
+/** The date the next term begins. Printed as "Resumption" on that term's report cards. */
+export const setResumptionDate = defineAction({
+  roles: ADMIN_ROLES,
+  input: setResumptionInput,
+  handler: async ({ user, input }) => {
+    assertAllowed(canManageAcademicStructure(user));
+    const date = input.date ? new Date(`${input.date}T00:00:00.000Z`) : null;
+    const { count } = await db.term.updateMany({ where: { id: input.termId }, data: { resumptionDate: date } });
+    if (count !== 1) throw new NotFoundError("That term could not be found.");
+    await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.ACADEMIC_STRUCTURE_CHANGED, entityType: "Term", entityId: input.termId, metadata: { change: "resumption_date_set", date: input.date } });
     return { id: input.termId };
   },
 });

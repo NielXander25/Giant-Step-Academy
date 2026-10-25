@@ -1,19 +1,82 @@
-import { DEFAULT_LAYOUT } from "@/lib/results/report-layout";
+import { CARD_COMPONENTS, SUBJECTS_BY_STAGE, type Stage } from "@/lib/curriculum";
+import { round2 } from "@/lib/results/calc";
+import { gradeFor, SAMPLE_BANDS, type GradeBand } from "@/lib/results/grading";
+import { DEFAULT_LAYOUT, type ReportLayout } from "@/lib/results/report-layout";
 import type { PublishedResult } from "@/lib/pin/result-data";
 
-/** Made-up report used for previews and tests. Never mixed with real data. */
-export const SAMPLE_RESULT: PublishedResult = {
-  school: { name: "Giant Step Academy", motto: "Securing a bright future", address: "[SCHOOL ADDRESS]", phone: "[SCHOOL PHONE]", email: null, logoUrl: null, principalName: null, isPlaceholder: true },
-  layout: DEFAULT_LAYOUT,
-  student: { name: "Sample Student", admissionNumber: "GSA/SAMPLE/001", gender: "FEMALE" },
-  className: "SS2A",
-  sessionName: "2026/2027",
-  termName: "First Term",
-  componentNames: [{ name: "CA", max: 40 }, { name: "Exam", max: 60 }],
-  subjects: [
-    { name: "English Language", scores: [32, 51], total: 83, grade: "A", remark: "Excellent" },
-    { name: "Mathematics", scores: [28, 44], total: 72, grade: "A", remark: "Excellent" },
-    { name: "Biology", scores: [25, 38], total: 63, grade: "B", remark: "Very good" },
-  ],
-  summary: { totalScore: 218, average: 72.67, overallGrade: "A", position: 3, classSize: 28, formTeacherRemark: "A hardworking student.", principalRemark: "Keep it up." },
+// Made-up report cards, used for previews, tests and the practice PIN on the result page.
+// Never mixed with real data: nothing here is read from or written to any class or student.
+
+export const SAMPLE_CLASS: Record<Stage, string> = { NURSERY: "Nursery 2A", PRIMARY: "Primary 4A", JSS: "JSS2A", SS: "SS2A" };
+
+// A small repeatable "random" number per subject, so the sample looks the same every time.
+function seeded(text: string) {
+  let h = 2166136261;
+  for (const ch of text) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
+type SampleOptions = {
+  school?: PublishedResult["school"];
+  layout?: ReportLayout;
+  components?: { name: string; maxScore: number }[];
+  bands?: GradeBand[];
+  sessionName?: string;
+  termName?: string;
 };
+
+const SAMPLE_SCHOOL: PublishedResult["school"] = {
+  name: "Giant Step Academy", motto: "Securing a bright future", address: "[SCHOOL ADDRESS]", phone: "[SCHOOL PHONE]",
+  email: null, logoUrl: null, principalName: null, isPlaceholder: true,
+};
+
+export function buildSampleResult(stage: Stage, o: SampleOptions = {}): PublishedResult {
+  const components = o.components?.length ? o.components : CARD_COMPONENTS;
+  const bands = o.bands?.length ? o.bands : SAMPLE_BANDS;
+  const maxTotal = components.reduce((a, c) => a + c.maxScore, 0);
+
+  const subjects = SUBJECTS_BY_STAGE[stage].map((name) => {
+    const rnd = seeded(`${stage}:${name}`);
+    const level = 0.55 + rnd() * 0.4; // this student scores 55–95% in the subject
+    const scores = components.map((c) => Math.min(c.maxScore, Math.round(c.maxScore * Math.min(1, level + (rnd() - 0.5) * 0.15))));
+    const total = scores.reduce((a, b) => a + b, 0);
+    const band = gradeFor((total / maxTotal) * 100, bands);
+    return {
+      name, scores, total,
+      classAverage: round2(maxTotal * (0.5 + rnd() * 0.2)),
+      position: 1 + Math.floor(rnd() * 12),
+      grade: band?.grade ?? null,
+      remark: band?.remark ?? null,
+    };
+  }).sort((a, b) => a.name.localeCompare(b.name));
+
+  const totalScore = subjects.reduce((a, s) => a + s.total, 0);
+  const average = round2(subjects.reduce((a, s) => a + (s.total / maxTotal) * 100, 0) / subjects.length);
+
+  return {
+    layout: o.layout ?? DEFAULT_LAYOUT,
+    school: o.school ?? SAMPLE_SCHOOL,
+    student: { name: "Sample Student", admissionNumber: `SAMPLE-${stage === "NURSERY" ? "NUR" : stage === "PRIMARY" ? "PRI" : stage}`, gender: "FEMALE", dateOfBirth: "14 March 2015", stateOfOrigin: "Kaduna", photoUrl: null },
+    className: SAMPLE_CLASS[stage],
+    classTeacherName: "Mrs. Sample Teacher",
+    sessionName: o.sessionName ?? "2026/2027",
+    termName: o.termName ?? "First Term",
+    resumption: "5 January 2027",
+    componentNames: components.map((c) => ({ name: c.name, max: c.maxScore })),
+    subjects,
+    summary: {
+      totalScore, average, overallGrade: gradeFor(average, bands)?.grade ?? null, position: 3, classSize: 28,
+      attendance: "112 of 120",
+      ratings: { sports: "B", craftWork: "A", speechComposition: "B", drawingPainting: "A", socialBehaviour: "A", neatness: "B", punctuality: "A", attentiveness: "B" },
+      formTeacherRemark: "A hardworking and well-behaved pupil. Keep it up.",
+      principalRemark: "A good result. Aim higher next term.",
+      supervisorRemark: null,
+    },
+  };
+}
+
+/** The sample used by tests and the Admin's sample PDF. */
+export const SAMPLE_RESULT: PublishedResult = buildSampleResult("SS");

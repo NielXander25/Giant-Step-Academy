@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import type { TeacherScope } from "@/lib/permissions/policies";
 import { computeClass, type CalcConfig, type StudentInput, type StudentSummary, type SubjectScores } from "./calc";
 import { loadCalcConfig } from "./config-store";
+import { parseAttendance, parseRatings } from "./report-card";
 
 export type CurrentTerm = { id: string; name: string; sessionId: string; sessionName: string; resultsLocked: boolean };
 
@@ -117,6 +118,9 @@ export async function loadClassData(classId: string, term: CurrentTerm) {
       fullName: e.student.fullName,
       formTeacherRemark: remarks.get(e.id)?.formTeacherRemark ?? null,
       principalRemark: remarks.get(e.id)?.principalRemark ?? null,
+      supervisorRemark: remarks.get(e.id)?.supervisorRemark ?? null,
+      ratings: parseRatings(remarks.get(e.id)?.ratings),
+      attendance: parseAttendance(remarks.get(e.id)?.attendance),
     })),
   };
 }

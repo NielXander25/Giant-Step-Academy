@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { attendanceInput, ratingsInput } from "@/lib/results/report-card";
 
 const scope = z.string().uuid().nullable(); // a section id, or null for "all sections"
 
@@ -64,8 +65,16 @@ export const reviewSubjectInput = z.object({
 });
 export const saveRemarksInput = z.object({
   classId: uuid,
-  kind: z.enum(["FORM_TEACHER", "PRINCIPAL"]),
-  remarks: z.array(z.object({ enrollmentId: uuid, remark: z.string().trim().max(300) })).max(300),
+  kind: z.enum(["FORM_TEACHER", "PRINCIPAL", "SUPERVISOR"]),
+  remarks: z
+    .array(z.object({
+      enrollmentId: uuid,
+      remark: z.string().trim().max(300),
+      // Only the Form Teacher fills these in.
+      ratings: ratingsInput.optional(),
+      attendance: attendanceInput.optional(),
+    }))
+    .max(300),
 });
 export const classRefInput = z.object({ classId: uuid });
 export const adminReviewInput = z.object({

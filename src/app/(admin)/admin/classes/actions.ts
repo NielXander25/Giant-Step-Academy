@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { defineAction } from "@/lib/action";
 import { AuditAction, writeAudit } from "@/lib/audit";
-import { loadSampleStructure } from "@/lib/demo-seed";
+import { applyCurriculum } from "@/lib/curriculum";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import { isUniqueViolation } from "@/lib/prisma-errors";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
@@ -12,16 +12,16 @@ import {
   createClassInput, createLevelInput, createSectionInput, emptyInput, setClassActiveInput,
 } from "@/lib/validators/academic";
 
-export const loadSample = defineAction({
+/** Adds Giant Step's classes and the subjects from its report cards. Only adds; safe to run again. */
+export const applyCurriculumAction = defineAction({
   roles: ADMIN_ROLES,
   input: emptyInput,
   handler: async ({ user }) => {
     assertAllowed(canManageAcademicStructure(user));
-    if ((await db.classLevel.count()) > 0) throw new ConflictError("Classes already exist, so the sample was not loaded.");
-    const result = await db.$transaction((tx) => loadSampleStructure(tx), { timeout: 20_000 });
+    const result = await db.$transaction((tx) => applyCurriculum(tx), { timeout: 60_000, maxWait: 10_000 });
     await writeAudit({
-      actorId: user.id, actorRole: user.role, action: AuditAction.SAMPLE_STRUCTURE_LOADED,
-      entityType: "ClassLevel", metadata: result,
+      actorId: user.id, actorRole: user.role, action: AuditAction.ACADEMIC_STRUCTURE_CHANGED,
+      entityType: "ClassLevel", metadata: { change: "curriculum_applied", ...result },
     });
     return result;
   },

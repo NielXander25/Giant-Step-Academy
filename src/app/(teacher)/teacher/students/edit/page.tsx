@@ -41,6 +41,7 @@ export default async function TeacherEditStudentPage({ searchParams }: { searchP
               fullName: student.fullName,
               gender: student.gender ?? "",
               dateOfBirth: toDateInputValue(student.dateOfBirth),
+              stateOfOrigin: student.stateOfOrigin ?? "",
               status: student.status,
             }}
           />

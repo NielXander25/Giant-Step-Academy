@@ -38,16 +38,28 @@ export default async function AdminSheetPage({ searchParams }: { searchParams: P
           <SheetActions classId={id.data} status={status} blockers={sheetBlockers(data)} canSubmit={false} canReview canPublish approvedSubjects={approved} />
         }
         remarks={
-          <Card>
-            <CardHeader>
-              <CardTitle>Principal's remarks</CardTitle>
-              <CardDescription>Shown on each student's report card. Editable until the results are published.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RemarksForm classId={id.data} kind="PRINCIPAL" disabled={status === "PUBLISHED"}
-                students={data.students.map((s) => ({ enrollmentId: s.enrollmentId, fullName: s.fullName, remark: s.principalRemark ?? "" }))} />
-            </CardContent>
-          </Card>
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Head Master / Principal's comments</CardTitle>
+                <CardDescription>Shown on each student's report card. Editable until the results are published.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RemarksForm classId={id.data} kind="PRINCIPAL" disabled={status === "PUBLISHED"}
+                  students={data.students.map((s) => ({ enrollmentId: s.enrollmentId, fullName: s.fullName, remark: s.principalRemark ?? "" }))} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Supervisor's comments</CardTitle>
+                <CardDescription>Optional. Shown on the report card when filled in.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RemarksForm classId={id.data} kind="SUPERVISOR" disabled={status === "PUBLISHED"}
+                  students={data.students.map((s) => ({ enrollmentId: s.enrollmentId, fullName: s.fullName, remark: s.supervisorRemark ?? "" }))} />
+              </CardContent>
+            </Card>
+          </>
         }
       />
       <p className="mt-6 text-xs text-muted-foreground">Signed in as {user.name}. Anyone who sent the class in cannot also approve it.</p>

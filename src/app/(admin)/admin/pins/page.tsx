@@ -11,7 +11,8 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { requireRole } from "@/lib/auth/session";
-import { setPinEnabledAction } from "@/lib/pin/actions";
+import { setPinEnabledAction, setSampleResultAction } from "@/lib/pin/actions";
+import { isSampleEnabled, SAMPLE_ADMISSION, SAMPLE_NAME, SAMPLE_PIN } from "@/lib/pin/sample-access";
 import { isPepperConfigured } from "@/lib/pin/hash";
 import { effectivePinStatus } from "@/lib/pin/lifecycle";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
@@ -38,10 +39,11 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
   const filter = FILTERS.find((f) => f === sp.status);
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
 
-  const [counts, total, pins] = await Promise.all([
+  const [counts, total, pins, sampleOn] = await Promise.all([
     Promise.all(FILTERS.map((f) => db.pin.count({ where: whereFor(f, now) }))),
     db.pin.count({ where: filter ? whereFor(filter, now) : {} }),
     db.pin.findMany({ where: filter ? whereFor(filter, now) : {}, orderBy: { createdAt: "desc" }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+    isSampleEnabled(),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const href = (f?: string, p = 1) => `/admin/pins?${new URLSearchParams({ ...(f ? { status: f } : {}), page: String(p) })}`;
@@ -56,6 +58,35 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
           PINs cannot be created or used yet. Add a <strong>PIN_PEPPER</strong> setting (a long random value) in Vercel, then redeploy.
         </p>
       )}
+
+      <Card className="mb-8">
+        <CardHeader>
+          <div className="flex flex-wrap items-center gap-3">
+            <CardTitle>Practice with a sample result</CardTitle>
+            {sampleOn ? <Badge variant="success">On</Badge> : <Badge variant="outline">Off</Badge>}
+          </div>
+          <CardDescription>
+            Try the parent's journey end to end. On the Check results page, these details open a made-up report card with the school's real
+            details and layout. It uses no PIN attempts and never touches a real class or student. Switch it off before launch.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+            <dt className="text-muted-foreground">Student's full name</dt><dd className="font-mono font-medium">{SAMPLE_NAME}</dd>
+            <dt className="text-muted-foreground">Admission number</dt>
+            <dd className="font-mono font-medium">
+              {SAMPLE_ADMISSION.NURSERY} (Nursery) · {SAMPLE_ADMISSION.PRIMARY} (Primary) · {SAMPLE_ADMISSION.JSS} (JSS) · {SAMPLE_ADMISSION.SS} (SS)
+            </dd>
+            <dt className="text-muted-foreground">Result PIN</dt><dd className="font-mono font-medium">{SAMPLE_PIN}</dd>
+            <dt className="text-muted-foreground">Term</dt><dd>Any term in the list</dd>
+          </dl>
+          <div className="flex flex-wrap gap-3">
+            <ActionButton action={setSampleResultAction} input={{ enabled: !sampleOn }} label={sampleOn ? "Switch off" : "Switch on"} variant={sampleOn ? "outline" : "default"}
+              confirm={sampleOn ? undefined : "Switch the sample result on? Anyone who knows the sample details will be able to open the made-up report card."} />
+            {sampleOn && <Link href="/results" target="_blank" className="inline-flex h-9 items-center rounded-lg border border-input px-3 text-sm hover:bg-primary-soft">Open Check results</Link>}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Active" value={counts[0]} />

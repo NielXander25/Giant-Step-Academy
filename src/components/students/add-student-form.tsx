@@ -18,13 +18,14 @@ export function AddStudentForm({ fixedClassId, classes }: { fixedClassId?: strin
   const [fullName, setName] = useState("");
   const [gender, setGender] = useState<"" | "MALE" | "FEMALE">("");
   const [dateOfBirth, setDob] = useState("");
+  const [stateOfOrigin, setOrigin] = useState("");
   const { run, pending, error, fieldErrors, success } = useAction(addStudent, {
-    onSuccess: () => { setAdmission(""); setName(""); setGender(""); setDob(""); },
+    onSuccess: () => { setAdmission(""); setName(""); setGender(""); setDob(""); setOrigin(""); },
   });
 
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); run({ classId, admissionNumber, fullName, gender, dateOfBirth }); }}
+      onSubmit={(e) => { e.preventDefault(); run({ classId, admissionNumber, fullName, gender, dateOfBirth, stateOfOrigin }); }}
       className="grid gap-4 sm:max-w-2xl sm:grid-cols-2"
     >
       {!fixedClassId && classes && (
@@ -57,6 +58,10 @@ export function AddStudentForm({ fixedClassId, classes }: { fixedClassId?: strin
         <Label htmlFor="add-dob">Date of birth (optional)</Label>
         <Input id="add-dob" type="date" value={dateOfBirth} onChange={(e) => setDob(e.target.value)} />
         <FieldError messages={fieldErrors.dateOfBirth} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="add-origin">State of origin (optional)</Label>
+        <Input id="add-origin" value={stateOfOrigin} maxLength={60} onChange={(e) => setOrigin(e.target.value)} placeholder="Kaduna" />
       </div>
       <div className="flex flex-col items-start gap-3 sm:col-span-2">
         <Button type="submit" disabled={pending || !classId || !admissionNumber || !fullName}>{pending ? "Adding…" : "Add student"}</Button>

@@ -10,6 +10,7 @@ import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { MAX_BATCH, createPins } from "./generate";
 import { isPepperConfigured } from "./hash";
 import { canEnable } from "./lifecycle";
+import { setSampleEnabled } from "./sample-access";
 
 const generateInput = z.object({
   count: z.number().int().min(1, "Choose at least 1.").max(MAX_BATCH, `Up to ${MAX_BATCH} at a time.`),
@@ -52,5 +53,17 @@ export const setPinEnabledAction = defineAction({
     }
     await writeAudit({ actorId: user.id, actorRole: user.role, action: input.enabled ? AuditAction.PIN_ENABLED : AuditAction.PIN_DISABLED, entityType: "Pin", entityId: pin.id });
     return { id: pin.id };
+  },
+});
+
+/** Switches the practice result (sample details + sample PIN) on or off for everyone. */
+export const setSampleResultAction = defineAction({
+  roles: ADMIN_ROLES,
+  input: z.object({ enabled: z.boolean() }),
+  handler: async ({ user, input }) => {
+    assertAllowed(canManagePins(user));
+    await setSampleEnabled(input.enabled, user.id);
+    await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.SAMPLE_RESULT_CHANGED, entityType: "SystemSetting", metadata: { enabled: input.enabled } });
+    return { enabled: input.enabled };
   },
 });

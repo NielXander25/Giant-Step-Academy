@@ -31,7 +31,7 @@ export default async function SubjectsPage() {
       </Card>
 
       {subjects.length === 0 ? (
-        <EmptyState title="No subjects yet">Add subjects above, or load the sample structure on the Classes page.</EmptyState>
+        <EmptyState title="No subjects yet">Add subjects above, or press "Set up Giant Step classes and subjects" on the Classes page.</EmptyState>
       ) : (
         <Card>
           <CardContent className="p-2 sm:p-4">

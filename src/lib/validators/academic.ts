@@ -50,3 +50,4 @@ export const assignSubjectTeacherInput = z.object({ classId: id, subjectId: id, 
 export const clearSubjectTeacherInput = z.object({ classId: id, subjectId: id });
 
 export const setTermLockedInput = z.object({ termId: id, locked: z.boolean() });
+export const setResumptionInput = z.object({ termId: id, date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date.").nullable() });

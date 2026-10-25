@@ -7,16 +7,25 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { FieldError, FormMessage } from "@/components/shared/form-message";
 import { useAction } from "@/lib/use-action";
-import { createClass, createLevel, createSection, loadSample } from "./actions";
+import { applyCurriculumAction, createClass, createLevel, createSection } from "./actions";
 
-export function LoadSampleButton() {
-  const { run, pending, error } = useAction(loadSample);
+export function ApplyCurriculumButton() {
+  const [done, setDone] = useState<string | null>(null);
+  const { run, pending, error } = useAction(applyCurriculumAction, {
+    onSuccess: (r) => setDone(
+      r.levelsAdded + r.classesAdded + r.subjectsAdded + r.classSubjectsAdded === 0 && !r.componentsAdded && !r.gradesAdded
+        ? "Everything was already set up. Nothing changed."
+        : `Done: ${r.levelsAdded} levels, ${r.classesAdded} classes, ${r.subjectsAdded} subjects and ${r.classSubjectsAdded} class subjects added.`
+          + (r.componentsAdded ? " Score columns set to 1st Test 20, 2nd Test 20, Exam 60." : "")
+          + (r.gradesAdded ? " A starting grade scale was added: check it under Settings > Grading." : ""),
+    ),
+  });
   return (
     <div className="flex flex-col items-start gap-3">
       <Button type="button" disabled={pending} onClick={() => run({})}>
-        {pending ? "Loading…" : "Load sample structure"}
+        {pending ? "Setting up…" : "Set up Giant Step classes and subjects"}
       </Button>
-      <FormMessage error={error} />
+      <FormMessage error={error} success={done} />
     </div>
   );
 }

@@ -15,6 +15,7 @@ type Initial = {
   fullName: string;
   gender: "" | "MALE" | "FEMALE";
   dateOfBirth: string;
+  stateOfOrigin: string;
   status: "ACTIVE" | "INACTIVE" | "WITHDRAWN" | "GRADUATED";
 };
 
@@ -32,6 +33,7 @@ export function EditStudentForm({ initial, isAdmin }: { initial: Initial; isAdmi
           fullName: v.fullName,
           gender: v.gender,
           dateOfBirth: v.dateOfBirth,
+          stateOfOrigin: v.stateOfOrigin,
           ...(isAdmin
             ? { admissionNumber: v.admissionNumber, status: v.status === "GRADUATED" ? undefined : v.status }
             : {}),
@@ -62,6 +64,10 @@ export function EditStudentForm({ initial, isAdmin }: { initial: Initial; isAdmi
         <Label htmlFor="e-dob">Date of birth</Label>
         <Input id="e-dob" type="date" value={v.dateOfBirth} onChange={(e) => setV({ ...v, dateOfBirth: e.target.value })} />
         <FieldError messages={fieldErrors.dateOfBirth} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="e-origin">State of origin</Label>
+        <Input id="e-origin" value={v.stateOfOrigin} maxLength={60} onChange={(e) => setV({ ...v, stateOfOrigin: e.target.value })} placeholder="Kaduna" />
       </div>
       {isAdmin && v.status !== "GRADUATED" && (
         <div className="flex flex-col gap-2">

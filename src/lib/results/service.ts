@@ -9,6 +9,7 @@ import {
 import { computeSubject, round2, type StudentSummary, type SubjectScores } from "./calc";
 import { getCurrentTerm, loadClassData, loadRoster, type CurrentTerm } from "./class-data";
 import { loadCalcConfig } from "./config-store";
+import { parseRatings, type Attendance, type Ratings } from "./report-card";
 import { batchFrom, batchTransition, canEditBatch, sheetTransition, type BatchAction, type SheetAction } from "./workflow";
 
 // All the rules for entering, submitting, reviewing and publishing results.
@@ -241,30 +242,37 @@ export async function reopenSubject(user: Actor, scope: TeacherScope, input: { c
 
 // ─── Remarks ───
 
+type RemarkRow = { enrollmentId: string; remark: string; ratings?: Ratings; attendance?: Attendance };
+
+const REMARK_FIELD = { FORM_TEACHER: "formTeacherRemark", PRINCIPAL: "principalRemark", SUPERVISOR: "supervisorRemark" } as const;
+
 export async function saveRemarks(
   user: Actor,
   scope: TeacherScope,
-  input: { classId: string; kind: "FORM_TEACHER" | "PRINCIPAL"; remarks: { enrollmentId: string; remark: string }[] },
+  input: { classId: string; kind: "FORM_TEACHER" | "PRINCIPAL" | "SUPERVISOR"; remarks: RemarkRow[] },
 ) {
   if (input.kind === "FORM_TEACHER") assertAllowed(canEditFormTeacherRemarks(user, scope, input.classId), "Only the class's Form Teacher can write these remarks.");
-  else assertAllowed(canEditPrincipalRemarks(user), "Only an Admin can write the principal's remarks.");
+  else assertAllowed(canEditPrincipalRemarks(user), "Only an Admin can write the principal's and supervisor's remarks.");
   const term = input.kind === "FORM_TEACHER" ? await requireOpenTerm() : await requireTerm();
 
   const ids = input.remarks.map((r) => r.enrollmentId);
   const valid = await db.enrollment.count({ where: { id: { in: ids }, classId: input.classId, sessionId: term.sessionId } });
   if (valid !== new Set(ids).size) throw new ForbiddenError("A student in this list does not belong to this class.");
-  const field = input.kind === "FORM_TEACHER" ? "formTeacherRemark" : "principalRemark";
+  const field = REMARK_FIELD[input.kind];
 
   await db.$transaction(async (tx) => {
     const sheet = await sheetFor(tx, input.classId, term.id);
     if (input.kind === "FORM_TEACHER" && sheet.status !== "DRAFT") throw new ConflictError("This class's results have already gone to the Admin.");
-    if (input.kind === "PRINCIPAL" && sheet.status === "PUBLISHED") throw new ConflictError("Unpublish the results before changing remarks.");
+    if (input.kind !== "FORM_TEACHER" && sheet.status === "PUBLISHED") throw new ConflictError("Unpublish the results before changing remarks.");
     for (const r of input.remarks) {
-      const value = r.remark.trim() || null;
+      const data: Prisma.StudentTermSummaryUncheckedUpdateInput = { [field]: r.remark.trim() || null };
+      // Ratings and attendance belong to the Form Teacher, like their remark.
+      if (input.kind === "FORM_TEACHER" && r.ratings) data.ratings = parseRatings(r.ratings) as Prisma.InputJsonValue;
+      if (input.kind === "FORM_TEACHER" && r.attendance) data.attendance = r.attendance as Prisma.InputJsonValue;
       await tx.studentTermSummary.upsert({
         where: { sheetId_enrollmentId: { sheetId: sheet.id, enrollmentId: r.enrollmentId } },
-        update: { [field]: value },
-        create: { sheetId: sheet.id, enrollmentId: r.enrollmentId, [field]: value },
+        update: data,
+        create: { ...(data as Prisma.StudentTermSummaryUncheckedCreateInput), sheetId: sheet.id, enrollmentId: r.enrollmentId },
       });
     }
   }, TX_OPTIONS);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import { isSampleEnabled, SAMPLE_TERM } from "@/lib/pin/sample-access";
 import { ResultForm } from "./result-form";
 
 export const metadata: Metadata = { title: "Check results", robots: { index: false, follow: false } };
@@ -9,14 +10,18 @@ export const dynamic = "force-dynamic";
 
 export default async function ResultsPage({ searchParams }: { searchParams: Promise<{ expired?: string }> }) {
   const { expired } = await searchParams;
-  const [school, terms] = await Promise.all([
+  const [school, terms, sample] = await Promise.all([
     db.schoolProfile.findUnique({ where: { id: "singleton" }, select: { name: true } }),
     db.term.findMany({
       where: { classSheets: { some: { status: "PUBLISHED" } } },
       include: { session: { select: { name: true } } },
       orderBy: [{ session: { name: "desc" } }, { sortOrder: "desc" }],
     }),
+    isSampleEnabled(),
   ]);
+  const options = terms.map((t) => ({ id: t.id, label: `${t.session.name} · ${t.name}` }));
+  // Before any result is published, the practice result still needs a term to choose.
+  if (options.length === 0 && sample) options.push({ id: SAMPLE_TERM, label: "Practice term (sample result)" });
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
@@ -32,10 +37,10 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
           <CardDescription>You will need the result PIN from the school office.</CardDescription>
         </CardHeader>
         <CardContent>
-          {terms.length === 0 ? (
+          {options.length === 0 ? (
             <p className="text-sm text-muted-foreground">No results have been published yet. Please check back later.</p>
           ) : (
-            <ResultForm terms={terms.map((t) => ({ id: t.id, label: `${t.session.name} · ${t.name}` }))} />
+            <ResultForm terms={options} />
           )}
         </CardContent>
       </Card>

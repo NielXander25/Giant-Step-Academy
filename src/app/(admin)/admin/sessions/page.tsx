@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { setCurrentSession, setCurrentTerm, setTermLocked } from "./actions";
-import { NewSessionForm } from "./session-forms";
+import { NewSessionForm, ResumptionForm } from "./session-forms";
 
 export const metadata: Metadata = { title: "Sessions & terms" };
 
@@ -58,11 +58,14 @@ export default async function SessionsPage() {
               <CardContent>
                 <ul className="divide-y divide-border">
                   {s.terms.map((t) => (
-                    <li key={t.id} className="flex items-center justify-between gap-3 py-3">
-                      <div className="flex items-center gap-3">
-                        <span>{t.name}</span>
-                        {t.isCurrent && <Badge variant="success">Current term</Badge>}
-                        {t.resultsLocked && <Badge variant="destructive">Results locked</Badge>}
+                    <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                          <span>{t.name}</span>
+                          {t.isCurrent && <Badge variant="success">Current term</Badge>}
+                          {t.resultsLocked && <Badge variant="destructive">Results locked</Badge>}
+                        </div>
+                        <ResumptionForm termId={t.id} value={t.resumptionDate ? t.resumptionDate.toISOString().slice(0, 10) : null} />
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {!t.isCurrent && (

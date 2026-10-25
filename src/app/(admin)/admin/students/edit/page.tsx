@@ -46,6 +46,7 @@ export default async function AdminEditStudentPage({ searchParams }: { searchPar
               fullName: student.fullName,
               gender: student.gender ?? "",
               dateOfBirth: toDateInputValue(student.dateOfBirth),
+              stateOfOrigin: student.stateOfOrigin ?? "",
               status: student.status,
             }}
           />

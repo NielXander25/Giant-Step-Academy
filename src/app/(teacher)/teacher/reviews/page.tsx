@@ -47,12 +47,12 @@ export default async function ReviewsPage() {
         remarks={
           <Card>
             <CardHeader>
-              <CardTitle>Form Teacher's remarks</CardTitle>
-              <CardDescription>One short remark per student for the report card. You can edit until the class goes to the Admin.</CardDescription>
+              <CardTitle>Report card details</CardTitle>
+              <CardDescription>For each student: your comment, attendance, and the psychomotor and affective ratings (A–E). Tap a name to open it. You can edit until the class goes to the Admin.</CardDescription>
             </CardHeader>
             <CardContent>
-              <RemarksForm classId={classId} kind="FORM_TEACHER" disabled={status !== "DRAFT" || term.resultsLocked}
-                students={data.students.map((s) => ({ enrollmentId: s.enrollmentId, fullName: s.fullName, remark: s.formTeacherRemark ?? "" }))} />
+              <RemarksForm classId={classId} kind="FORM_TEACHER" details disabled={status !== "DRAFT" || term.resultsLocked}
+                students={data.students.map((s) => ({ enrollmentId: s.enrollmentId, fullName: s.fullName, remark: s.formTeacherRemark ?? "", ratings: s.ratings, attendance: s.attendance }))} />
             </CardContent>
           </Card>
         }

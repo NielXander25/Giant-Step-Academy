@@ -23,7 +23,14 @@ describe("report card PDF", () => {
     const buffer = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null }));
     expect(buffer.subarray(0, 5).toString()).toBe("%PDF-");
     const text = await textOf(buffer);
-    for (const expected of ["Giant Step Academy", "Sample Student", "GSA/SAMPLE/001", "SS2A", "2026/2027", "English Language", "Mathematics", "Biology", "83", "72.67", "3rd of 28", "A hardworking student.", "Keep it up."]) {
+    const s0 = SAMPLE_RESULT.subjects[0];
+    for (const expected of [
+      "GIANT STEP ACADEMY", "Termly Report", "Sample Student", "SAMPLE-SS", "SS2A", "2026/2027", "Kaduna", "14 March 2015", "5 January 2027", "112 of 120",
+      "COGNITIVE ABILITY", "1st Test", "20%", "Exam", "60%", "Class Av.", "Comment", "English Language", "Mathematics", "Biology",
+      String(s0.total), String(s0.classAverage), String(SAMPLE_RESULT.summary.average), "3rd", "No. in Class", "28",
+      "PSYCHOMOTOR SKILLS", "Speech Composition", "AFFECTIVE AREAS", "Punctuality", "A = Excellent",
+      "TERMLY REMARKS", "A hardworking and well-behaved pupil.", "Aim higher next term.", "Mrs. Sample Teacher", "The Proprietress, Giant Step Academy",
+    ]) {
       expect(text).toContain(expected);
     }
   });
@@ -36,23 +43,30 @@ describe("report card PDF", () => {
     const layout = { ...DEFAULT_LAYOUT, showPosition: false, showGender: false, showSignatures: false, footerNote: "Next term begins 5 January" };
     const text = await textOf(await renderToBuffer(ResultPdf({ data: { ...SAMPLE_RESULT, layout }, logo: null })));
     expect(text).not.toContain("Position");
-    expect(text).not.toContain("3rd");
+    expect(text).not.toContain("Pos'n");
     expect(text).not.toContain("Gender");
-    expect(text).not.toContain("signature");
+    expect(text).not.toContain("Signed by");
     expect(text).toContain("Next term begins 5 January");
   });
   it("shows the position without the class size when asked", async () => {
     const text = await textOf(await renderToBuffer(ResultPdf({ data: { ...SAMPLE_RESULT, layout: { ...DEFAULT_LAYOUT, showClassSize: false } }, logo: null })));
     expect(text).toContain("3rd");
-    expect(text).not.toContain("of 28");
+    expect(text).not.toContain("No. in Class");
+  });
+  it("shows the supervisor's comment only when there is one", async () => {
+    const without = await textOf(await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null })));
+    expect(without).not.toContain("Supervisor");
+    const withIt = await textOf(await renderToBuffer(ResultPdf({ data: { ...SAMPLE_RESULT, summary: { ...SAMPLE_RESULT.summary, supervisorRemark: "Well done." } }, logo: null })));
+    expect(withIt).toContain("Supervisor's Com.");
+    expect(withIt).toContain("Well done.");
   });
   it("copes with a result that has no position, no remarks and no scores yet", async () => {
-    const data = { ...SAMPLE_RESULT, summary: { ...SAMPLE_RESULT.summary, position: null, formTeacherRemark: null, principalRemark: null, average: null }, subjects: [{ name: "Physics", scores: [null, null], total: null, grade: null, remark: null }] };
+    const data = { ...SAMPLE_RESULT, summary: { ...SAMPLE_RESULT.summary, position: null, formTeacherRemark: null, principalRemark: null, average: null }, subjects: [{ name: "Physics", scores: [null, null, null], total: null, classAverage: null, position: null, grade: null, remark: null }] };
     const buffer = await renderToBuffer(ResultPdf({ data, logo: null }));
     expect((await textOf(buffer))).toContain("Physics");
   });
   it("handles a long list of subjects across pages without losing any", async () => {
-    const subjects = Array.from({ length: 45 }, (_, i) => ({ name: `Subject ${String(i + 1).padStart(2, "0")}`, scores: [30, 50], total: 80, grade: "A", remark: "Excellent" }));
+    const subjects = Array.from({ length: 45 }, (_, i) => ({ name: `Subject ${String(i + 1).padStart(2, "0")}`, scores: [15, 15, 50], total: 80, classAverage: 61, position: 2, grade: "A", remark: "Excellent" }));
     const text = await textOf(await renderToBuffer(ResultPdf({ data: { ...SAMPLE_RESULT, subjects }, logo: null })));
     expect(text).toContain("Subject 01");
     expect(text).toContain("Subject 45");

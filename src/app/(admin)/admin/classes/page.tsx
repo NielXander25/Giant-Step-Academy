@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { setClassActive } from "./actions";
-import { AddArmForm, AddLevelForm, AddSectionForm, LoadSampleButton } from "./class-forms";
+import { AddArmForm, AddLevelForm, AddSectionForm, ApplyCurriculumButton } from "./class-forms";
 
 export const metadata: Metadata = { title: "Classes" };
 
@@ -27,20 +27,19 @@ export default async function ClassesPage() {
         description="A level is a stage such as SS2. A class is one arm of a level, such as SS2A. Students move up one level each year."
       />
 
-      {!hasLevels && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Start with a sample structure</CardTitle>
-            <CardDescription>
-              Loads Primary 1–6, JSS1–3 and SS1–3 (arm A) plus common subjects, so you can explore the system. This is
-              sample data: change it when the school confirms its real structure.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <LoadSampleButton />
-          </CardContent>
-        </Card>
-      )}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Giant Step classes and subjects</CardTitle>
+          <CardDescription>
+            Adds Pre-Reception 1–2, Nursery 1–3, Primary 1–6, JSS1–3 and SS1–3 (arm A where a level has no class yet), and gives
+            every class the subjects printed on its report card. It only adds: nothing you created is removed, and it is safe to
+            press again. Change a class's subjects afterwards on the Assignments page.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ApplyCurriculumButton />
+        </CardContent>
+      </Card>
 
       <div className="mb-8 grid gap-6 md:grid-cols-2">
         <Card>
@@ -66,7 +65,7 @@ export default async function ClassesPage() {
       </div>
 
       {!hasLevels ? (
-        <EmptyState title="No classes yet">Load the sample structure above, or add a section and its levels.</EmptyState>
+        <EmptyState title="No classes yet">Press "Set up Giant Step classes and subjects" above, or add a section and its levels.</EmptyState>
       ) : (
         <div className="flex flex-col gap-6">
           {sections.map((section) => (

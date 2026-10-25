@@ -8,6 +8,7 @@ import { ResultSheet } from "@/components/portal/result-sheet";
 import { findViewSession } from "@/lib/pin/access";
 import { loadPublishedResult } from "@/lib/pin/result-data";
 import { VIEW_COOKIE } from "@/lib/pin/view-session";
+import { isSampleEnabled, loadSampleResult, parseSampleCookie, SAMPLE_COOKIE } from "@/lib/pin/sample-access";
 
 export const metadata: Metadata = { title: "Result", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -15,7 +16,35 @@ export const dynamic = "force-dynamic";
 const time = new Intl.DateTimeFormat("en-GB", { timeStyle: "short", timeZone: "Africa/Lagos" });
 
 export default async function ViewResultPage() {
-  const token = (await cookies()).get(VIEW_COOKIE)?.value;
+  const jar = await cookies();
+  const sample = parseSampleCookie(jar.get(SAMPLE_COOKIE)?.value);
+  if (sample && (await isSampleEnabled())) {
+    const data = await loadSampleResult(sample.stage, sample.termId);
+    return (
+      <main className="mx-auto max-w-4xl px-4 py-6 print:p-0">
+        <div className="mb-6 flex flex-col gap-4 print:hidden">
+          <div role="alert" className="flex gap-3 rounded-xl border border-accent bg-accent-soft p-4 text-sm">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
+            <div>
+              <p className="font-medium">This is a SAMPLE result for practice. The student and scores are made up.</p>
+              <p className="mt-1 text-muted-foreground">It shows exactly how a real result will look, with the school's details. No PIN attempt was used and no class or student was touched.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <a href="/api/results/pdf" className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-navy">
+              <Download className="size-4" aria-hidden="true" /> Download PDF
+            </a>
+            <PrintButton />
+            <Link href="/results" className="inline-flex h-10 items-center rounded-lg border border-input px-4 text-sm hover:bg-primary-soft">Close</Link>
+          </div>
+        </div>
+        <p className="mb-2 hidden text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground print:block">Sample result: not a real student</p>
+        <ResultSheet data={data} />
+      </main>
+    );
+  }
+
+  const token = jar.get(VIEW_COOKIE)?.value;
   if (!token) redirect("/results");
 
   // Reloading or printing here is free: the attempt was used when the result first opened.

@@ -33,13 +33,21 @@ const dateOfBirth = z
     return r.value;
   });
 
-export const addStudentInput = z.object({ classId: id, admissionNumber, fullName, gender, dateOfBirth });
+const stateOfOrigin = z
+  .string()
+  .trim()
+  .max(60)
+  .optional()
+  .transform((v) => (v ? v : null));
+
+export const addStudentInput = z.object({ classId: id, admissionNumber, fullName, gender, dateOfBirth, stateOfOrigin });
 
 export const updateStudentInput = z.object({
   studentId: id,
   fullName,
   gender,
   dateOfBirth,
+  stateOfOrigin,
   // Only Admins may change these; the server refuses them from anyone else.
   admissionNumber: admissionNumber.optional(),
   status: z.enum(["ACTIVE", "INACTIVE", "WITHDRAWN"]).optional(),

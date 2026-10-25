@@ -232,16 +232,17 @@ model AcademicSession {
 }
 
 model Term {
-  id            String          @id @default(uuid()) @db.Uuid
-  sessionId     String          @db.Uuid
-  session       AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  name          String // e.g. First Term
-  sortOrder     Int
-  startDate     DateTime?
-  endDate       DateTime?
-  isCurrent     Boolean         @default(false) // only one row may be true (partial unique index in migration)
-  resultsLocked Boolean         @default(false)
-  createdAt     DateTime        @default(now())
+  id             String          @id @default(uuid()) @db.Uuid
+  sessionId      String          @db.Uuid
+  session        AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  name           String // e.g. First Term
+  sortOrder      Int
+  startDate      DateTime?
+  endDate        DateTime?
+  isCurrent      Boolean         @default(false) // only one row may be true (partial unique index in migration)
+  resultsLocked  Boolean         @default(false)
+  resumptionDate DateTime? // when the next term begins, printed as "Resumption" on the report card
+  createdAt      DateTime        @default(now())
 
   resultBatches SubjectResultBatch[]
   classSheets   ClassResultSheet[]
@@ -350,6 +351,7 @@ model Student {
   normalizedName  String // lower-cased, whitespace-collapsed; used for portal matching
   gender          Gender?
   dateOfBirth     DateTime?
+  stateOfOrigin   String?
   photoUrl        String?
   status          StudentStatus @default(ACTIVE)
   extra           Json?
@@ -559,7 +561,9 @@ model StudentTermSummary {
   position          Int?
   formTeacherRemark String?
   principalRemark   String?
-  attendance        Json?
+  supervisorRemark  String?
+  attendance        Json? // { present, opened }: times present out of times school opened
+  ratings           Json? // psychomotor and affective ratings, { "<key>": "A".."E" }
   calculatedAt      DateTime?
 
   @@unique([sheetId, enrollmentId])

@@ -1,92 +1,145 @@
+import { UserRound } from "lucide-react";
 import type { PublishedResult } from "@/lib/pin/result-data";
+import { AFFECTIVE, columnMax, ordinal, PSYCHOMOTOR, RATING_MEANING, RATINGS } from "@/lib/results/report-card";
 
-const ordinal = (n: number) => {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-};
+const dash = (v: string | number | null | undefined) => (v === null || v === undefined || v === "" ? "—" : String(v));
 
-const Placeholder = ({ text }: { text: string }) => <span className="text-muted-foreground">{text}</span>;
-
-/** The student's report card. Designed to print cleanly on A4. */
+/** The student's termly report, laid out like the school's printed card. Designed to print cleanly on A4. */
 export function ResultSheet({ data }: { data: PublishedResult }) {
   const { school, student, summary, layout } = data;
-  const cell = "border border-border px-2 py-1.5";
+  const cell = "border border-[#b9cbe3] px-2 py-1.5";
+  const maxTotal = data.componentNames.reduce((a, c) => a + c.max, 0);
+
+  const fields: [string, string][] = [
+    ["Name", student.name],
+    ["Session", data.sessionName],
+    ["Admission No.", student.admissionNumber],
+    ["Term", data.termName],
+    ["Class", data.className],
+    ["Total Score", dash(summary.totalScore)],
+    ["State of Origin", dash(student.stateOfOrigin)],
+    ["Average Score", dash(summary.average)],
+    ["Date of Birth", dash(student.dateOfBirth)],
+    ...(layout.showPosition ? ([["Position in Class", summary.position ? ordinal(summary.position) : "—"]] as [string, string][]) : []),
+    ...(layout.showGender ? ([["Gender", student.gender ? (student.gender === "MALE" ? "Male" : "Female") : "—"]] as [string, string][]) : []),
+    ...(layout.showClassSize ? ([["No. in Class", dash(summary.classSize || null)]] as [string, string][]) : []),
+    ["Attendance", dash(summary.attendance)],
+    ["Resumption", dash(data.resumption)],
+  ];
+
+  const ratingTable = (title: string, rows: readonly { key: string; label: string }[]) => (
+    <div>
+      <h3 className="mb-1 text-center text-xs font-bold tracking-wider text-navy">{title}</h3>
+      <table className="w-full border-collapse text-sm">
+        <thead className="bg-[#e8f2fa]"><tr><th className={cell}><span className="sr-only">Area</span></th>{RATINGS.map((g) => <th key={g} className={`${cell} w-9 text-center`}>{g}</th>)}</tr></thead>
+        <tbody>
+          {rows.map((r) => {
+            const given = summary.ratings[r.key as keyof typeof summary.ratings];
+            return (
+              <tr key={r.key}>
+                <td className={cell}>{r.label}{given && <span className="sr-only">: {given}</span>}</td>
+                {RATINGS.map((g) => <td key={g} aria-hidden="true" className={`${cell} text-center font-bold text-navy`}>{given === g ? "✕" : ""}</td>)}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
-    <article className="mx-auto w-full max-w-3xl rounded-xl border border-border bg-white p-5 print:max-w-none print:rounded-none print:border-0 print:p-0 sm:p-8">
-      <style>{"@media print { @page { size: A4; margin: 12mm; } }"}</style>
+    <article className="mx-auto w-full max-w-4xl rounded-xl border-4 border-[#5aa9d6] bg-white p-4 print:max-w-none print:rounded-none sm:p-6">
+      <style>{"@media print { @page { size: A4; margin: 8mm; } }"}</style>
 
-      <header className="flex flex-col items-center gap-1 border-b-2 border-navy pb-4 text-center">
-        {school.logoUrl ? (
+      <header className="flex items-center gap-4 border-b-2 border-navy pb-3">
+        {school.logoUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={school.logoUrl} alt="" className="mb-1 h-16 w-auto" />
-        ) : (
-          <div className="mb-1 flex size-14 items-center justify-center rounded-full border border-dashed border-input text-[10px] text-muted-foreground">LOGO</div>
+          <img src={school.logoUrl} alt="" className="h-16 w-auto" />
         )}
-        <h1 className="font-serif text-2xl text-navy sm:text-3xl">{school.name}</h1>
-        {school.motto && <p className="text-sm italic text-muted-foreground">{school.motto}</p>}
-        <p className="text-xs text-muted-foreground">{[school.address, school.phone, school.email].filter(Boolean).join(" · ")}</p>
-        <p className="mt-2 text-sm font-semibold uppercase tracking-wider text-navy">Terminal report · {data.termName}, {data.sessionName}</p>
+        <div>
+          <h1 className="text-xl font-bold tracking-wide text-navy sm:text-2xl">{school.name.toUpperCase()}</h1>
+          {school.motto && <p className="font-serif text-sm italic text-muted-foreground">{school.motto}</p>}
+          <p className="text-xs text-muted-foreground">{[school.address, school.phone ? `Phone: ${school.phone}` : null, school.email].filter(Boolean).join(" · ")}</p>
+          <p className="mt-1 font-semibold text-navy">Termly Report</p>
+        </div>
       </header>
 
-      <section className="my-4 grid gap-x-8 gap-y-1 text-sm sm:grid-cols-2">
-        <p><span className="text-muted-foreground">Name: </span><strong>{student.name}</strong></p>
-        <p><span className="text-muted-foreground">Admission no.: </span><strong>{student.admissionNumber}</strong></p>
-        <p><span className="text-muted-foreground">Class: </span><strong>{data.className}</strong></p>
-        {layout.showGender && <p><span className="text-muted-foreground">Gender: </span><strong>{student.gender ? student.gender.toLowerCase() : "—"}</strong></p>}
+      <section className="my-4 flex flex-col gap-3 sm:flex-row">
+        <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded border border-[#b9cbe3] bg-[#e8f2fa]">
+          {student.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={student.photoUrl} alt={`${student.name}`} className="h-full w-full object-cover" />
+          ) : (
+            <UserRound className="size-14 text-[#9fb6d4]" aria-label="No photo" />
+          )}
+        </div>
+        <dl className="grid flex-1 grid-cols-1 border-l border-t border-[#b9cbe3] text-sm sm:grid-cols-2">
+          {fields.map(([label, value]) => (
+            <div key={label} className="flex gap-2 border-b border-r border-[#b9cbe3] px-2 py-1.5">
+              <dt className="w-32 shrink-0 text-muted-foreground">{label}</dt>
+              <dd className="font-semibold">{value}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
+      <h2 className="mb-1 text-center text-sm font-bold tracking-wider text-navy">COGNITIVE ABILITY</h2>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-primary-soft text-left text-xs uppercase tracking-wide">
+        <table className="w-full min-w-[640px] border-collapse text-sm">
+          <thead className="bg-[#e8f2fa] text-left text-xs">
             <tr>
-              <th className={cell}>Subject</th>
-              {data.componentNames.map((c) => <th key={c.name} className={`${cell} text-center`}>{c.name}<span className="block font-normal normal-case text-muted-foreground">/{c.max}</span></th>)}
-              <th className={`${cell} text-center`}>Total</th>
+              <th className={cell}>Subjects</th>
+              {data.componentNames.map((c) => <th key={c.name} className={`${cell} text-center`}>{c.name}<span className="block font-normal text-muted-foreground">{columnMax(c.max, maxTotal)}</span></th>)}
+              <th className={`${cell} text-center`}>Total<span className="block font-normal text-muted-foreground">{maxTotal === 100 ? "100%" : `/${maxTotal}`}</span></th>
+              <th className={`${cell} text-center`}>Class Av.</th>
+              {layout.showPosition && <th className={`${cell} text-center`}>Pos'n</th>}
               <th className={`${cell} text-center`}>Grade</th>
-              <th className={cell}>Remark</th>
+              <th className={cell}>Comment</th>
             </tr>
           </thead>
           <tbody>
             {data.subjects.map((s) => (
               <tr key={s.name}>
                 <td className={`${cell} font-medium`}>{s.name}</td>
-                {s.scores.map((v, i) => <td key={i} className={`${cell} text-center`}>{v ?? "—"}</td>)}
-                <td className={`${cell} text-center font-semibold`}>{s.total ?? "—"}</td>
-                <td className={`${cell} text-center font-semibold`}>{s.grade ?? "—"}</td>
-                <td className={cell}>{s.remark ?? "—"}</td>
+                {s.scores.map((v, i) => <td key={i} className={`${cell} text-center`}>{dash(v)}</td>)}
+                <td className={`${cell} text-center font-semibold`}>{dash(s.total)}</td>
+                <td className={`${cell} text-center`}>{dash(s.classAverage)}</td>
+                {layout.showPosition && <td className={`${cell} text-center`}>{s.position ? ordinal(s.position) : "—"}</td>}
+                <td className={`${cell} text-center font-semibold`}>{dash(s.grade)}</td>
+                <td className={cell}>{dash(s.remark)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <section className={`my-4 grid grid-cols-2 gap-3 text-center ${layout.showPosition ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
-        {[
-          ["Total score", summary.totalScore ?? "—"],
-          ["Average", summary.average ?? "—"],
-          ["Overall grade", summary.overallGrade ?? "—"],
-          ...(layout.showPosition ? [["Position", summary.position ? `${ordinal(summary.position)}${layout.showClassSize && summary.classSize ? ` of ${summary.classSize}` : ""}` : "—"]] : []),
-        ].map(([label, value]) => (
-          <div key={label as string} className="rounded-lg border border-border p-2">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="font-serif text-xl text-navy">{value}</p>
-          </div>
-        ))}
+      <section className="mt-4 grid gap-4 sm:grid-cols-2">
+        {ratingTable("PSYCHOMOTOR SKILLS", PSYCHOMOTOR)}
+        {ratingTable("AFFECTIVE AREAS", AFFECTIVE)}
+      </section>
+      <p className="mt-2 text-center text-xs text-muted-foreground">Key: {RATINGS.map((g) => `${g} = ${RATING_MEANING[g]}`).join(", ")}</p>
+
+      <section className="mt-4">
+        <h2 className="mb-1 text-center text-sm font-bold tracking-wider text-navy">TERMLY REMARKS</h2>
+        <dl className="border border-[#b9cbe3] text-sm">
+          {[
+            ["Class Teacher's Com.", dash(summary.formTeacherRemark)],
+            ["H.M/Princ. Com.", dash(summary.principalRemark)],
+            ...(summary.supervisorRemark ? [["Supervisor's Com.", summary.supervisorRemark]] : []),
+            ["Class Teacher's Name", dash(data.classTeacherName)],
+          ].map(([label, value]) => (
+            <div key={label} className="flex gap-2 border-b border-[#b9cbe3] px-2 py-1.5 last:border-b-0">
+              <dt className="w-44 shrink-0 text-muted-foreground">{label}:</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
-      <section className="grid gap-3 text-sm">
-        <p><strong>Form Teacher's remark: </strong>{summary.formTeacherRemark ?? <Placeholder text="—" />}</p>
-        <p><strong>Principal's remark: </strong>{summary.principalRemark ?? <Placeholder text="—" />}</p>
-      </section>
-
-      {layout.showSignatures && (
-        <footer className="mt-8 grid grid-cols-2 gap-8 text-xs text-muted-foreground">
-          <p className="border-t border-border pt-1">Form Teacher's signature</p>
-          <p className="border-t border-border pt-1">Principal's signature and stamp{school.principalName ? ` (${school.principalName})` : ""}</p>
-        </footer>
-      )}
+      <footer className="mt-8 flex flex-wrap items-end justify-between gap-6 text-sm">
+        {layout.showSignatures && <p className="w-56 border-t border-muted-foreground pt-1 text-xs text-muted-foreground">Signed by{school.principalName ? `: ${school.principalName}` : ""}</p>}
+        <p className="font-semibold text-navy">The Proprietress, {school.name}</p>
+      </footer>
       {layout.footerNote && <p className="mt-4 text-center text-xs text-muted-foreground">{layout.footerNote}</p>}
     </article>
   );

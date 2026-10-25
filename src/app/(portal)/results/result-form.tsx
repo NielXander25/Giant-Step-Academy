@@ -16,18 +16,18 @@ export function ResultForm({ terms }: { terms: { id: string; label: string }[] }
     <form action={formAction} className="flex flex-col gap-5" autoComplete="off">
       <div className="flex flex-col gap-2">
         <Label htmlFor="termId">Term</Label>
-        <Select id="termId" name="termId" required defaultValue={terms[0]?.id}>
+        <Select key={state?.values?.termId} id="termId" name="termId" required defaultValue={state?.values?.termId || terms[0]?.id}>
           {terms.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
         </Select>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="studentName">Student's full name</Label>
-        <Input id="studentName" name="studentName" required autoCapitalize="words" />
+        <Input id="studentName" name="studentName" required autoCapitalize="words" defaultValue={state?.values?.studentName} />
         <p className="text-xs text-muted-foreground">Exactly as the school has it, for example "Ada Obi".</p>
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="admissionNumber">Admission number</Label>
-        <Input id="admissionNumber" name="admissionNumber" required autoCapitalize="characters" placeholder="GSA/SS2/001" />
+        <Input id="admissionNumber" name="admissionNumber" required autoCapitalize="characters" placeholder="GSA/SS2/001" defaultValue={state?.values?.admissionNumber} />
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="pin">Result PIN</Label>
