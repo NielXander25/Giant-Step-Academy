@@ -57,7 +57,7 @@ const dash = (v: string | number | null | undefined) => (v === null || v === und
 export function ResultPdf({ data, logo, photo = null }: { data: PublishedResult; logo: Buffer | null; photo?: Buffer | null }) {
   const { school, student, summary, layout } = data;
   const maxTotal = data.componentNames.reduce((a, c) => a + c.max, 0);
-  const W = { subject: 3.1, score: 0.9, total: 0.9, avg: 0.9, pos: 0.7, grade: 0.7, comment: 1.7 };
+  const W = { subject: 3, score: 0.9, total: 0.9, avg: 1.1, pos: 0.7, grade: 0.7, comment: 1.7 };
 
   const profile: [string, string][] = [
     ["Name", student.name],

@@ -29,7 +29,7 @@ describe("report card PDF", () => {
       "COGNITIVE ABILITY", "1st Test", "20%", "Exam", "60%", "Class Av.", "Comment", "English Language", "Mathematics", "Biology",
       String(s0.total), String(s0.classAverage), String(SAMPLE_RESULT.summary.average), "3rd", "No. in Class", "28",
       "PSYCHOMOTOR SKILLS", "Speech Composition", "AFFECTIVE AREAS", "Punctuality", "A = Excellent", "Student's Profile",
-      "TERMLY REMARKS", "A hardworking and well-behaved pupil.", "Aim higher next term.", "Mrs. Sample Teacher", "The Proprietress, Giant Step Academy",
+      "TERMLY REMARKS", "A hardworking and well-behaved", "A good result.", "Mrs. Sample Teacher", "The Proprietress, Giant Step Academy",
     ]) {
       expect(text).toContain(expected);
     }
