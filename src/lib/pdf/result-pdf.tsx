@@ -1,5 +1,6 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { PublishedResult } from "@/lib/pin/result-data";
+import { CREST_PNG } from "./crest";
 import { AFFECTIVE, columnMax, ordinal, PSYCHOMOTOR, RATING_MEANING, RATINGS } from "@/lib/results/report-card";
 
 // Laid out like Giant Step's printed termly report: an A4 LANDSCAPE spread with two panels.
@@ -27,7 +28,7 @@ const s = StyleSheet.create({
   photoRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 6 },
   photo: { width: 76, height: 90, borderWidth: 0.75, borderColor: LINE, alignItems: "center", justifyContent: "center", backgroundColor: SOFT },
   photoImg: { width: 76, height: 90, objectFit: "cover" },
-  badge: { width: 40, height: 40, objectFit: "contain", marginLeft: 12 },
+  badge: { width: 60, height: 90, objectFit: "contain", marginLeft: 14 },
   box: { borderWidth: 0.5, borderColor: LINE },
   line: { flexDirection: "row", borderBottomWidth: 0.5, borderColor: LINE, paddingVertical: 4.5, paddingHorizontal: 4 },
   label: { color: MUTED, width: 104 },
@@ -56,6 +57,7 @@ const dash = (v: string | number | null | undefined) => (v === null || v === und
 /** The downloadable report card. Mirrors the on-screen result, using only built-in PDF fonts so it works anywhere. */
 export function ResultPdf({ data, logo, photo = null }: { data: PublishedResult; logo: Buffer | null; photo?: Buffer | null }) {
   const { school, student, summary, layout } = data;
+  const badge = logo ?? CREST_PNG; // the uploaded official logo, else the school crest
   const maxTotal = data.componentNames.reduce((a, c) => a + c.max, 0);
   const W = { subject: 3, score: 0.9, total: 0.9, avg: 1.1, pos: 0.7, grade: 0.7, comment: 1.7 };
 
@@ -112,7 +114,7 @@ export function ResultPdf({ data, logo, photo = null }: { data: PublishedResult;
                 {photo ? <Image src={photo} style={s.photoImg} /> : <Text style={s.sub}>Photo</Text>}
               </View>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              {logo ? <Image src={logo} style={s.badge} /> : null}
+              <Image src={badge} style={s.badge} />
             </View>
 
             <View style={s.box}>

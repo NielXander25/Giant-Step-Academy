@@ -34,10 +34,12 @@ describe("report card PDF", () => {
       expect(text).toContain(expected);
     }
   });
-  it("embeds a logo when one is supplied", async () => {
-    const without = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null }));
+  it("always carries a badge: the school crest, or the uploaded logo instead", async () => {
+    const crest = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null }));
     const withLogo = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: PNG }));
-    expect(withLogo.length).toBeGreaterThan(without.length);
+    expect(crest.toString("latin1")).toContain("/Subtype /Image");
+    expect(withLogo.toString("latin1")).toContain("/Subtype /Image");
+    expect(withLogo.length).toBeLessThan(crest.length); // the 1x1 logo replaced the crest
   });
   it("obeys the report layout switches", async () => {
     const layout = { ...DEFAULT_LAYOUT, showPosition: false, showGender: false, showSignatures: false, footerNote: "Next term begins 5 January" };

@@ -1,4 +1,6 @@
 import { UserRound } from "lucide-react";
+import { CrestMark } from "@/components/site/school-logo";
+import { FitToWidth } from "./fit-to-width";
 import type { PublishedResult } from "@/lib/pin/result-data";
 import { AFFECTIVE, columnMax, ordinal, PSYCHOMOTOR, RATING_MEANING, RATINGS } from "@/lib/results/report-card";
 
@@ -51,7 +53,8 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
   );
 
   return (
-    <article className="result-card mx-auto w-full max-w-6xl rounded-xl border-4 border-[#5aa9d6] bg-white p-4 print:max-w-none print:rounded-none sm:p-5">
+    <FitToWidth width={1120}>
+    <article className="result-card w-full rounded-xl border-4 border-[#5aa9d6] bg-white p-4 print:max-w-none print:rounded-none sm:p-5">
       {/* One landscape A4 sheet, like the printed card: tighter spacing on paper than on screen. */}
       <style>{`@media print {
         @page { size: A4 landscape; margin: 5mm; }
@@ -65,11 +68,11 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
         .result-card section { gap: 6px !important; }
       }`}</style>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_2fr] print:grid-cols-[1fr_2fr] print:gap-4">
+      <div className="grid grid-cols-[1fr_2fr] gap-6 print:gap-4">
         {/* Left panel */}
-        <section className={`flex flex-col gap-3 lg:border-r lg:pr-5 print:border-r print:pr-4 ${LINE}`}>
+        <section className={`flex flex-col gap-3 border-r pr-5 print:pr-4 ${LINE}`}>
           <header className="text-center">
-            <h1 className="text-xl font-bold tracking-wide text-navy sm:text-2xl">{school.name.toUpperCase()}</h1>
+            <h1 className="text-2xl font-bold tracking-wide text-navy">{school.name.toUpperCase()}</h1>
             {school.motto && <p className="font-serif text-sm italic text-muted-foreground">{school.motto}</p>}
             <p className="mt-1 font-semibold text-navy">Termly Report</p>
             <p className="text-xs text-muted-foreground">{[school.phone ? `Phone: ${school.phone}` : null, school.address, school.email].filter(Boolean).join(" · ")}</p>
@@ -86,9 +89,11 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
                   <UserRound className="size-14 text-[#9fb6d4]" aria-label="No photo" />
                 )}
               </div>
-              {school.logoUrl && (
+              {school.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={school.logoUrl} alt="" className="h-14 w-auto" />
+                <img src={school.logoUrl} alt={`${school.name} logo`} className="h-24 w-auto" />
+              ) : (
+                <CrestMark size={96} title={`${school.name} crest`} />
               )}
             </div>
           </div>
@@ -130,10 +135,10 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
 
         {/* Right panel */}
         <section className="flex min-w-0 flex-col gap-3">
-          <dl className={`grid grid-cols-1 border-l border-t text-sm sm:grid-cols-3 ${LINE}`}>
+          <dl className={`grid grid-cols-3 border-l border-t text-sm ${LINE}`}>
             {summaryCells.map(([label, value]) => (
               <div key={label} className={`flex gap-2 border-b border-r px-2 py-1.5 ${LINE}`}>
-                <dt className="w-32 shrink-0 text-muted-foreground sm:w-auto">{label}:</dt>
+                <dt className="shrink-0 text-muted-foreground">{label}:</dt>
                 <dd className="font-semibold">{value}</dd>
               </div>
             ))}
@@ -142,7 +147,7 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
           <div>
             <h2 className="mb-1 text-center text-sm font-bold tracking-wider text-navy">COGNITIVE ABILITY</h2>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[600px] border-collapse text-sm print:min-w-0">
+              <table className="w-full border-collapse text-sm">
                 <thead className="bg-[#e8f2fa] text-left text-xs">
                   <tr>
                     <th className={cell}>Subjects</th>
@@ -171,7 +176,7 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 print:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             {ratingTable("PSYCHOMOTOR SKILLS", PSYCHOMOTOR)}
             {ratingTable("AFFECTIVE AREAS", AFFECTIVE)}
           </div>
@@ -180,5 +185,6 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
       </div>
       {layout.footerNote && <p className="mt-4 text-center text-xs text-muted-foreground">{layout.footerNote}</p>}
     </article>
+    </FitToWidth>
   );
 }
