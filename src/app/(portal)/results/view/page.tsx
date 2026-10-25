@@ -21,7 +21,7 @@ export default async function ViewResultPage() {
   if (sample && (await isSampleEnabled())) {
     const data = await loadSampleResult(sample.stage, sample.termId);
     return (
-      <main className="mx-auto max-w-4xl px-4 py-6 print:p-0">
+      <main className="mx-auto max-w-6xl px-4 py-6 print:p-0">
         <div className="mb-6 flex flex-col gap-4 print:hidden">
           <div role="alert" className="flex gap-3 rounded-xl border border-accent bg-accent-soft p-4 text-sm">
             <AlertTriangle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
@@ -63,7 +63,7 @@ export default async function ViewResultPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-6 print:p-0">
+    <main className="mx-auto max-w-6xl px-4 py-6 print:p-0">
       <div className="mb-6 flex flex-col gap-4 print:hidden">
         <div role="alert" className="flex gap-3 rounded-xl border border-accent bg-accent-soft p-4 text-sm">
           <AlertTriangle className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />

@@ -28,7 +28,7 @@ describe("report card PDF", () => {
       "GIANT STEP ACADEMY", "Termly Report", "Sample Student", "SAMPLE-SS", "SS2A", "2026/2027", "Kaduna", "14 March 2015", "5 January 2027", "112 of 120",
       "COGNITIVE ABILITY", "1st Test", "20%", "Exam", "60%", "Class Av.", "Comment", "English Language", "Mathematics", "Biology",
       String(s0.total), String(s0.classAverage), String(SAMPLE_RESULT.summary.average), "3rd", "No. in Class", "28",
-      "PSYCHOMOTOR SKILLS", "Speech Composition", "AFFECTIVE AREAS", "Punctuality", "A = Excellent",
+      "PSYCHOMOTOR SKILLS", "Speech Composition", "AFFECTIVE AREAS", "Punctuality", "A = Excellent", "Student's Profile",
       "TERMLY REMARKS", "A hardworking and well-behaved pupil.", "Aim higher next term.", "Mrs. Sample Teacher", "The Proprietress, Giant Step Academy",
     ]) {
       expect(text).toContain(expected);
@@ -45,7 +45,7 @@ describe("report card PDF", () => {
     expect(text).not.toContain("Position");
     expect(text).not.toContain("Pos'n");
     expect(text).not.toContain("Gender");
-    expect(text).not.toContain("Signed by");
+    expect(text).not.toContain("Signed By");
     expect(text).toContain("Next term begins 5 January");
   });
   it("shows the position without the class size when asked", async () => {
@@ -53,12 +53,19 @@ describe("report card PDF", () => {
     expect(text).toContain("3rd");
     expect(text).not.toContain("No. in Class");
   });
-  it("shows the supervisor's comment only when there is one", async () => {
+  it("has a Supervisor's comment line, as on the card, filled when there is one", async () => {
     const without = await textOf(await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null })));
-    expect(without).not.toContain("Supervisor");
+    expect(without).toContain("Supervisor's Com.");
     const withIt = await textOf(await renderToBuffer(ResultPdf({ data: { ...SAMPLE_RESULT, summary: { ...SAMPLE_RESULT.summary, supervisorRemark: "Well done." } }, logo: null })));
-    expect(withIt).toContain("Supervisor's Com.");
     expect(withIt).toContain("Well done.");
+  });
+  it("is an A4 landscape page", async () => {
+    const buffer = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null }));
+    const file = join(mkdtempSync(join(tmpdir(), "pdf-")), "r.pdf");
+    writeFileSync(file, buffer);
+    const info = execFileSync("pdfinfo", [file], { encoding: "utf8" });
+    expect(info).toMatch(/Page size:\s+841\.89 x 595\.28/);
+    expect(info).toMatch(/Pages:\s+1\b/);
   });
   it("copes with a result that has no position, no remarks and no scores yet", async () => {
     const data = { ...SAMPLE_RESULT, summary: { ...SAMPLE_RESULT.summary, position: null, formTeacherRemark: null, principalRemark: null, average: null }, subjects: [{ name: "Physics", scores: [null, null, null], total: null, classAverage: null, position: null, grade: null, remark: null }] };
