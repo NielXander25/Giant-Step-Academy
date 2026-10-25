@@ -20,6 +20,16 @@ if (isPreview && process.env.ALLOW_PREVIEW_MIGRATIONS !== "true") {
   }
   console.log("DIRECT_URL not set: skipping database migrations.");
 } else {
+  // Migrations take a database lock that must not go through Neon's connection pooler: through the pooler the lock
+  // can be left behind on a pooled connection and every later build then times out (error P1002). If DIRECT_URL was
+  // given the pooled address by mistake, use the direct one (the same address without "-pooler").
+  const url = new URL(process.env.DIRECT_URL);
+  if (url.hostname.includes("-pooler.")) {
+    url.hostname = url.hostname.replace("-pooler.", ".");
+    url.searchParams.delete("pgbouncer");
+    process.env.DIRECT_URL = url.toString();
+    console.warn("DIRECT_URL points at the connection pooler; using the direct address for migrations. Set DIRECT_URL to the direct (non-pooler) connection string in Vercel.");
+  }
   run("npx prisma migrate deploy");
 }
 
