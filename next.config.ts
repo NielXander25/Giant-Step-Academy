@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ["@node-rs/argon2", "exceljs", "@react-pdf/renderer"],
+  // The PDF library loads its built-in fonts (Helvetica, Times) by a file name it works out at run time, so the
+  // build cannot see them and leaves them out of the deployed PDF routes. Ship them explicitly.
+  outputFileTracingIncludes: {
+    "/api/results/pdf": ["./node_modules/pdfkit/js/standard-fonts/**"],
+    "/api/results/sample-pdf": ["./node_modules/pdfkit/js/standard-fonts/**"],
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
