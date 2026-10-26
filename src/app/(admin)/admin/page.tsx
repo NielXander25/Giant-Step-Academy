@@ -3,7 +3,9 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import Link from "next/link";
 import { requireRole } from "@/lib/auth/session";
+import { isDemoSite } from "@/lib/demo/mode";
 
 export const metadata: Metadata = { title: "Admin overview" };
 
@@ -30,6 +32,15 @@ export default async function AdminOverview() {
   return (
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} description="A quick view of the school's records." />
+      {isDemoSite() && (
+        <Card className="mb-8 border-accent bg-accent-soft">
+          <CardHeader>
+            <CardTitle>This is the demo site</CardTitle>
+            <CardDescription>Practice data only. The Demo guide has the sign-in accounts, students, PINs and a running order for presenting.</CardDescription>
+          </CardHeader>
+          <CardContent><Link href="/admin/demo" className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-navy">Open the Demo guide</Link></CardContent>
+        </Card>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Active teachers" value={teachers} />
         <StatCard label="Pending requests" value={pendingRequests} />

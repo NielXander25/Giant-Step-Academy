@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Newsreader } from "next/font/google";
 import { siteUrl } from "@/lib/site-url";
+import { isDemoSite } from "@/lib/demo/mode";
 import "./globals.css";
 
 const display = Newsreader({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -22,7 +23,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        {isDemoSite() && (
+          <div className="bg-amber-400 px-4 py-1 text-center text-xs font-semibold text-black print:hidden">DEMO SITE · practice data only · nothing here is a real student or result</div>
+        )}
+        {children}
+      </body>
     </html>
   );
 }
