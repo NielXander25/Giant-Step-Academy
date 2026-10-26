@@ -5,6 +5,8 @@ import { z } from "zod";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ScoreGrid } from "@/components/results/score-grid";
+import { ActionButton } from "@/components/shared/action-button";
+import { takeBackSubjectAction } from "@/lib/results/actions";
 import { BatchBadge } from "@/components/results/status-badge";
 import { requireRole } from "@/lib/auth/session";
 import { loadTeacherScope } from "@/lib/permissions/assignments";
@@ -35,6 +37,8 @@ export default async function EntryPage({ searchParams }: { searchParams: Promis
   const status = view.batch?.status ?? "DRAFT";
   const canEdit = canEditBatch(status, view.sheetStatus) && !term.resultsLocked;
   const ready = view.config.components.length > 0 && view.config.bands.length > 0;
+  // A teacher who spots a mistake after submitting can take the results back until the Form Teacher reviews them.
+  const canTakeBack = status === "SUBMITTED" && view.batch?.submittedById === user.id && view.sheetStatus === "DRAFT" && !term.resultsLocked;
 
   return (
     <>
@@ -48,9 +52,18 @@ export default async function EntryPage({ searchParams }: { searchParams: Promis
         <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-destructive">Sent back for correction: {view.batch.lastRejectionReason}</p>
       )}
       {!canEdit && ready && (
-        <p className="mb-4 rounded-lg bg-accent-soft px-3 py-2 text-sm">
-          {term.resultsLocked ? "Results for this term are locked." : status === "SUBMITTED" ? "Submitted. Waiting for the Form Teacher to review." : "These results can no longer be changed here."}
-        </p>
+        <div className="mb-4 flex flex-col gap-3 rounded-lg bg-accent-soft px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            {term.resultsLocked ? "Results for this term are locked."
+              : status === "SUBMITTED" ? "Submitted. Waiting for the Form Teacher to review. Made a mistake? Take the results back, correct them and submit again."
+              : status === "FORM_TEACHER_APPROVED" && view.sheetStatus === "DRAFT" ? "Approved. To change a score, ask the Form Teacher to reopen this subject."
+              : "These results have gone to the Admin. To change a score, ask the Admin to send this subject back for correction."}
+          </p>
+          {canTakeBack && (
+            <ActionButton action={takeBackSubjectAction} input={target} label="Take back to edit" variant="default"
+              confirm="Take these results back so you can correct them? You will need to submit them again." />
+          )}
+        </div>
       )}
 
       {!ready ? (

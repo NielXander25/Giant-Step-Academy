@@ -23,6 +23,10 @@ export const reviewSubjectAction = defineAction({
   roles: ALL_STAFF_ROLES, input: reviewSubjectInput,
   handler: async ({ user, input }) => service.reviewSubject(user, await scopeOf(user), input),
 });
+export const takeBackSubjectAction = defineAction({
+  roles: ALL_STAFF_ROLES, input: subjectRefInput,
+  handler: async ({ user, input }) => service.takeBackSubject(user, await scopeOf(user), input),
+});
 export const reopenSubjectAction = defineAction({
   roles: ALL_STAFF_ROLES, input: subjectRefInput,
   handler: async ({ user, input }) => service.reopenSubject(user, await scopeOf(user), input),

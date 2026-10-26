@@ -15,6 +15,11 @@ describe("subject result workflow", () => {
     expect(batchTransition("DRAFT", "SUBMIT_AS_FORM_TEACHER")).toBe("FORM_TEACHER_APPROVED");
     expect(batchTransition("FORM_TEACHER_REJECTED", "SUBMIT_AS_FORM_TEACHER")).toBe("FORM_TEACHER_APPROVED");
   });
+  it("a subject teacher can take back a submission the Form Teacher has not reviewed yet", () => {
+    expect(batchTransition("SUBMITTED", "TAKE_BACK")).toBe("DRAFT");
+    expect(batchTransition("FORM_TEACHER_APPROVED", "TAKE_BACK")).toBeNull();
+    expect(batchTransition("DRAFT", "TAKE_BACK")).toBeNull();
+  });
   it("only approved subjects can be reopened or returned", () => {
     expect(batchTransition("FORM_TEACHER_APPROVED", "REOPEN")).toBe("DRAFT");
     expect(batchTransition("FORM_TEACHER_APPROVED", "RETURN")).toBe("FORM_TEACHER_REJECTED");
@@ -31,6 +36,7 @@ describe("subject result workflow", () => {
     const expected: Record<BatchAction, BatchStatus[]> = {
       SUBMIT: ["DRAFT", "FORM_TEACHER_REJECTED"], SUBMIT_AS_FORM_TEACHER: ["DRAFT", "FORM_TEACHER_REJECTED"],
       APPROVE: ["SUBMITTED"], REJECT: ["SUBMITTED"], REOPEN: ["FORM_TEACHER_APPROVED"], RETURN: ["FORM_TEACHER_APPROVED"],
+      TAKE_BACK: ["SUBMITTED"],
     };
     for (const action of Object.keys(expected) as BatchAction[]) {
       expect(BATCH_STATES.filter((s) => batchTransition(s, action) !== null).sort()).toEqual([...expected[action]].sort());
@@ -59,9 +65,19 @@ describe("class sheet workflow", () => {
     expect(sheetTransition("PUBLISHED", "UNPUBLISH")).toBe("ADMIN_APPROVED");
     expect(sheetTransition("DRAFT", "UNPUBLISH")).toBeNull();
   });
-  it("each action works from exactly one state", () => {
-    const actions: SheetAction[] = ["SUBMIT", "APPROVE", "RETURN", "PUBLISH", "UNPUBLISH", "WITHDRAW"];
-    for (const a of actions) expect(SHEET_STATES.filter((s) => sheetTransition(s, a) !== null)).toHaveLength(1);
+  it("each action works only from the states listed", () => {
+    const expected: Record<SheetAction, SheetStatus[]> = {
+      SUBMIT: ["DRAFT"], APPROVE: ["ADMIN_REVIEW"], PUBLISH: ["ADMIN_APPROVED"], UNPUBLISH: ["PUBLISHED"], WITHDRAW: ["ADMIN_APPROVED"],
+      RETURN: ["ADMIN_REVIEW", "ADMIN_APPROVED", "PUBLISHED"],
+    };
+    for (const a of Object.keys(expected) as SheetAction[]) {
+      expect(SHEET_STATES.filter((s) => sheetTransition(s, a) !== null).sort()).toEqual([...expected[a]].sort());
+    }
+  });
+  it("an Admin can send a class back for correction even after approving or publishing it", () => {
+    expect(sheetTransition("ADMIN_APPROVED", "RETURN")).toBe("DRAFT");
+    expect(sheetTransition("PUBLISHED", "RETURN")).toBe("DRAFT");
+    expect(sheetTransition("DRAFT", "RETURN")).toBeNull();
   });
 });
 

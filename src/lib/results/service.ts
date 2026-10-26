@@ -218,6 +218,29 @@ export async function reviewSubject(
   return { status: to };
 }
 
+/** A subject teacher takes back their own submission to fix a mistake, as long as the Form Teacher has not reviewed it yet. */
+export async function takeBackSubject(user: Actor, scope: TeacherScope, input: { classId: string; subjectId: string }) {
+  assertAllowed(canEnterScores(user, scope, input), "You are not assigned to this subject in this class.");
+  const term = await requireOpenTerm();
+
+  await db.$transaction(async (tx) => {
+    const sheet = await sheetFor(tx, input.classId, term.id);
+    if (sheet.status !== "DRAFT") throw new ConflictError("This class's results have already gone to the Admin. Ask the Admin to send this subject back.");
+    const batch = await tx.subjectResultBatch.findUnique({
+      where: { classId_subjectId_termId: { classId: input.classId, subjectId: input.subjectId, termId: term.id } },
+    });
+    const to = batch ? batchTransition(batch.status, "TAKE_BACK") : null;
+    if (!batch || !to) throw new ConflictError("Only results still waiting for the Form Teacher can be taken back. Ask the Form Teacher to reopen them.");
+    if (batch.submittedById !== user.id) throw new ForbiddenError("Only the teacher who submitted these results can take them back.");
+    const claimed = await tx.subjectResultBatch.updateMany({ where: { id: batch.id, status: batch.status }, data: { status: to } });
+    if (claimed.count !== 1) throw new ConflictError("These results have just been reviewed. Reload the page.");
+    await record(tx, { target: "SUBJECT_BATCH", batchId: batch.id, action: "REQUEST_CORRECTION", from: batch.status, to, actor: user, comment: "Taken back by the teacher to correct." });
+  }, TX_OPTIONS);
+
+  await audit(user, AuditAction.RESULT_REOPENED, "SubjectResultBatch", `${input.classId}:${input.subjectId}`, { takenBack: true });
+  return { status: "DRAFT" as const };
+}
+
 /** The Form Teacher takes an approved subject back for correction, as long as the class has not gone to the Admin. */
 export async function reopenSubject(user: Actor, scope: TeacherScope, input: { classId: string; subjectId: string }) {
   assertAllowed(canReopenSubject(user, scope, input.classId), "Only the class's Form Teacher can reopen a subject.");
@@ -353,7 +376,11 @@ export async function adminReviewSheet(
     const now = new Date();
     const claimed = await tx.classResultSheet.updateMany({
       where: { id: sheet.id, status: sheet.status },
-      data: { status: to, adminReviewedById: user.id, adminReviewedAt: now, rejectionReason: input.decision === "RETURN" ? input.reason?.trim() ?? null : null },
+      data: {
+        status: to, adminReviewedById: user.id, adminReviewedAt: now, rejectionReason: input.decision === "RETURN" ? input.reason?.trim() ?? null : null,
+        // Returning published results for correction takes them away from parents until they are published again.
+        ...(sheet.status === "PUBLISHED" ? { publishedAt: null, publishedById: null } : {}),
+      },
     });
     if (claimed.count !== 1) throw new ConflictError("That is not possible at this stage.");
 
