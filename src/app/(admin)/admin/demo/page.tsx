@@ -13,6 +13,8 @@ import { clearDemoAction, loadDemoAction } from "./actions";
 
 export const metadata: Metadata = { title: "Demo guide" };
 export const dynamic = "force-dynamic";
+// Building the practice school makes several hundred database writes: allow it time to finish.
+export const maxDuration = 300;
 
 /** Everything needed to present the system: logins, students, PINs and a running order. Demo site only. */
 export default async function DemoGuidePage() {
