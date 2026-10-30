@@ -17,6 +17,7 @@ import { isPepperConfigured } from "@/lib/pin/hash";
 import { effectivePinStatus } from "@/lib/pin/lifecycle";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { cn } from "@/lib/utils";
+import { canGeneratePins } from "@/lib/permissions/policies";
 import { GeneratePinsForm } from "./generate-form";
 
 export const metadata: Metadata = { title: "Result PINs" };
@@ -33,7 +34,7 @@ const whereFor = (f: Filter, now: Date): Prisma.PinWhereInput =>
 const BADGE = { ACTIVE: "success", EXHAUSTED: "outline", EXPIRED: "outline", DISABLED: "destructive" } as const;
 
 export default async function PinsPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
-  await requireRole(...ADMIN_ROLES);
+  const user = await requireRole(...ADMIN_ROLES);
   const sp = await searchParams;
   const now = new Date();
   const filter = FILTERS.find((f) => f === sp.status);
@@ -104,7 +105,11 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
           <CardTitle>Create PINs</CardTitle>
           <CardDescription>Give them to parents through the school office. Creating new PINs never cancels older ones.</CardDescription>
         </CardHeader>
-        <CardContent><GeneratePinsForm disabled={!isPepperConfigured()} /></CardContent>
+        <CardContent>
+          {canGeneratePins(user)
+            ? <GeneratePinsForm disabled={!isPepperConfigured()} />
+            : <p className="text-sm text-muted-foreground">Only the Super Admin can create PINs. Ask them for a new batch when you need one.</p>}
+        </CardContent>
       </Card>
 
       <div className="mb-4 flex flex-wrap gap-2" role="navigation" aria-label="Filter PINs">

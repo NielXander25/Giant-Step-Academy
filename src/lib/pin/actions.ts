@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { defineAction } from "@/lib/action";
 import { AuditAction, writeAudit } from "@/lib/audit";
 import { ConflictError, NotFoundError } from "@/lib/errors";
-import { assertAllowed, canManagePins } from "@/lib/permissions/policies";
+import { assertAllowed, canGeneratePins, canManagePins } from "@/lib/permissions/policies";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { MAX_BATCH, createPins } from "./generate";
 import { isPepperConfigured } from "./hash";
@@ -21,7 +21,7 @@ export const generatePinsAction = defineAction({
   roles: ADMIN_ROLES,
   input: generateInput,
   handler: async ({ user, input }) => {
-    assertAllowed(canManagePins(user));
+    assertAllowed(canGeneratePins(user), "Only the Super Admin can create PINs.");
     if (!isPepperConfigured()) throw new ConflictError("PINs cannot be created yet: the PIN_PEPPER setting is missing in Vercel.");
     const pins = await createPins({ count: input.count, label: input.label || null, createdById: user.id });
     // Only the count and label are logged, never the PINs themselves.

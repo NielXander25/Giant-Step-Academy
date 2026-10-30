@@ -20,6 +20,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { label: "Overview", href: "/super-admin", icon: "home", ready: true, group: "System" },
     { label: "Admins", href: "/super-admin/admins", icon: "shield", ready: true, group: "System" },
     { label: "Audit logs", href: "/super-admin/audit-logs", icon: "scroll", ready: true, group: "System" },
+    { label: "Result PINs", href: "/admin/pins", icon: "key", ready: true, group: "System" },
     { label: "Admin console", href: "/admin", icon: "settings", ready: true, group: "Switch to" },
     { label: "Change password", href: "/account/password", icon: "key", ready: true, group: "Account" },
   ],

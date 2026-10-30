@@ -43,6 +43,8 @@ export const canManageSchoolProfile = isAdminOrAbove;
 export const canManageWebsiteContent = isAdminOrAbove;
 export const canViewAccessLogs = isAdminOrAbove;
 export const canManagePins = isAdminOrAbove;
+/** Creating PINs is kept to the Super Admin: every PIN opens results, so new ones come from one place. */
+export const canGeneratePins = (a: Actor) => a.role === "SUPER_ADMIN";
 /** Only Admin / Super Admin publish. Teachers and Form Teachers never can. */
 export const canPublishResults = isAdminOrAbove;
 

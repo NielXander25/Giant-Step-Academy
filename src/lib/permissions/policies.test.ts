@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   EMPTY_SCOPE, canAdminReview, canApproveStudentUpload, canCreateAdmin, canEnterScores, canFormTeacherReview,
-  canManageAdmins, canManagePins, canManageClassStudents, canPublishResults, canViewAuditLogs, canViewClass,
+  canGeneratePins, canManageAdmins, canManagePins, canManageClassStudents, canPublishResults, canViewAuditLogs, canViewClass,
   studentUploadRule, canEditFormTeacherRemarks, canEditPrincipalRemarks, canReopenSubject, canSubmitClassSheet, canViewClassSheet, canViewSubjectResults,
   type Actor, type TeacherScope,
 } from "./policies";
@@ -104,6 +104,12 @@ describe("PINs", () => {
     expect(canManagePins(superAdmin)).toBe(true);
     expect(canManagePins(formTeacher)).toBe(false);
     expect(canManagePins(teacherA)).toBe(false);
+  });
+  it("only the Super Admin creates PINs", () => {
+    expect(canGeneratePins(superAdmin)).toBe(true);
+    expect(canGeneratePins(admin)).toBe(false);
+    expect(canGeneratePins(adminWithGrant)).toBe(false);
+    expect(canGeneratePins(teacherA)).toBe(false);
   });
 });
 
