@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EventRow } from "@/components/site/cards";
 import { PageHero, Section, SectionHeading } from "@/components/site/section";
-import { PhotoGrid } from "@/components/site/photo-grid";
+import { flyFor, PhotoGrid } from "@/components/site/photo-grid";
+import { Reveal } from "@/components/site/reveal";
 import { SiteImage } from "@/components/site/site-image";
 import { SECTIONS } from "@/components/site/nav";
 import type { ListValue } from "@/lib/cms/blocks";
@@ -20,7 +21,10 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
   const categories = [...new Set(gallery.map((g) => g.category).filter((c): c is string => Boolean(c)))];
   const category = categories.find((c) => c === sp.category);
   const uploads = category ? gallery.filter((g) => g.category === category) : gallery;
-  const life = [...(b["schoollife.facilities"] as ListValue), ...(b["schoollife.activities"] as ListValue)].filter((i) => i.image);
+  // Graduation closes the page, so its school-life card is left out above it.
+  const life = [...(b["schoollife.facilities"] as ListValue), ...(b["schoollife.activities"] as ListValue)].filter((i) => i.image && !/graduation/i.test(i.title));
+  const graduation = EVENT_GROUPS.find((g) => /graduation/i.test(g.title));
+  const albums = EVENT_GROUPS.filter((g) => g !== graduation);
   const chip = (on: boolean) => cn("rounded-full px-4 py-1.5 text-sm font-medium", on ? "bg-navy text-white" : "bg-white text-navy hover:bg-white/70");
 
   return (
@@ -42,19 +46,19 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
             </div>
           )}
           <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {uploads.map((g) => (
-              <li key={g.id} className="group overflow-hidden rounded-3xl bg-white">
+            {uploads.map((g, i) => (
+              <Reveal as="li" key={g.id} {...flyFor(i)} className="group overflow-hidden rounded-3xl bg-white">
                 <a href={optimizeImage(g.imageUrl, 1600) ?? g.imageUrl} target="_blank" rel="noopener noreferrer" className="block overflow-hidden">
                   <SiteImage src={g.imageUrl} alt={g.caption ?? "School picture"} width={560} className="aspect-square w-full transition-transform duration-500 group-hover:scale-105" />
                 </a>
                 {g.caption && <p className="px-3 py-2 text-sm text-muted-foreground">{g.caption}</p>}
-              </li>
+              </Reveal>
             ))}
           </ul>
         </Section>
       )}
 
-      {EVENT_GROUPS.map((g, i) => (
+      {albums.map((g, i) => (
         <Section key={g.title} tone={(i + (gallery.length > 0 ? 1 : 0)) % 2 ? "soft" : "white"}>
           <SectionHeading eyebrow="In pictures" title={g.title} />
           <PhotoGrid photos={g.photos} />
@@ -78,16 +82,23 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
           <SectionHeading eyebrow="School life" title="More than lessons" />
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {life.map((a, i) => (
-              <li key={i} className="overflow-hidden rounded-3xl bg-muted">
+              <Reveal as="li" key={i} {...flyFor(i)} className="overflow-hidden rounded-3xl bg-muted">
                 <SiteImage src={a.image} alt={a.title} width={640} className="aspect-[4/3] w-full" />
                 <div className="p-5"><h3 className="text-lg text-navy">{a.title}</h3><p className="mt-1 text-sm text-muted-foreground">{a.text}</p></div>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </Section>
       )}
 
       {past.length > 0 && <Section tone="soft"><SectionHeading title="Recent events" /><ul className="grid gap-4 md:grid-cols-2">{past.map((e) => <EventRow key={e.id} event={e} />)}</ul></Section>}
+
+      {graduation && (
+        <Section tone={past.length > 0 ? "white" : "soft"} id="graduation">
+          <SectionHeading eyebrow="In pictures" title={graduation.title} />
+          <PhotoGrid photos={graduation.photos} />
+        </Section>
+      )}
     </>
   );
 }

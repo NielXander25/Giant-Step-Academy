@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BellRing } from "lucide-react";
+import { Reveal } from "@/components/site/reveal";
 import { SiteShell } from "@/components/site/site-shell";
 import { EventRow, NewsCard } from "@/components/site/cards";
 import { RichText } from "@/components/site/rich-text";
@@ -74,8 +75,8 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-6xl px-5 pt-12 sm:px-8 md:pt-16">
         <ul className="grid gap-4 md:grid-cols-3">
-          {SECTIONS.map((s) => (
-            <li key={s.key}>
+          {SECTIONS.map((s, i) => (
+            <Reveal as="li" key={s.key} from="up" delay={i * 120}>
               <Link href="/admissions" className="group block h-full overflow-hidden rounded-3xl bg-muted transition-transform hover:-translate-y-1">
                 <div className="mx-6 mt-6 h-1.5 w-12 rounded-full" style={{ background: s.color }} />
                 <div className="p-6">
@@ -84,7 +85,7 @@ export default async function HomePage() {
                   <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">Learn more <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
                 </div>
               </Link>
-            </li>
+            </Reveal>
           ))}
         </ul>
       </div>
@@ -96,7 +97,7 @@ export default async function HomePage() {
             <RichText source={b["home.about.body"] as string} />
             <Button asChild variant="outline" className="mt-6"><Link href="/about">More about the school</Link></Button>
           </div>
-          <SiteImage src={aboutImage?.url} alt={aboutImage?.alt ?? ""} width={900} className="aspect-[5/4] w-full rounded-3xl" />
+          <Reveal from="right"><SiteImage src={aboutImage?.url} alt={aboutImage?.alt ?? ""} width={900} className="aspect-[5/4] w-full rounded-3xl" /></Reveal>
         </div>
       </Section>
 
@@ -105,11 +106,11 @@ export default async function HomePage() {
           <SectionHeading eyebrow="What we stand for" title="The values behind every school day" />
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
-              <li key={i} className="rounded-3xl bg-white p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+              <Reveal as="li" key={i} from="zoom" delay={i * 110} className="rounded-3xl bg-white p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
                 <span className="text-5xl font-bold tracking-tight" style={{ color: ["#0071e3", "#ff9500", "#34c759", "#af52de", "#ff2d55", "#32ade6"][i % 6] }}>{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mt-2 font-serif text-xl text-navy">{v.title}</h3>
                 {v.text && <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>}
-              </li>
+              </Reveal>
             ))}
           </ul>
         </Section>

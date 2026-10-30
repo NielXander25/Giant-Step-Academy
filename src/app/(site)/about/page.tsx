@@ -27,7 +27,7 @@ export default async function AboutPage() {
       <Section>
         <div className="grid items-center gap-10 md:grid-cols-2">
           <Reveal><RichText source={b["about.story"] as string} /></Reveal>
-          <Reveal delay={100}><SiteImage src={image?.url} alt={image?.alt ?? ""} width={900} className="aspect-[4/3] w-full rounded-3xl" /></Reveal>
+          <Reveal from="right"><SiteImage src={image?.url} alt={image?.alt ?? ""} width={900} className="aspect-[4/3] w-full rounded-3xl" /></Reveal>
         </div>
       </Section>
       <Section tone="soft">
@@ -64,7 +64,7 @@ export default async function AboutPage() {
       {(principal || message) && (
         <Section tone="sand">
           <div className="grid items-start gap-10 md:grid-cols-[0.8fr_1.2fr]">
-            <Reveal><SiteImage src={photo?.url} alt={photo?.alt || principal} width={600} className="aspect-[4/5] w-full rounded-3xl" /></Reveal>
+            <Reveal from="left"><SiteImage src={photo?.url} alt={photo?.alt || principal} width={600} className="aspect-[4/5] w-full rounded-3xl" /></Reveal>
             <Reveal delay={100}>
               <SectionHeading eyebrow={`From the ${role.toLowerCase()}`} title={principal ? `A message from ${principal}` : `A message from the ${role.toLowerCase()}`} className="mb-5" />
               <RichText source={message} />
