@@ -49,7 +49,7 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-14 text-center sm:px-8 md:pb-24 md:pt-24">
           <div className="fade-up flex flex-wrap justify-center gap-2">
             {SECTIONS.map((sec) => (
-              <Link key={sec.key} href={`/academics#${sec.key}`} className="rounded-full px-4 py-1.5 text-sm font-semibold transition-transform hover:-translate-y-0.5" style={{ color: sec.color, background: `${sec.color}1a` }}>{sec.name}</Link>
+              <Link key={sec.key} href="/admissions" className="rounded-full px-4 py-1.5 text-sm font-semibold transition-transform hover:-translate-y-0.5" style={{ color: sec.color, background: `${sec.color}1a` }}>{sec.name}</Link>
             ))}
           </div>
           <h1 className="fade-up mx-auto mt-6 max-w-4xl text-5xl leading-[1.05] text-navy sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
@@ -76,7 +76,7 @@ export default async function HomePage() {
         <ul className="grid gap-4 md:grid-cols-3">
           {SECTIONS.map((s) => (
             <li key={s.key}>
-              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-3xl bg-muted transition-transform hover:-translate-y-1">
+              <Link href="/admissions" className="group block h-full overflow-hidden rounded-3xl bg-muted transition-transform hover:-translate-y-1">
                 <div className="mx-6 mt-6 h-1.5 w-12 rounded-full" style={{ background: s.color }} />
                 <div className="p-6">
                   <h2 className="font-serif text-2xl text-navy">{s.name}</h2>
@@ -159,7 +159,7 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg" variant="yellow"><Link href="/admissions">How to apply</Link></Button>
-            <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/contact">Contact us</Link></Button>
+            <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/admissions#enquire">Contact us</Link></Button>
           </div>
         </div>
       </Section>

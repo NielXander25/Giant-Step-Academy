@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { RichText } from "@/components/site/rich-text";
 import { Reveal } from "@/components/site/reveal";
 import { PageHero, Section, SectionHeading } from "@/components/site/section";
 import { SiteImage } from "@/components/site/site-image";
-import { Button } from "@/components/ui/button";
 import type { ImageValue, ListValue } from "@/lib/cms/blocks";
-import { getBlocks, getSchool } from "@/lib/cms/site-data";
+import { getBlocks, getSchool, getStaff } from "@/lib/cms/site-data";
+import { LEADER_PHOTOS, STAFF_PHOTOS } from "@/lib/cms/school-photos";
+import { StaffCard } from "@/components/site/cards";
+import { PhotoGrid } from "@/components/site/photo-grid";
 
 export const metadata: Metadata = { title: "About us", description: "Our story, mission, vision and values." };
 
 export default async function AboutPage() {
-  const [b, school] = await Promise.all([getBlocks(["about"]), getSchool()]);
+  const [b, school, staff] = await Promise.all([getBlocks(["about"]), getSchool(), getStaff()]);
   const image = b["about.story.image"] as ImageValue;
   const photo = b["about.principal.photo"] as ImageValue;
   const values = b["about.values"] as ListValue;
@@ -72,7 +73,14 @@ export default async function AboutPage() {
           </div>
         </Section>
       )}
-      <Section><div className="flex flex-wrap items-center justify-between gap-4"><p className="font-serif text-2xl text-navy">Meet the people who teach and lead our school.</p><Button asChild><Link href="/staff">Our staff</Link></Button></div></Section>
+      <Section id="staff">
+        <SectionHeading eyebrow="Our staff" title="The people behind the school" />
+        {staff.length > 0 && <ul className="mb-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">{staff.map((p) => <StaffCard key={p.id} person={p} />)}</ul>}
+        <h3 className="mb-4 text-2xl text-navy">Leading the school</h3>
+        <PhotoGrid photos={LEADER_PHOTOS} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[4/5]" />
+        <h3 className="mb-4 mt-12 text-2xl text-navy">Teachers, carers and partners</h3>
+        <PhotoGrid photos={STAFF_PHOTOS} />
+      </Section>
     </>
   );
 }

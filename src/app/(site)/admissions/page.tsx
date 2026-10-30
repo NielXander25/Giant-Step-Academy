@@ -59,7 +59,7 @@ export default async function AdmissionsPage() {
           </div>
         </Section>
       )}
-      <Section tone="sand">
+      <Section tone="sand" id="enquire">
         <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
           <div><h2 className="text-3xl text-navy">Ask us anything</h2><p className="mt-3 text-muted-foreground">Send a message and the school will call you back about admission, the right class and the next step.</p></div>
           <div className="rounded-2xl border border-border bg-white p-6"><EnquiryForm defaultInterest="General" /></div>

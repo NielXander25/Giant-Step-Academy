@@ -43,7 +43,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
         <p className="mt-6 text-3xl font-extrabold tracking-tight text-navy sm:text-4xl">{name}</p>
         <span aria-hidden="true" className="mt-3 h-1.5 w-14 rounded-full bg-sun" />
         <h1 className="mt-6 text-4xl text-navy sm:text-5xl">Check your child&apos;s result</h1>
-        <p className="mt-3 text-lg text-muted-foreground">Enter the details exactly as the school gave them. No account is needed.</p>
+        <p className="mt-3 text-lg text-muted-foreground">Enter the details exactly as the school gave them.</p>
       </div>
 
       <div className="relative mx-auto mt-8 max-w-md">

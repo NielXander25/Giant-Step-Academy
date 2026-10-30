@@ -6,7 +6,7 @@ import { SchoolLogo } from "./school-logo";
 import { AdmissionPopup } from "./admission-popup";
 import { SiteNav } from "./site-nav";
 import { WhatsAppButton } from "./whatsapp-button";
-import { SITE_LINKS } from "./nav";
+import { RESULTS_LINK, SITE_LINKS } from "./nav";
 
 /** The header, footer and notice bar that wrap every public page. */
 export async function SiteShell({ children }: { children: React.ReactNode }) {
@@ -52,7 +52,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           <nav aria-label="Footer">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Explore</p>
             <ul className="space-y-2 text-sm">
-              {SITE_LINKS.map((l) => <li key={l.href}><Link href={l.href} className="text-white/85 hover:text-white">{l.label}</Link></li>)}
+              {[...SITE_LINKS, RESULTS_LINK].map((l) => <li key={l.href}><Link href={l.href} className="text-white/85 hover:text-white">{l.label}</Link></li>)}
             </ul>
           </nav>
           <div>

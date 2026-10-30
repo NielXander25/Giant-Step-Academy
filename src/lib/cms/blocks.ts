@@ -11,10 +11,10 @@ export type PageKey = "home" | "about" | "academics" | "admissions" | "schoollif
 export const PAGES: { key: PageKey; label: string; path: string }[] = [
   { key: "home", label: "Home", path: "/" },
   { key: "about", label: "About us", path: "/about" },
-  { key: "academics", label: "Academics", path: "/academics" },
+  { key: "academics", label: "Sections (Nursery, Primary, Secondary)", path: "/" },
   { key: "admissions", label: "Admissions", path: "/admissions" },
-  { key: "schoollife", label: "School life", path: "/school-life" },
-  { key: "contact", label: "Contact", path: "/contact" },
+  { key: "schoollife", label: "School life (on Gallery and Events)", path: "/events" },
+  { key: "contact", label: "Contact", path: "/admissions" },
   { key: "privacy", label: "Privacy notice", path: "/privacy" },
 ];
 

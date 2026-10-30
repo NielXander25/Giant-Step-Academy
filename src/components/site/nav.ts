@@ -1,16 +1,13 @@
+// The public menu, kept short: five pages, plus Check results as its own button.
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/academics", label: "Academics" },
+  { href: "/about", label: "About Us" },
   { href: "/admissions", label: "Admissions" },
-  { href: "/school-life", label: "School life" },
-  { href: "/news", label: "News" },
-  { href: "/events", label: "Events" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/staff", label: "Staff" },
-  { href: "/contact", label: "Contact" },
-  { href: "/results", label: "Check results" },
+  { href: "/events", label: "Gallery and Events" },
+  { href: "/news", label: "Newsletter" },
 ] as const;
+
+export const RESULTS_LINK = { href: "/results", label: "Check results" } as const;
 
 // The three sections of the school and the colours from the school's own banner.
 export const SECTIONS = [
