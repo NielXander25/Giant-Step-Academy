@@ -1,10 +1,12 @@
 import type { SessionUser } from "@/lib/auth/session";
+import { LiveRefresh } from "./live-refresh";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
 export function DashboardShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-muted">
+      <LiveRefresh />
       <Sidebar role={user.role} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar user={user} />
