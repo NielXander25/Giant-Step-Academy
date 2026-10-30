@@ -19,6 +19,9 @@ export const PHOTOS = {
   teamYellow: p("basketball-team-yellow.jpg", "Basketball players lined up in yellow kits", "Lined up before tip-off", "Sports"),
   interSchool: p("basketball-inter-school.jpg", "Two basketball teams lined up at an inter-school competition", "Inter-school basketball", "Sports"),
   court: p("basketball-court.jpg", "Students and coaches on an outdoor basketball court", "On the court with our coaches", "Sports"),
+  firstAid: p("first-aid-practice.jpg", "Pupils in white coats and gloves practising bandaging a hand", "Practising first aid", "Health"),
+  healthTalk: p("health-talk.jpg", "Pupils in white coats listening to a health talk", "A health talk for our pupils", "Health"),
+  outdoorLesson: p("outdoor-lesson.jpg", "Students writing at desks during a lesson under a shaded canopy", "Learning outdoors", "Classroom"),
   proprietress: p("proprietress.jpg", "Bernice Nwaorah Nwabunike, Proprietress of Giant Step Academy", "Our Proprietress", "Staff"),
 };
 

@@ -132,11 +132,14 @@ export const BLOCKS: BlockDef[] = [
     { title: "Classrooms", text: "Students read, write and work together at their own desks.", image: PHOTOS.classroom.src },
     { title: "Basketball court", text: "The outdoor court where our teams train and play their matches.", image: PHOTOS.court.src },
     { title: "Playground", text: "Swings and space to play for our Nursery and Primary pupils.", image: CLASS_PHOTOS.nursery[0].src },
+    { title: "Outdoor learning space", text: "A shaded space where students also study and take lessons in the open air.", image: PHOTOS.outdoorLesson.src },
   ], 12),
   list("schoollife", "Activities", "schoollife.activities", "Activities and clubs", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [
     { title: "Basketball", text: "Boys' and girls' teams train on the school court and play in inter-school competitions.", image: PHOTOS.girlsBasketball.src },
     { title: "Football", text: "Our football team trains through the term and represents the school in matches.", image: PHOTOS.footballTeam.src },
     { title: "Sports for the little ones", text: "Nursery and Primary pupils enjoy games and sports that build teamwork and confidence.", image: PHOTOS.family.src },
+    { title: "Health and first aid", text: "Pupils learn to care for themselves and others, and practise basic first aid in white coats and gloves.", image: PHOTOS.firstAid.src },
+    { title: "Health talks", text: "Talks that teach our pupils how to keep themselves healthy.", image: PHOTOS.healthTalk.src },
     { title: "Graduation day", text: "Each year we celebrate the pupils and students moving on to their next stage.", image: "/images/school/graduation-class.jpg" },
   ], 12),
 

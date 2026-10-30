@@ -19,7 +19,7 @@ export default async function SchoolLifePage() {
       {facilities.length > 0 && (
         <Section>
           <SectionHeading eyebrow="Facilities" title="Where learning happens" />
-          <ul className="grid gap-6 md:grid-cols-3">
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {facilities.map((f, i) => (
               <Reveal as="li" key={i} delay={i * 70} className="overflow-hidden rounded-2xl border border-border bg-card">
                 <SiteImage src={f.image} alt={f.title} width={640} className="aspect-[4/3] w-full" />
@@ -32,7 +32,7 @@ export default async function SchoolLifePage() {
       {activities.length > 0 && (
         <Section tone="soft">
           <SectionHeading eyebrow="Activities" title="Clubs and activities" />
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {activities.map((a, i) => (
               <Reveal as="li" key={i} delay={i * 70} className="overflow-hidden rounded-2xl border border-border bg-white">
                 {a.image && <SiteImage src={a.image} alt={a.title} width={640} className="aspect-[4/3] w-full" />}
