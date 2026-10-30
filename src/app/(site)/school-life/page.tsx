@@ -6,13 +6,11 @@ import { PageHero, Section, SectionHeading } from "@/components/site/section";
 import { SiteImage } from "@/components/site/site-image";
 import type { ListValue } from "@/lib/cms/blocks";
 import { getBlocks, getEvents, getGallery } from "@/lib/cms/site-data";
-import { galleryOrDefaults } from "@/lib/cms/school-photos";
 
 export const metadata: Metadata = { title: "School life", description: "Facilities, activities and a look at life at school." };
 
 export default async function SchoolLifePage() {
-  const [b, events, galleryRows] = await Promise.all([getBlocks(["schoollife"]), getEvents(), getGallery()]);
-  const gallery = galleryOrDefaults(galleryRows);
+  const [b, events, gallery] = await Promise.all([getBlocks(["schoollife"]), getEvents(), getGallery()]);
   const facilities = b["schoollife.facilities"] as ListValue;
   const activities = b["schoollife.activities"] as ListValue;
   return (

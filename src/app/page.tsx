@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import type { ImageValue, ListValue } from "@/lib/cms/blocks";
 import { isPlaceholder, splitPhones } from "@/lib/cms/helpers";
 import { plainText } from "@/lib/cms/rich-text";
-import { getBlocks, getEvents, getGallery, getNews, getSchool, getTestimonials } from "@/lib/cms/site-data";
-import { galleryOrDefaults, PHOTOS } from "@/lib/cms/school-photos";
+import { getBlocks, getEvents, getNews, getSchool, getTestimonials } from "@/lib/cms/site-data";
 import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +23,11 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [b, school, news, events, testimonials, galleryRows] = await Promise.all([
-    getBlocks(["home", "academics"]), getSchool(), getNews(3, 1), getEvents(), getTestimonials(), getGallery(),
+  const [b, school, news, events, testimonials] = await Promise.all([
+    getBlocks(["home", "academics"]), getSchool(), getNews(3, 1), getEvents(), getTestimonials(),
   ]);
 
   const hero = b["home.hero.image"] as ImageValue;
-  const photos = galleryOrDefaults(galleryRows).filter((ph) => ph.imageUrl !== hero?.url).slice(0, 5); // never repeat the banner picture
   const aboutImage = b["home.about.image"] as ImageValue;
   const values = b["home.values"] as ListValue;
   const notice = b["admissions.notice"] as string;
@@ -57,7 +55,7 @@ export default async function HomePage() {
             <p className="fade-up mt-5 max-w-xl text-lg text-muted-foreground" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
             <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
               <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/gallery">See school life</Link></Button>
+              <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/events">See our events</Link></Button>
             </div>
             {notice && (
               <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white px-4 py-3 text-sm text-navy shadow-sm" style={{ animationDelay: "320ms" }}>
@@ -68,9 +66,6 @@ export default async function HomePage() {
           <div className="fade-up relative" style={{ animationDelay: "200ms" }}>
             <div aria-hidden="true" className="absolute -right-3 -top-3 h-full w-full rotate-2 rounded-[2rem] bg-[#ffd34d]" />
             <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1400} priority className="relative aspect-[4/3] w-full rounded-[2rem] object-[60%_center] shadow-xl sm:aspect-[16/10]" />
-            <div className="absolute -bottom-6 -left-4 hidden w-40 -rotate-3 overflow-hidden rounded-2xl border-4 border-white shadow-lg sm:block md:-left-8 md:w-48">
-              <SiteImage src={PHOTOS.girlsBasketball.src} alt={PHOTOS.girlsBasketball.alt} width={400} className="aspect-square w-full" />
-            </div>
           </div>
         </div>
       </div>
@@ -117,23 +112,6 @@ export default async function HomePage() {
           </ul>
         </Section>
       )}
-
-      <Section>
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <SectionHeading eyebrow="Life at Giant Step" title="Learning, playing and growing together" className="mb-0" />
-          <Link href="/gallery" className="text-sm font-medium text-primary hover:underline">See all pictures</Link>
-        </div>
-        <ul className="grid auto-rows-[9rem] grid-cols-2 gap-3 sm:auto-rows-[11rem] md:grid-cols-4">
-          {photos.map((ph, i) => (
-            <li key={ph.id} className={`group relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-              <Link href="/gallery" className="block h-full">
-                <SiteImage src={ph.imageUrl} alt={ph.caption ?? "School picture"} width={i === 0 ? 900 : 500} className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
-                {ph.caption && <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-2 pt-6 text-xs font-medium text-white sm:text-sm">{ph.caption}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Section>
 
       {news.items.length > 0 && (
         <Section>

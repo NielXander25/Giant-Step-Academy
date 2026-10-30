@@ -1,7 +1,7 @@
 // Every piece of editable text and every editable image on the public pages is defined here.
 // The default text is SAMPLE copy so the site looks finished from day one. It never states facts the school has
 // not confirmed (no founding year, fees, hours or results). An Admin replaces any of it from the content manager.
-// Default pictures are the school's own photos (see school-photos.ts).
+// The default home banner is the school's own classroom photo (see school-photos.ts).
 
 import { PHOTOS, type SchoolPhoto } from "./school-photos";
 
@@ -56,7 +56,7 @@ export const BLOCKS: BlockDef[] = [
   text("home", "Admission notice", "admissions.notice", "Admission notice", "Admission forms into all classes are on sale.", "Shown on the Home and Admissions pages. Leave empty to hide it."),
   text("home", "About the school", "home.about.title", "Heading", "A school where every child counts"),
   rich("home", "About the school", "home.about.body", "Text", "We welcome children from Nursery through Secondary and work closely with parents to help each child learn well and grow in character.\n\nUse the content manager to replace this text with the school's own words."),
-  image("home", "About the school", "home.about.image", "Picture", undefined, PHOTOS.footballTeam),
+  image("home", "About the school", "home.about.image", "Picture"),
   list("home", "What we stand for", "home.values", "Values", [T("title", "Title"), A("text", "Short description")], [
     { title: "Character", text: "We teach children to be honest, respectful and responsible." },
     { title: "Learning", text: "We help every child build strong foundations in reading, writing and numbers." },
@@ -66,7 +66,7 @@ export const BLOCKS: BlockDef[] = [
   // ── About ──
   area("about", "Introduction", "about.intro", "Introduction", "Learn about our school, what we believe, and the people who lead it."),
   rich("about", "Our story", "about.story", "Our story", "Tell parents how the school began, what it stands for and where it is going.\n\nThis is sample text. An Admin can replace it in the content manager."),
-  image("about", "Our story", "about.story.image", "Picture", undefined, PHOTOS.matchDay),
+  image("about", "Our story", "about.story.image", "Picture"),
   area("about", "Mission and vision", "about.mission", "Mission", "To give every child a sound education in a safe, orderly and encouraging environment."),
   area("about", "Mission and vision", "about.vision", "Vision", "Securing a bright future for every child we teach."),
   list("about", "Values", "about.values", "Values", [T("title", "Title"), A("text", "Short description")], [
@@ -82,11 +82,11 @@ export const BLOCKS: BlockDef[] = [
   // ── Academics ──
   area("academics", "Introduction", "academics.intro", "Introduction", "From the first day in Nursery to the final year of Secondary school, learning here is planned, steady and supported."),
   rich("academics", "Nursery", "academics.nursery.body", "Nursery", "Our Nursery section gives young children a gentle start: early reading, numbers, play and good habits.\n\nReplace this with the school's own description."),
-  image("academics", "Nursery", "academics.nursery.image", "Nursery picture", undefined, PHOTOS.nurseryClass),
+  image("academics", "Nursery", "academics.nursery.image", "Nursery picture"),
   rich("academics", "Primary", "academics.primary.body", "Primary", "In Primary school, pupils build strong skills in English, mathematics, science and more.\n\nReplace this with the school's own description."),
-  image("academics", "Primary", "academics.primary.image", "Primary picture", undefined, PHOTOS.family),
+  image("academics", "Primary", "academics.primary.image", "Primary picture"),
   rich("academics", "Secondary", "academics.secondary.body", "Secondary", "Our Secondary section prepares students for their external examinations and for life after school.\n\nReplace this with the school's own description."),
-  image("academics", "Secondary", "academics.secondary.image", "Secondary picture", undefined, PHOTOS.interSchool),
+  image("academics", "Secondary", "academics.secondary.image", "Secondary picture"),
   rich("academics", "Subjects", "academics.subjects", "Subjects and programmes", "", "List the subjects, clubs or special programmes. Leave empty to hide this part."),
 
   // ── Admissions ──

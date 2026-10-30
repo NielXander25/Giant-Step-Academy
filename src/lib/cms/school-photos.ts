@@ -1,6 +1,7 @@
-// The school's own photos, shipped with the website (public/images/school) so the site has real pictures from
-// day one. They are only defaults: anything an Admin sets in the content manager replaces them, and once the
-// Gallery has pictures of its own these are no longer shown there.
+// The school's own photos, shipped with the website (public/images/school).
+// The classroom photo is the default home banner. The others are from school events (sports days, matches,
+// the Nursery class photo) and appear on the Events page only. An Admin can replace the banner from the
+// content manager.
 
 export type SchoolPhoto = { src: string; alt: string; caption: string; category: string };
 
@@ -19,10 +20,5 @@ export const PHOTOS = {
   court: p("basketball-court.jpg", "Students and coaches on an outdoor basketball court", "On the court with our coaches", "Sports"),
 };
 
-/** What the Gallery shows until the school adds its own pictures. */
-export const DEFAULT_GALLERY = Object.values(PHOTOS).map((ph, i) => ({ id: `school-photo-${i}`, imageUrl: ph.src, caption: ph.caption, category: ph.category }));
-
-/** The Gallery's own pictures, or the school's photos while it has none. */
-export function galleryOrDefaults<T extends { id: string; imageUrl: string; caption: string | null; category: string | null }>(items: T[]) {
-  return items.length > 0 ? items : DEFAULT_GALLERY;
-}
+/** Pictures from school events, shown on the Events page. */
+export const EVENT_PHOTOS = Object.values(PHOTOS).filter((ph) => ph !== PHOTOS.classroom);
