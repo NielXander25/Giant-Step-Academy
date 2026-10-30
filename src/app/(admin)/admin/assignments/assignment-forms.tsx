@@ -30,18 +30,22 @@ export function FormTeacherPicker({ classId, teachers, currentId }: { classId: s
   );
 }
 
-export function SubjectTeacherPicker({ classId, subjectId, teachers, currentId }: { classId: string; subjectId: string; teachers: Option[]; currentId: string | null }) {
+/**
+ * One subject's teacher. `defaultLabel` names who teaches it when nobody is assigned: in Nursery and Primary that is
+ * the class's Form Teacher, and choosing another teacher hands just this subject to them.
+ */
+export function SubjectTeacherPicker({ classId, subjectId, teachers, currentId, defaultLabel }: { classId: string; subjectId: string; teachers: Option[]; currentId: string | null; defaultLabel?: string }) {
   const [teacherId, setTeacherId] = useState(currentId ?? "");
   const { run, pending, error } = useAction(assignSubjectTeacher);
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
         <Select aria-label="Subject teacher" value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className="h-9 min-w-44">
-          <option value="">Unassigned</option>
+          <option value="">{defaultLabel ?? "Unassigned"}</option>
           {teachers.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
         </Select>
         <Button type="button" size="sm" disabled={pending || !teacherId || teacherId === currentId} onClick={() => run({ classId, subjectId, teacherId })}>Save</Button>
-        {currentId && <ActionButton action={clearSubjectTeacher} input={{ classId, subjectId }} label="Clear" />}
+        {currentId && <ActionButton action={clearSubjectTeacher} input={{ classId, subjectId }} label={defaultLabel ? "Back to Form Teacher" : "Clear"} />}
       </div>
       {error && <span role="alert" className="text-xs text-destructive">{error}</span>}
     </div>

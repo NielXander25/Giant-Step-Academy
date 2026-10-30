@@ -11,6 +11,7 @@ import { getCurrentSessionId } from "@/lib/permissions/assignments";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { cn } from "@/lib/utils";
 import { formTeacherTeachesAll } from "@/lib/curriculum";
+import { AssignmentsOverview } from "./overview";
 import { AddSubjectToClass, FormTeacherPicker, RemoveSubjectButton, SubjectTeacherPicker } from "./assignment-forms";
 
 export const metadata: Metadata = { title: "Assignments" };
@@ -84,6 +85,8 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
           const addable = allSubjects.filter((s) => !offeredIds.has(s.id)).map((s) => ({ id: s.id, label: s.name }));
           const teacherFor = new Map(subjectAssignments.map((a) => [a.subjectId, a.teacherId]));
           const wholeClass = formTeacherTeachesAll(selected.level.name);
+          const formTeacherName = teachers.find((t) => t.id === formAssignment?.teacherId)?.name;
+          const defaultLabel = wholeClass ? (formTeacherName ? `${formTeacherName} (Form Teacher)` : "Form Teacher (not chosen yet)") : undefined;
 
           return (
             <div className="flex flex-col gap-6">
@@ -120,10 +123,11 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
                         {classSubjects.map((cs) => (
                           <TR key={cs.id}>
                             <TD className="font-medium">
-                              {cs.subject.name} {!teacherFor.has(cs.subjectId) && <Badge variant="outline">{wholeClass ? "Form Teacher" : "No teacher"}</Badge>}
+                              {cs.subject.name} {!wholeClass && !teacherFor.has(cs.subjectId) && <Badge variant="outline">No teacher</Badge>}
+                              {wholeClass && teacherFor.has(cs.subjectId) && <Badge variant="accent">Own teacher · Form Teacher reviews</Badge>}
                             </TD>
                             <TD>
-                              <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} />
+                              <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} defaultLabel={defaultLabel} />
                             </TD>
                             <TD className="text-right">
                               <RemoveSubjectButton classId={selected.id} subjectId={cs.subjectId} name={cs.subject.name} />
@@ -140,7 +144,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
           );
         })()
       ) : (
-        classes.length > 0 && <EmptyState title="Choose a class">Pick a class above to set its Form Teacher and subject teachers.</EmptyState>
+        classes.length > 0 && <AssignmentsOverview sessionId={sessionId} />
       )}
     </>
   );
