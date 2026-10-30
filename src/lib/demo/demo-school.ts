@@ -32,7 +32,7 @@ const CLASSES: { level: string; code: string; stage: Stage; state: "PUBLISHED" |
   { level: "Basic 7", code: "BAS7", stage: "JSS", state: "IN_PROGRESS" },
   { level: "SS1", code: "SS1", stage: "SS", state: "PUBLISHED" },
   { level: "SS2", code: "SS2", stage: "SS", state: "ADMIN_REVIEW" },
-  { level: "SS3", code: "SS3", stage: "SS", state: "PUBLISHED" },
+  { level: "SS3", code: "SS3", stage: "SS", state: "IN_PROGRESS" },
 ];
 
 const FIRST = ["Tunde", "Amina", "Chinedu", "Zainab", "Emeka", "Halima", "Ifeoma", "Musa", "Ngozi", "Yusuf", "Blessing", "Ibrahim", "Kemi", "Daniel", "Fatima", "Samuel"];
@@ -44,6 +44,11 @@ const STUDENTS_PER_CLASS = 8;
 const FORM_REMARKS = ["A hardworking and well-behaved student.", "Shows steady improvement. Keep it up.", "Very attentive in class.", "Can do better with more focus.", "A pleasure to teach.", "Participates well in class activities."];
 const HEAD_REMARKS = ["A good result. Keep it up.", "Well done. Aim higher next term.", "Excellent performance.", "Good effort. Work harder in weak subjects."];
 const RATINGS = ["A", "B", "B", "C", "A", "B"] as const;
+
+/** "Cultural & Creative Arts" -> "cultural-creative-arts": the sign-in name of a subject's practice teacher. */
+export function subjectSlug(name: string) {
+  return name.toLowerCase().replace(/&/g, " ").replace(/\(.*?\)/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
 
 // Repeatable "random" numbers, so the demo looks the same every time it is loaded.
 function seeded(text: string) {
@@ -134,18 +139,28 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
       },
     });
   const admin = await makeUser("Demo Admin", "admin", "ADMIN");
-  const maths = await makeUser("Mr. Ade Mathematics", "maths", "TEACHER");
-  const english = await makeUser("Mrs. Grace English", "english", "TEACHER");
+
+  // One subject teacher per subject for Junior and Senior Secondary, so every teacher at a training session can sign in
+  // as their own subject. English and Mathematics keep their short sign-ins (english@, maths@).
+  const subjectTeachers = new Map<string, { id: string; name: string; email: string; classes: string[] }>();
+  const subjectTeacher = async (subjectName: string) => {
+    const local = /^english/i.test(subjectName) ? "english" : subjectName === "Mathematics" ? "maths" : subjectSlug(subjectName);
+    let t = subjectTeachers.get(local);
+    if (!t) {
+      const label = local === "english" ? "English" : subjectName;
+      const user = await makeUser(`${label} Teacher`, local, "TEACHER");
+      t = { id: user.id, name: user.name, email: user.email, classes: [] };
+      subjectTeachers.set(local, t);
+    }
+    return t;
+  };
 
   const subjects = new Map((await db.subject.findMany()).map((s) => [s.name, s]));
   const config = await loadCalcConfig((await db.section.findFirstOrThrow()).id);
   const guide: DemoGuide = {
     loadedAt: new Date().toISOString(), password: DEMO_PASSWORD, termId: term.id,
     admin: { name: admin.name, email: admin.email },
-    teachers: [
-      { name: maths.name, email: maths.email, role: "Subject teacher: Mathematics in Basic 7A, SS1A, SS2A, SS3A" },
-      { name: english.name, email: english.email, role: "Subject teacher: English in Basic 7A, SS1A, SS2A, SS3A" },
-    ],
+    teachers: [],
     students: [],
     pins: [],
   };
@@ -159,13 +174,13 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
 
     const classSubjects = SUBJECTS_BY_STAGE[stage].map((n) => subjects.get(n)).filter((s): s is NonNullable<typeof s> => !!s);
     const mathsSubject = subjects.get("Mathematics");
-    const englishSubject = subjects.get(stage === "SS" ? "English Language" : "English Studies");
     const bySubjectTeacher = new Map<string, string>(); // subjectId -> teacher who teaches it
     if (stage === "JSS" || stage === "SS") {
-      if (mathsSubject) bySubjectTeacher.set(mathsSubject.id, maths.id);
-      if (englishSubject) bySubjectTeacher.set(englishSubject.id, english.id);
-      for (const [subjectId, teacherId] of bySubjectTeacher) {
-        await db.subjectAssignment.create({ data: { teacherId, subjectId, classId: cls.id, sessionId: session.id } });
+      for (const subject of classSubjects) {
+        const t = await subjectTeacher(subject.name);
+        t.classes.push(cls.name);
+        bySubjectTeacher.set(subject.id, t.id);
+        await db.subjectAssignment.create({ data: { teacherId: t.id, subjectId: subject.id, classId: cls.id, sessionId: session.id } });
       }
     }
 
@@ -198,8 +213,10 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
     for (const [si, subject] of classSubjects.entries()) {
       const teacherId = bySubjectTeacher.get(subject.id) ?? formTeacher.id;
       const isMathsInProgress = c.state === "IN_PROGRESS" && subject.id === mathsSubject?.id;
-      const isEnglishInProgress = c.state === "IN_PROGRESS" && subject.id === englishSubject?.id;
-      const status = isMathsInProgress ? "SUBMITTED" : isEnglishInProgress ? "DRAFT" : "FORM_TEACHER_APPROVED";
+      // In a class still in progress, Mathematics waits for the Form Teacher and every other subject is half entered,
+      // so each subject teacher has scores to finish.
+      const isHalfEntered = c.state === "IN_PROGRESS" && subject.id !== mathsSubject?.id;
+      const status = isMathsInProgress ? "SUBMITTED" : isHalfEntered ? "DRAFT" : "FORM_TEACHER_APPROVED";
       const now = new Date();
       const batch = await db.subjectResultBatch.create({
         data: {
@@ -210,7 +227,7 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
       });
       const entries: Prisma.ResultEntryCreateManyInput[] = [];
       for (const [ei, e] of enrollments.entries()) {
-        if (isEnglishInProgress && ei >= 3) continue; // English is half entered, to show entering scores live
+        if (isHalfEntered && ei >= 3) continue; // half entered, to show entering scores live
         const rnd = seeded(`${e.id}:${subject.name}`);
         const ability = 0.45 + seeded(e.name + c.code)() * 0.35 + rnd() * 0.15;
         const scores: Record<string, number> = {};
@@ -262,6 +279,8 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
   }
 
   // Working PINs for the parent journey (shown only on the demo guide page).
+  for (const t of subjectTeachers.values()) guide.teachers.push({ name: t.name, email: t.email, role: `Subject teacher in ${t.classes.join(", ")}` });
+
   guide.pins = await createPins({ count: 10, label: PIN_LABEL, createdById: admin.id });
   await db.systemSetting.upsert({
     where: { key: GUIDE_KEY },

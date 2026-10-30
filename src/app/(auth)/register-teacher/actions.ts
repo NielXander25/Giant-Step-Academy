@@ -11,7 +11,8 @@ export type RegisterState =
   | { ok: true }
   | undefined;
 
-const MAX_REQUESTS_PER_IP_PER_HOUR = 5;
+// Generous enough for a staff room of teachers signing up together on the school Wi-Fi.
+const MAX_REQUESTS_PER_IP_PER_HOUR = 30;
 
 export async function registerTeacherAction(_prev: RegisterState, formData: FormData): Promise<RegisterState> {
   // Hidden field that real people never fill in. Bots usually do; they get a fake success.
