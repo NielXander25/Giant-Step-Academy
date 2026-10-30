@@ -28,7 +28,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <header className="sticky top-0 z-40 border-b border-border bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-black/5 bg-white/75 backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5 sm:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-3" aria-label={`${school.name} home`}>
             <span className="hidden sm:block"><SchoolLogo school={school} height={42} /></span>

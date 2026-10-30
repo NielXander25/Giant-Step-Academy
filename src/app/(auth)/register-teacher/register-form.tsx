@@ -68,7 +68,7 @@ export function RegisterForm() {
         <FieldError messages={errors.confirmPassword} />
       </div>
       <FormMessage error={state && !state.ok ? state.error : null} />
-      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 rounded-2xl text-lg">{pending ? "Sending…" : "Request an account"}</Button>
+      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 text-lg">{pending ? "Sending…" : "Request an account"}</Button>
     </form>
   );
 }

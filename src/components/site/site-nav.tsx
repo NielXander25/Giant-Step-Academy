@@ -24,7 +24,7 @@ export function SiteNav() {
       <nav aria-label="Main" className="hidden items-center gap-0.5 xl:flex">
         {SITE_LINKS.map((l) => (
           <Link key={l.href} href={l.href} aria-current={active(l.href) ? "page" : undefined}
-            className={cn("rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/80 hover:bg-primary-soft hover:text-navy", active(l.href) && "bg-primary-soft text-navy")}>
+            className={cn("whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-medium text-foreground/75 hover:text-foreground", active(l.href) && "bg-muted text-foreground")}>
             {l.label}
           </Link>
         ))}

@@ -42,30 +42,32 @@ export default async function HomePage() {
     <SiteShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
-      {/* A deep navy banner with a gold touch, around the school's own photo. */}
-      <div className="relative overflow-hidden bg-navy">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-[#2c4f86]/60 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 right-0 size-[28rem] rounded-full bg-accent/35 blur-3xl" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-10 sm:px-8 md:grid-cols-[1fr_1.05fr] md:pb-24 md:pt-16">
-          <div>
-            <p className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[#f2c14e]">
-              <span aria-hidden="true" className="size-2 rounded-full bg-[#f2c14e]" />{b["home.hero.eyebrow"] as string}
-            </p>
-            <h1 className="fade-up text-4xl leading-[1.08] text-white sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
-            <p className="fade-up mt-5 max-w-xl text-lg text-white/85" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
-            <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
-              <Button asChild size="lg" variant="accent"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/events">See our events</Link></Button>
-            </div>
-            {notice && (
-              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white" style={{ animationDelay: "320ms" }}>
-                <BellRing className="mt-0.5 size-4 shrink-0 text-[#f2c14e]" aria-hidden="true" />{notice}
-              </p>
-            )}
+      {/* Apple-style opening: a big, calm headline on white, the three sections as colour chips, then the photo. */}
+      <div className="relative overflow-hidden bg-white">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-10 size-[26rem] rounded-full bg-sky/20 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-40 size-[26rem] rounded-full bg-grape/15 blur-3xl" />
+        <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-14 text-center sm:px-8 md:pb-24 md:pt-24">
+          <div className="fade-up flex flex-wrap justify-center gap-2">
+            {SECTIONS.map((sec) => (
+              <Link key={sec.key} href={`/academics#${sec.key}`} className="rounded-full px-4 py-1.5 text-sm font-semibold transition-transform hover:-translate-y-0.5" style={{ color: sec.color, background: `${sec.color}1a` }}>{sec.name}</Link>
+            ))}
           </div>
-          <div className="fade-up relative" style={{ animationDelay: "200ms" }}>
-            <div aria-hidden="true" className="absolute -right-3 -top-3 h-full w-full rotate-2 rounded-[2rem] bg-[#d9a520]" />
-            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1400} priority className="relative aspect-[4/3] w-full rounded-[2rem] object-[60%_center] shadow-xl sm:aspect-[16/10]" />
+          <h1 className="fade-up mx-auto mt-6 max-w-4xl text-5xl leading-[1.05] text-navy sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
+            {b["home.hero.title"] as string}
+          </h1>
+          <p className="fade-up mx-auto mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground md:text-2xl" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
+          <div className="fade-up mt-9 flex flex-wrap justify-center gap-3" style={{ animationDelay: "240ms" }}>
+            <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+            <Button asChild size="lg" variant="outline"><Link href="/events">See our events</Link></Button>
+          </div>
+          {notice && (
+            <p className="fade-up mx-auto mt-7 inline-flex items-center gap-2 rounded-full bg-sun/20 px-4 py-2 text-sm font-medium text-navy" style={{ animationDelay: "320ms" }}>
+              <BellRing className="size-4 shrink-0 text-tangerine" aria-hidden="true" />{notice}
+            </p>
+          )}
+          <div className="fade-up relative mt-14" style={{ animationDelay: "300ms" }}>
+            <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-grape/30 to-rose/30 blur-2xl" />
+            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1600} priority className="relative aspect-[16/9] w-full rounded-[2.25rem] object-[60%_center] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] md:aspect-[21/9]" />
           </div>
         </div>
       </div>
@@ -74,8 +76,8 @@ export default async function HomePage() {
         <ul className="grid gap-4 md:grid-cols-3">
           {SECTIONS.map((s) => (
             <li key={s.key}>
-              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md">
-                <div className="h-2" style={{ background: s.color }} />
+              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-3xl bg-muted transition-transform hover:-translate-y-1">
+                <div className="mx-6 mt-6 h-1.5 w-12 rounded-full" style={{ background: s.color }} />
                 <div className="p-6">
                   <h2 className="font-serif text-2xl text-navy">{s.name}</h2>
                   <p className="mt-2 text-sm text-muted-foreground">{plainText(b[s.block] as string, 110)}</p>
@@ -103,8 +105,8 @@ export default async function HomePage() {
           <SectionHeading eyebrow="What we stand for" title="The values behind every school day" />
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
-              <li key={i} className="rounded-2xl border border-border bg-white p-6">
-                <span className="font-serif text-4xl text-accent/70">{String(i + 1).padStart(2, "0")}</span>
+              <li key={i} className="rounded-3xl bg-white p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                <span className="text-5xl font-bold tracking-tight" style={{ color: ["#0071e3", "#ff9500", "#34c759", "#af52de", "#ff2d55", "#32ade6"][i % 6] }}>{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mt-2 font-serif text-xl text-navy">{v.title}</h3>
                 {v.text && <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>}
               </li>
@@ -138,8 +140,8 @@ export default async function HomePage() {
           <SectionHeading eyebrow="Parents say" title="Words from our families" />
           <ul className="grid gap-5 md:grid-cols-3">
             {testimonials.slice(0, 3).map((t) => (
-              <li key={t.id} className="rounded-2xl border border-border bg-card p-6">
-                <p className="font-serif text-lg leading-relaxed text-navy">“{t.quote}”</p>
+              <li key={t.id} className="rounded-3xl bg-muted p-7">
+                <p className="text-lg leading-relaxed text-navy">“{t.quote}”</p>
                 <p className="mt-4 text-sm font-medium">{t.name}</p>
                 {t.relationship && <p className="text-xs text-muted-foreground">{t.relationship}</p>}
               </li>
@@ -148,14 +150,14 @@ export default async function HomePage() {
         </Section>
       )}
 
-      <Section tone="navy">
-        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+      <Section>
+        <div className="flex flex-col items-start justify-between gap-6 rounded-[2.25rem] bg-gradient-to-br from-primary via-indigo to-grape p-8 text-white md:flex-row md:items-center md:p-12">
           <div>
             <h2 className="text-3xl text-white md:text-4xl">Ready to give your child a giant step?</h2>
             <p className="mt-2 max-w-xl text-white/80">{notice || "Talk to us about admission into Nursery, Primary or Secondary."}</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg" variant="accent"><Link href="/admissions">How to apply</Link></Button>
+            <Button asChild size="lg" variant="outline" className="border-white bg-white text-navy hover:bg-white/90"><Link href="/admissions">How to apply</Link></Button>
             <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/contact">Contact us</Link></Button>
           </div>
         </div>

@@ -47,7 +47,7 @@ export function ResetForm() {
         <FieldError messages={errors.confirmPassword} />
       </div>
       <FormMessage error={state && !state.ok ? state.error : null} />
-      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 rounded-2xl text-lg">{pending ? "Sending…" : "Ask for a new password"}</Button>
+      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 text-lg">{pending ? "Sending…" : "Ask for a new password"}</Button>
     </form>
   );
 }

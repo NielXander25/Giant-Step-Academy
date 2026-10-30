@@ -50,7 +50,7 @@ export function AdmissionPopup() {
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-navy/55 p-3 backdrop-blur-sm sm:items-center sm:p-6" onClick={close}>
       <div role="dialog" aria-modal="true" aria-labelledby="admission-title" className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[2rem] bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="relative bg-navy px-7 pb-7 pt-9 text-center text-white">
+        <div className="relative bg-gradient-to-br from-primary via-indigo to-grape px-7 pb-7 pt-9 text-center text-white">
           <button type="button" onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-full p-2 text-white/80 hover:bg-white/10 hover:text-white">
             <X className="size-6" aria-hidden />
           </button>
@@ -89,7 +89,7 @@ export function AdmissionPopup() {
               <Input id="ap-class" name="classOfInterest" placeholder="e.g. Nursery 1, Basic 3, SS1" className={field} />
             </div>
             <FormMessage error={state && !state.ok ? state.error : null} />
-            <Button type="submit" variant="accent" size="lg" disabled={pending} className="h-14 rounded-2xl text-lg">{pending ? "Sending…" : "Request admissions info"}</Button>
+            <Button type="submit" variant="accent" size="lg" disabled={pending} className="h-14 text-lg">{pending ? "Sending…" : "Request admissions info"}</Button>
           </form>
         )}
       </div>

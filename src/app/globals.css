@@ -2,27 +2,36 @@
 
 /*
   Giant Step Academy — design tokens
-  Deep navy, school maroon and warm cream, after the look the Proprietress chose (giantstepacademy.com).
+  Clean, Apple-style: white and soft grey, one bright school blue for actions, deep blue for headings, and a set of
+  cheerful accent colours (orange, green, purple, pink, teal, yellow) used in small touches.
   Change them here and the whole platform follows.
 */
 :root {
   --background: #ffffff;
-  --foreground: #161f2e;
+  --foreground: #1d1d1f;
   --card: #ffffff;
-  --card-foreground: #161f2e;
-  --primary: #1d3866; /* navy blue: links and everyday buttons */
+  --card-foreground: #1d1d1f;
+  --primary: #0071e3; /* school blue: links and buttons */
   --primary-foreground: #ffffff;
-  --primary-soft: #eaeff7;
-  --navy: #142a4c;
-  --accent: #800020; /* school maroon: main calls to action and highlights */
+  --primary-soft: #e8f2fd;
+  --navy: #0b1d3d; /* deep blue: headings and dark bands */
+  --accent: #0071e3; /* main calls to action */
   --accent-foreground: #ffffff;
-  --accent-soft: #f8ebee;
-  --cream: #fcf7f1;
-  --muted: #f9f4ed;
-  --muted-foreground: #586273;
-  --border: #e8e1d7;
-  --input: #ddd4c7;
-  --ring: #1d3866;
+  --accent-soft: #e8f2fd;
+  --cream: #f5f5f7;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --border: #e3e3e8;
+  --input: #d2d2d7;
+  --ring: #0071e3;
+  /* Cheerful accents */
+  --tangerine: #ff9500;
+  --leaf: #34c759;
+  --grape: #af52de;
+  --rose: #ff2d55;
+  --sky: #32ade6;
+  --sun: #ffcc00;
+  --indigo: #5856d6;
   --destructive: #b42318;
   --success: #1a7f4b;
   --radius: 0.625rem;
@@ -38,6 +47,13 @@
   --color-primary-soft: var(--primary-soft);
   --color-navy: var(--navy);
   --color-cream: var(--cream);
+  --color-tangerine: var(--tangerine);
+  --color-leaf: var(--leaf);
+  --color-grape: var(--grape);
+  --color-rose: var(--rose);
+  --color-sky: var(--sky);
+  --color-sun: var(--sun);
+  --color-indigo: var(--indigo);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
@@ -52,8 +68,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-display), ui-serif, Georgia, serif;
+  /* Apple's own typeface on iPhones and Macs, Inter everywhere else. "serif" is kept as a name only: headings are sans. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-body), ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -73,8 +90,8 @@ h2,
 h3 {
   font-family: var(--font-serif);
   font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
 :focus-visible {

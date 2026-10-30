@@ -30,7 +30,7 @@ export function LoginForm() {
           {state.error}
         </p>
       )}
-      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 rounded-2xl text-lg shadow-[0_12px_30px_-12px_rgba(128,0,32,0.6)]">
+      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 text-lg">
         <LogIn className="size-5" aria-hidden />
         {pending ? "Signing in…" : "Sign in"}
       </Button>
