@@ -100,17 +100,15 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
         <StatCard label="Disabled" value={counts[3]} />
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Create PINs</CardTitle>
-          <CardDescription>Give them to parents through the school office. Creating new PINs never cancels older ones.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {canGeneratePins(user)
-            ? <GeneratePinsForm disabled={!isPepperConfigured()} />
-            : <p className="text-sm text-muted-foreground">Only the Super Admin can create PINs. Ask them for a new batch when you need one.</p>}
-        </CardContent>
-      </Card>
+      {canGeneratePins(user) && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Create PINs</CardTitle>
+            <CardDescription>Give them to parents through the school office. Creating new PINs never cancels older ones.</CardDescription>
+          </CardHeader>
+          <CardContent><GeneratePinsForm disabled={!isPepperConfigured()} /></CardContent>
+        </Card>
+      )}
 
       <div className="mb-4 flex flex-wrap gap-2" role="navigation" aria-label="Filter PINs">
         <Link href={href()} className={tab(!filter)}>All</Link>
@@ -118,7 +116,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
       </div>
 
       {pins.length === 0 ? (
-        <EmptyState title="No PINs here">Create some above.</EmptyState>
+        <EmptyState title="No PINs here">{canGeneratePins(user) ? "Create some above." : "New PINs come from the Super Admin."}</EmptyState>
       ) : (
         <Card>
           <CardContent className="p-2 sm:p-4">

@@ -10,6 +10,7 @@ import { requireRole } from "@/lib/auth/session";
 import { getCurrentSessionId } from "@/lib/permissions/assignments";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { cn } from "@/lib/utils";
+import { formTeacherTeachesAll } from "@/lib/curriculum";
 import { AddSubjectToClass, FormTeacherPicker, RemoveSubjectButton, SubjectTeacherPicker } from "./assignment-forms";
 
 export const metadata: Metadata = { title: "Assignments" };
@@ -32,7 +33,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
 
   const [session, classes] = await Promise.all([
     db.academicSession.findUnique({ where: { id: sessionId }, select: { name: true } }),
-    db.schoolClass.findMany({ where: { isActive: true }, orderBy: [{ level: { sortOrder: "asc" } }, { arm: "asc" }], select: { id: true, name: true } }),
+    db.schoolClass.findMany({ where: { isActive: true }, orderBy: [{ level: { sortOrder: "asc" } }, { arm: "asc" }], select: { id: true, name: true, level: { select: { name: true } } } }),
   ]);
 
   const selected = classId ? classes.find((c) => c.id === classId) : undefined;
@@ -82,6 +83,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
           const offeredIds = new Set(classSubjects.map((cs) => cs.subjectId));
           const addable = allSubjects.filter((s) => !offeredIds.has(s.id)).map((s) => ({ id: s.id, label: s.name }));
           const teacherFor = new Map(subjectAssignments.map((a) => [a.subjectId, a.teacherId]));
+          const wholeClass = formTeacherTeachesAll(selected.level.name);
 
           return (
             <div className="flex flex-col gap-6">
@@ -102,7 +104,11 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
               <Card>
                 <CardHeader>
                   <CardTitle>{selected.name} · Subjects and teachers</CardTitle>
-                  <CardDescription>Choose the subjects this class offers, then assign one teacher to each.</CardDescription>
+                  <CardDescription>
+                    {wholeClass
+                      ? "Choose the subjects this class offers. In Nursery and Primary the Form Teacher teaches them all, so there are no subject teachers to assign."
+                      : "Choose the subjects this class offers, then assign one teacher to each."}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
                   {classSubjects.length === 0 ? (
@@ -114,10 +120,12 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
                         {classSubjects.map((cs) => (
                           <TR key={cs.id}>
                             <TD className="font-medium">
-                              {cs.subject.name} {!teacherFor.has(cs.subjectId) && <Badge variant="outline">No teacher</Badge>}
+                              {cs.subject.name} {!wholeClass && !teacherFor.has(cs.subjectId) && <Badge variant="outline">No teacher</Badge>}
                             </TD>
                             <TD>
-                              <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} />
+                              {wholeClass
+                                ? <span className="text-sm text-muted-foreground">Form Teacher</span>
+                                : <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} />}
                             </TD>
                             <TD className="text-right">
                               <RemoveSubjectButton classId={selected.id} subjectId={cs.subjectId} name={cs.subject.name} />

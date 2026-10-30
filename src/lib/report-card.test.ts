@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { stageOfLevel, SUBJECTS_BY_STAGE } from "@/lib/curriculum";
+import { formTeacherTeachesAll, stageOfLevel, SUBJECTS_BY_STAGE } from "@/lib/curriculum";
 import { buildSampleResult } from "@/lib/pdf/sample";
 import { matchSample, parseSampleCookie, sampleCookieValue } from "@/lib/pin/sample-access";
 import { columnMax, formatAttendance, ordinal, parseAttendance, parseRatings } from "@/lib/results/report-card";
+
+describe("who teaches Nursery and Primary", () => {
+  it("the Form Teacher teaches every subject below Basic 7", () => {
+    for (const level of ["Pre-Nursery 1", "Nursery 3", "Basic 1", "Basic 6"]) expect(formTeacherTeachesAll(level)).toBe(true);
+    for (const level of ["Basic 7", "Basic 9", "SS1", "SS3"]) expect(formTeacherTeachesAll(level)).toBe(false);
+  });
+});
 
 describe("curriculum", () => {
   it("finds the report card each level uses", () => {

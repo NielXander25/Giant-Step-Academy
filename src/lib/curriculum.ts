@@ -64,6 +64,15 @@ export function stageOfLevel(levelName: string): Stage | null {
   return null;
 }
 
+/**
+ * Nursery and Primary classes (everything below Basic 7) are taught by their Form Teacher alone: students, every
+ * subject's scores and the remarks. Subject teachers are only assigned from Basic 7 up.
+ */
+export const formTeacherTeachesAll = (levelName: string) => {
+  const stage = stageOfLevel(levelName);
+  return stage === "NURSERY" || stage === "PRIMARY";
+};
+
 export type CurriculumResult = { levelsAdded: number; classesAdded: number; subjectsAdded: number; classSubjectsAdded: number; componentsAdded: boolean; gradesAdded: boolean };
 
 export async function applyCurriculum(tx: Prisma.TransactionClient): Promise<CurriculumResult> {
