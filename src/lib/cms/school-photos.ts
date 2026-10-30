@@ -60,7 +60,7 @@ export const CLASS_PHOTOS: Record<"nursery" | "primary" | "secondary", SchoolPho
 /** Portraits of the school's leaders, shown first on the Staff page. */
 export const LEADER_PHOTOS: SchoolPhoto[] = [
   // No clear photo of the Principal yet: a silhouette stands in until the school sends one.
-  p("silhouette.svg", "Photo of the Principal coming soon", "Principal", "Staff"),
+  p("silhouette.svg", "Photo of Mr. Akpidi Mbagishor Uguge, Principal, coming soon", "Mr. Akpidi Mbagishor Uguge, Principal", "Staff"),
   p("vice-principal.jpg", "Mrs Ozioma Uzo, Vice Principal", "Mrs. Ozioma Uzo, Vice Principal", "Staff"),
   p("pta-chairman.jpg", "Mr Chinedu Ogbe, P.T.A. Chairman", "Mr. Chinedu Ogbe, P.T.A. Chairman", "Staff"),
 ];
