@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 type Message = { kind: "success" | "error"; text: string };
@@ -40,9 +40,8 @@ export function SetupForm() {
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="token">Setup token</Label>
-        <Input
+        <PasswordInput
           id="token"
-          type="password"
           autoComplete="off"
           value={token}
           onChange={(e) => setToken(e.target.value)}

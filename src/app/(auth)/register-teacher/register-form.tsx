@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError, FormMessage } from "@/components/shared/form-message";
 import { registerTeacherAction } from "./actions";
@@ -45,13 +46,13 @@ export function RegisterForm() {
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">Choose a password</Label>
-        <Input id="password" name="password" type="password" autoComplete="new-password" required />
+        <PasswordInput id="password" name="password" autoComplete="new-password" required />
         <p className="text-xs text-muted-foreground">At least 10 characters.</p>
         <FieldError messages={errors.password} />
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">Confirm password</Label>
-        <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+        <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password" required />
         <FieldError messages={errors.confirmPassword} />
       </div>
       <FormMessage error={state && !state.ok ? state.error : null} />
