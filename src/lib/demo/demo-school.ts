@@ -28,8 +28,8 @@ type Stage = "NURSERY" | "PRIMARY" | "JSS" | "SS";
 // Which classes get students, and where each one is left in the approval chain so every step can be shown live.
 const CLASSES: { level: string; code: string; stage: Stage; state: "PUBLISHED" | "ADMIN_REVIEW" | "IN_PROGRESS" }[] = [
   { level: "Nursery 2", code: "NUR2", stage: "NURSERY", state: "PUBLISHED" },
-  { level: "Primary 4", code: "PRI4", stage: "PRIMARY", state: "PUBLISHED" },
-  { level: "JSS1", code: "JSS1", stage: "JSS", state: "IN_PROGRESS" },
+  { level: "Basic 4", code: "BAS4", stage: "PRIMARY", state: "PUBLISHED" },
+  { level: "Basic 7", code: "BAS7", stage: "JSS", state: "IN_PROGRESS" },
   { level: "SS1", code: "SS1", stage: "SS", state: "PUBLISHED" },
   { level: "SS2", code: "SS2", stage: "SS", state: "ADMIN_REVIEW" },
   { level: "SS3", code: "SS3", stage: "SS", state: "PUBLISHED" },
@@ -143,8 +143,8 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
     loadedAt: new Date().toISOString(), password: DEMO_PASSWORD, termId: term.id,
     admin: { name: admin.name, email: admin.email },
     teachers: [
-      { name: maths.name, email: maths.email, role: "Subject teacher: Mathematics in JSS1A, SS1A, SS2A, SS3A" },
-      { name: english.name, email: english.email, role: "Subject teacher: English in JSS1A, SS1A, SS2A, SS3A" },
+      { name: maths.name, email: maths.email, role: "Subject teacher: Mathematics in Basic 7A, SS1A, SS2A, SS3A" },
+      { name: english.name, email: english.email, role: "Subject teacher: English in Basic 7A, SS1A, SS2A, SS3A" },
     ],
     students: [],
     pins: [],

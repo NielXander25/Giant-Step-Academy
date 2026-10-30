@@ -7,7 +7,7 @@ import type { PublishedResult } from "@/lib/pin/result-data";
 // Made-up report cards, used for previews, tests and the practice PIN on the result page.
 // Never mixed with real data: nothing here is read from or written to any class or student.
 
-export const SAMPLE_CLASS: Record<Stage, string> = { NURSERY: "Nursery 2A", PRIMARY: "Primary 4A", JSS: "JSS2A", SS: "SS2A" };
+export const SAMPLE_CLASS: Record<Stage, string> = { NURSERY: "Nursery 2A", PRIMARY: "Basic 4A", JSS: "Basic 8A", SS: "SS2A" };
 
 // A small repeatable "random" number per subject, so the sample looks the same every time.
 function seeded(text: string) {

@@ -31,7 +31,7 @@ export default async function ClassesPage() {
         <CardHeader>
           <CardTitle>Giant Step classes and subjects</CardTitle>
           <CardDescription>
-            Adds Pre-Reception 1–2, Nursery 1–3, Primary 1–6, JSS1–3 and SS1–3 (arm A where a level has no class yet), and gives
+            Adds Pre-Nursery 1–2, Nursery 1–3, Basic 1–6, Basic 7–9 and SS1–3 (arm A where a level has no class yet), and gives
             every class the subjects printed on its report card. It only adds: nothing you created is removed, and it is safe to
             press again. Change a class's subjects afterwards on the Assignments page.
           </CardDescription>

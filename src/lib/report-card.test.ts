@@ -7,6 +7,9 @@ import { columnMax, formatAttendance, ordinal, parseAttendance, parseRatings } f
 describe("curriculum", () => {
   it("finds the report card each level uses", () => {
     expect(stageOfLevel("Pre-Reception 1")).toBe("NURSERY");
+    expect(stageOfLevel("Pre-Nursery 1")).toBe("NURSERY");
+    expect(stageOfLevel("Basic 4")).toBe("PRIMARY");
+    expect(stageOfLevel("Basic 8")).toBe("JSS");
     expect(stageOfLevel("Nursery 3")).toBe("NURSERY");
     expect(stageOfLevel("Primary 6")).toBe("PRIMARY");
     expect(stageOfLevel("JSS2")).toBe("JSS");

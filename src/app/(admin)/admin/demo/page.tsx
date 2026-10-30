@@ -53,7 +53,7 @@ export default async function DemoGuidePage() {
               <ol className="list-decimal space-y-2 pl-5 text-sm">
                 <li><strong>The website.</strong> Open the home page and the menu: About, Academics, Admissions, Gallery and Contact.</li>
                 <li><strong>A parent checks a result.</strong> On <Link href="/results" className="text-primary underline" target="_blank">Check results</Link>, enter <em>Tunde Ajayi</em>, <em>DEMO/SS1/001</em> and one of the PINs below. Show the landscape report card, Download PDF and Print. Note the PIN now says 1 of 2 uses.</li>
-                <li><strong>A subject teacher enters scores.</strong> Sign in as <em>english@…</em>, open JSS1A English Studies: half the class is entered. Fill in the rest, save and submit.</li>
+                <li><strong>A subject teacher enters scores.</strong> Sign in as <em>english@…</em>, open Basic 7A English Studies: half the class is entered. Fill in the rest, save and submit.</li>
                 <li><strong>Fixing a mistake.</strong> Still as the English teacher, press <em>Take back to edit</em>, change a score and submit again.</li>
                 <li><strong>The Form Teacher reviews.</strong> Sign in as <em>form.jss1@…</em>, open Reviews: approve English, then show sending Mathematics back with a reason.</li>
                 <li><strong>The Admin approves and publishes.</strong> As the Admin, open Results → SS2A (waiting for the Admin). Approve, then Publish. Its students can now open their results with a PIN.</li>

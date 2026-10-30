@@ -1,7 +1,8 @@
 import type { Prisma } from "@prisma/client";
 import { SAMPLE_BANDS } from "@/lib/results/grading";
 
-// Giant Step Academy's classes and subjects, taken from the school's own termly report cards.
+// Giant Step Academy's classes and subjects, taken from the school's own termly report cards. The class names follow
+// the school magazine: Pre-Nursery, Nursery, Basic 1–6 (Primary), Basic 7–9 (Junior Secondary) and SS 1–3.
 // "Set up Giant Step classes and subjects" (Admin > Classes) applies this. It only ever adds:
 // nothing the school created itself is removed, and running it twice changes nothing.
 
@@ -10,19 +11,19 @@ export type Stage = "NURSERY" | "PRIMARY" | "JSS" | "SS";
 export const STRUCTURE: { section: string; levels: { name: string; stage: Stage }[] }[] = [
   {
     section: "Nursery",
-    levels: ["Pre-Reception 1", "Pre-Reception 2", "Nursery 1", "Nursery 2", "Nursery 3"].map((name) => ({ name, stage: "NURSERY" as const })),
+    levels: ["Pre-Nursery 1", "Pre-Nursery 2", "Nursery 1", "Nursery 2", "Nursery 3"].map((name) => ({ name, stage: "NURSERY" as const })),
   },
-  { section: "Primary", levels: [1, 2, 3, 4, 5, 6].map((n) => ({ name: `Primary ${n}`, stage: "PRIMARY" as const })) },
+  { section: "Primary", levels: [1, 2, 3, 4, 5, 6].map((n) => ({ name: `Basic ${n}`, stage: "PRIMARY" as const })) },
   {
     section: "Secondary",
     levels: [
-      ...[1, 2, 3].map((n) => ({ name: `JSS${n}`, stage: "JSS" as const })),
+      ...[7, 8, 9].map((n) => ({ name: `Basic ${n}`, stage: "JSS" as const })),
       ...[1, 2, 3].map((n) => ({ name: `SS${n}`, stage: "SS" as const })),
     ],
   },
 ];
 
-// Printed on the Primary / Basic report card. Used for Primary 1–6 and Basic 7–9 (JSS1–3).
+// Printed on the Primary / Basic report card. Used for Basic 1–6 (Primary) and Basic 7–9 (JSS).
 const BASIC = [
   "English Studies", "Mathematics", "Basic Science", "Religion", "National Values", "Pre-vocational Studies",
   "Use of Library", "Current Affairs", "Verbal Reasoning", "Quantitative Reasoning", "Cultural & Creative Arts",
@@ -56,7 +57,7 @@ export function stageOfLevel(levelName: string): Stage | null {
   const known = STAGE_OF.get(levelName.trim().toLowerCase());
   if (known) return known;
   const n = levelName.trim().toLowerCase();
-  if (/^(pre-?reception|nursery|kg|kindergarten)/.test(n)) return "NURSERY";
+  if (/^(pre-?reception|pre-?nursery|nursery|kg|kindergarten)/.test(n)) return "NURSERY";
   if (/^(primary|basic\s*[1-6]\b)/.test(n)) return "PRIMARY";
   if (/^(jss|basic\s*[7-9]\b)/.test(n)) return "JSS";
   if (/^ss/.test(n)) return "SS";
