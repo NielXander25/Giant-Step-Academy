@@ -1,9 +1,10 @@
 // Every piece of editable text and every editable image on the public pages is defined here.
 // The default text is SAMPLE copy so the site looks finished from day one. It never states facts the school has
 // not confirmed (no founding year, fees, hours or results). An Admin replaces any of it from the content manager.
-// The default home banner is the school's own classroom photo (see school-photos.ts).
+// The default home banner is the school's own classroom photo (see school-photos.ts). The vision, mission, core
+// values, school anthem and the Proprietress's message come from the school's magazine.
 
-import { PHOTOS, type SchoolPhoto } from "./school-photos";
+import { CLASS_PHOTOS, PHOTOS, type SchoolPhoto } from "./school-photos";
 
 export type PageKey = "home" | "about" | "academics" | "admissions" | "schoollife" | "contact" | "privacy";
 
@@ -47,6 +48,33 @@ const T = (key: string, label: string): ItemField => ({ key, label, type: "text"
 const A = (key: string, label: string): ItemField => ({ key, label, type: "textarea" });
 const I = (key: string, label: string): ItemField => ({ key, label, type: "image" });
 
+// ── From the school magazine ──
+
+const VISION = "At Giant Step Academy our vision is to expose every child to the right and safe learning environment that produces well rounded, confident children with right values, ready to take the world.";
+const MISSION = [
+  "We will achieve this by providing a holistic education that emphasizes academic excellence, character, mind and head development.",
+  "We are committed to delivering a personalized learning experience, tailored to each child through a curriculum that promotes innovation and collaboration, totally equipping our students with the knowledge, skills and values needed to thrive.",
+];
+const CORE_VALUES: ListValue = [
+  { title: "Excellence", text: "" },
+  { title: "Collaboration", text: "" },
+  { title: "Creativity and Expression", text: "" },
+  { title: "Growth", text: "" },
+];
+const ANTHEM = [
+  "Giant Step Academy",
+  "The School of discipline",
+  "Creating things like moulding characters,",
+  "training Creating future leaders,",
+  "Fountain of knowledge",
+  "Inspiration! Inspiration!!",
+].join("\n");
+const PROPRIETRESS_MESSAGE = [
+  "It is with great joy that I extend my heartfelt congratulations to those graduating from different levels of studies in this prestigious institution. I return all glory to God Almighty for granting you the grace and strength to pass through the process successfully.",
+  "And a special congratulations to those who are graduating from Giant Step Academy to a higher level of institution. Your accomplishments are a testament to your determination and drive to succeed. Today, as you stand on the threshold of new beginnings, I am confident that you are well-equipped to take on any challenges that come your way.",
+  "Your graduation is not just a personal achievement, but it is also a milestone for your families, Giant Step Academy Family, and friends. A special thanks to my Teaching and Non-Teaching Staff for molding these ones to become what they are.",
+].join("\n\n");
+
 export const BLOCKS: BlockDef[] = [
   // ── Home ──
   text("home", "Top banner", "home.hero.eyebrow", "Small line above the headline", "Nursery · Primary · Secondary"),
@@ -55,38 +83,31 @@ export const BLOCKS: BlockDef[] = [
   image("home", "Top banner", "home.hero.image", "Banner picture", "A wide, bright photo works best (at least 1600 pixels across).", PHOTOS.classroom),
   text("home", "Admission notice", "admissions.notice", "Admission notice", "Admission forms into all classes are on sale.", "Shown on the Home and Admissions pages. Leave empty to hide it."),
   text("home", "About the school", "home.about.title", "Heading", "A school where every child counts"),
-  rich("home", "About the school", "home.about.body", "Text", "We welcome children from Nursery through Secondary and work closely with parents to help each child learn well and grow in character.\n\nUse the content manager to replace this text with the school's own words."),
+  rich("home", "About the school", "home.about.body", "Text", `${VISION}\n\n${MISSION[0]}`),
   image("home", "About the school", "home.about.image", "Picture"),
-  list("home", "What we stand for", "home.values", "Values", [T("title", "Title"), A("text", "Short description")], [
-    { title: "Character", text: "We teach children to be honest, respectful and responsible." },
-    { title: "Learning", text: "We help every child build strong foundations in reading, writing and numbers." },
-    { title: "Care", text: "We know our pupils by name and work with families to support them." },
-  ], 6),
+  list("home", "What we stand for", "home.values", "Values", [T("title", "Title"), A("text", "Short description")], CORE_VALUES, 6),
 
   // ── About ──
   area("about", "Introduction", "about.intro", "Introduction", "Learn about our school, what we believe, and the people who lead it."),
   rich("about", "Our story", "about.story", "Our story", "Tell parents how the school began, what it stands for and where it is going.\n\nThis is sample text. An Admin can replace it in the content manager."),
   image("about", "Our story", "about.story.image", "Picture"),
-  area("about", "Mission and vision", "about.mission", "Mission", "To give every child a sound education in a safe, orderly and encouraging environment."),
-  area("about", "Mission and vision", "about.vision", "Vision", "Securing a bright future for every child we teach."),
-  list("about", "Values", "about.values", "Values", [T("title", "Title"), A("text", "Short description")], [
-    { title: "Integrity", text: "Doing the right thing, even when no one is watching." },
-    { title: "Excellence", text: "Aiming high and working hard to get there." },
-    { title: "Respect", text: "Treating people and property with care." },
-  ], 8),
-  text("about", "Principal's message", "about.principal.name", "Principal's name", ""),
-  text("about", "Principal's message", "about.principal.title", "Title", "Principal"),
-  rich("about", "Principal's message", "about.principal.message", "Message", ""),
-  image("about", "Principal's message", "about.principal.photo", "Photo"),
+  area("about", "Mission and vision", "about.mission", "Mission", MISSION.join("\n\n")),
+  area("about", "Mission and vision", "about.vision", "Vision", VISION),
+  list("about", "Values", "about.values", "Values", [T("title", "Title"), A("text", "Short description")], CORE_VALUES, 8),
+  area("about", "School anthem", "about.anthem", "School anthem", ANTHEM, "One line of the anthem per line. Leave empty to hide it."),
+  text("about", "Principal's message", "about.principal.name", "Name", "Bernice Nwaorah Nwabunike"),
+  text("about", "Principal's message", "about.principal.title", "Title", "Proprietress"),
+  rich("about", "Principal's message", "about.principal.message", "Message", PROPRIETRESS_MESSAGE),
+  image("about", "Principal's message", "about.principal.photo", "Photo", undefined, PHOTOS.proprietress),
 
   // ── Academics ──
   area("academics", "Introduction", "academics.intro", "Introduction", "From the first day in Nursery to the final year of Secondary school, learning here is planned, steady and supported."),
   rich("academics", "Nursery", "academics.nursery.body", "Nursery", "Our Nursery section gives young children a gentle start: early reading, numbers, play and good habits.\n\nReplace this with the school's own description."),
-  image("academics", "Nursery", "academics.nursery.image", "Nursery picture"),
+  image("academics", "Nursery", "academics.nursery.image", "Nursery picture", undefined, CLASS_PHOTOS.nursery[1]),
   rich("academics", "Primary", "academics.primary.body", "Primary", "In Primary school, pupils build strong skills in English, mathematics, science and more.\n\nReplace this with the school's own description."),
-  image("academics", "Primary", "academics.primary.image", "Primary picture"),
+  image("academics", "Primary", "academics.primary.image", "Primary picture", undefined, CLASS_PHOTOS.primary[1]),
   rich("academics", "Secondary", "academics.secondary.body", "Secondary", "Our Secondary section prepares students for their external examinations and for life after school.\n\nReplace this with the school's own description."),
-  image("academics", "Secondary", "academics.secondary.image", "Secondary picture"),
+  image("academics", "Secondary", "academics.secondary.image", "Secondary picture", undefined, CLASS_PHOTOS.secondary[3]),
   rich("academics", "Subjects", "academics.subjects", "Subjects and programmes", "", "List the subjects, clubs or special programmes. Leave empty to hide this part."),
 
   // ── Admissions ──

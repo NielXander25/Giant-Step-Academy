@@ -95,7 +95,7 @@ describe("the editable content registry", () => {
     expect(merged["home.hero.title"]).toBe("Welcome to our school");
     expect(merged["home.hero.subtitle"]).toBe(BLOCK_BY_KEY.get("home.hero.subtitle")!.default);
     expect(merged["home.hero.image"]).toEqual({ url: "https://res.cloudinary.com/x/image/upload/a.jpg", alt: "Pupils" });
-    expect(merged["home.values"]).toHaveLength(3);
+    expect(merged["home.values"]).toEqual(BLOCK_BY_KEY.get("home.values")!.default);
   });
   it("an Admin can deliberately empty a text or remove an image", () => {
     const merged = resolveBlocks("home", { "admissions.notice": { value: "" }, "home.hero.image": { value: null } });

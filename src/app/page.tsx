@@ -101,12 +101,12 @@ export default async function HomePage() {
       {values.length > 0 && (
         <Section tone="soft">
           <SectionHeading eyebrow="What we stand for" title="The values behind every school day" />
-          <ul className="grid gap-5 md:grid-cols-3">
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
               <li key={i} className="rounded-2xl border border-border bg-white p-6">
                 <span className="font-serif text-4xl text-accent/70">{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mt-2 font-serif text-xl text-navy">{v.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>
+                {v.text && <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>}
               </li>
             ))}
           </ul>
