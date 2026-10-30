@@ -24,7 +24,8 @@ const s = StyleSheet.create({
   crest: { width: 26, height: 32, marginRight: 9 },
   school: { fontFamily: "Helvetica-Bold", fontSize: 13 },
   meta: { fontSize: 8.5, color: MUTED, marginTop: 2 },
-  right: { marginLeft: "auto", alignItems: "flex-end" },
+  left: { flex: 1, paddingRight: 12 },
+  right: { width: 230, alignItems: "flex-end" },
   title: { fontFamily: "Helvetica-Bold", fontSize: 12 },
   columns: { flexDirection: "row", justifyContent: "space-between" },
   column: { width: "47%" },
@@ -71,13 +72,15 @@ export function PinCardsPdf(data: PinCardsData) {
         <Page key={p} size="A4" style={s.page}>
           <View style={s.header}>
             <Image src={data.crest} style={s.crest} />
-            <View>
+            <View style={s.left}>
               <Text style={s.school}>{data.school.name}</Text>
               <Text style={s.meta}>Parents check results at {data.school.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}/results</Text>
             </View>
             <View style={s.right}>
-              <Text style={s.title}>Result PINs{data.label ? `: ${data.label}` : ""}</Text>
-              <Text style={s.meta}>{day(data.createdAt)} · {n} PIN{n === 1 ? "" : "s"} (Nos. {no(0)} to {no(n - 1)})</Text>
+              <Text style={s.title}>Result PINs</Text>
+              {data.label ? <Text style={s.meta}>Batch: {data.label}</Text> : null}
+              <Text style={s.meta}>{day(data.createdAt)} · {n} PIN{n === 1 ? "" : "s"}, Nos. {no(0)} to {no(n - 1)}</Text>
+              <Text style={s.meta}>Each PIN works for any student in any class</Text>
             </View>
           </View>
           <View style={s.columns}>

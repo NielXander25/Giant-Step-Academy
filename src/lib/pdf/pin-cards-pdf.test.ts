@@ -8,7 +8,7 @@ import { CREST_PNG } from "./crest";
 import { PinCardsPdf } from "./pin-cards-pdf";
 
 const data = {
-  pins: [] as string[], label: "SS2A First Term", createdAt: new Date("2026-10-30T10:00:00Z"), crest: CREST_PNG,
+  pins: [] as string[], label: "First Term 2026/2027", createdAt: new Date("2026-10-30T10:00:00Z"), crest: CREST_PNG,
   school: { name: "Giant Step Academy", motto: "Securing a bright future", phone: "+234 813 913 9020", website: "https://giantstepacademy.com.ng" },
 };
 
@@ -28,6 +28,7 @@ describe("printable PIN list", () => {
     expect(pages[0]).toContain("050");
     expect(pages[1]).toContain("063");
     expect(text).toContain("GSA 482 915");
-    expect(text).toContain("Result PINs: SS2A First Term");
+    expect(text).toContain("Batch: First Term 2026/2027");
+    expect(text).toContain("any student in any class");
   });
 });

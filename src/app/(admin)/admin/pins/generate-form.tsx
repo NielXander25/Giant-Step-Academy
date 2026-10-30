@@ -50,7 +50,7 @@ export function GeneratePinsForm({ disabled }: { disabled: boolean }) {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="pin-label">Note (optional)</Label>
-          <Input id="pin-label" value={label} maxLength={60} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. SS2A First Term" />
+          <Input id="pin-label" value={label} maxLength={60} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. First Term 2026/2027" />
         </div>
         <div className="flex flex-col items-start gap-3 sm:col-span-2">
           <Button type="submit" disabled={pending || disabled || !count}>{pending ? "Creating…" : "Create PINs"}</Button>
