@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/results/pdf": ["./node_modules/pdfkit/js/standard-fonts/**"],
     "/api/results/sample-pdf": ["./node_modules/pdfkit/js/standard-fonts/**"],
+    "/api/pins/pdf": ["./node_modules/pdfkit/js/standard-fonts/**"],
   },
   async headers() {
     return [
