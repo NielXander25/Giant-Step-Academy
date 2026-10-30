@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,20 @@ type Props = {
 
 const toText = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
 
+// Autosave: every change is kept on the device at once (so a phone that switches off loses nothing) and sent to the
+// server a moment after the teacher stops typing, or when they leave the page.
+const AUTOSAVE_MS = 2000;
+type Backup = { cells: Record<string, Record<string, string>>; remarks: Record<string, string>; at: number };
+type SaveState = { kind: "idle" | "saving" | "saved" | "offline"; at?: number };
+const backupKey = (classId: string, subjectId: string) => `gsa-scores:${classId}:${subjectId}`;
+function readBackup(key: string): Backup | null {
+  try { const raw = localStorage.getItem(key); return raw ? (JSON.parse(raw) as Backup) : null; } catch { return null; }
+}
+function writeBackup(key: string, b: Backup | null) {
+  try { if (b) localStorage.setItem(key, JSON.stringify(b)); else localStorage.removeItem(key); } catch { /* storage full or blocked */ }
+}
+const clock = (at?: number) => (at ? new Date(at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "");
+
 export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit, byFormTeacher }: Props) {
   const router = useRouter();
   const [cells, setCells] = useState<Record<string, Record<string, string>>>(
@@ -33,6 +47,11 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
   const [dirty, setDirty] = useState(false);
   const [pending, start] = useTransition();
   const [message, setMessage] = useState<{ kind: "error" | "success"; text: string } | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>({ kind: "idle" });
+  const [restored, setRestored] = useState(false);
+  const key = backupKey(classId, subjectId);
+  const version = useRef(0); // bumps on every edit, so a save only clears the backup if nothing changed meanwhile
+  const inFlight = useRef(false);
 
   const numbersOf = (id: string) => Object.fromEntries(components.map((c) => [c.id, cells[id][c.id].trim() === "" ? null : Number(cells[id][c.id])]));
   const results = rows.map((r) => computeSubject(numbersOf(r.enrollmentId), components, bands));
@@ -40,11 +59,90 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
   const hasErrors = results.some((r) => r.errors.length > 0);
   const payload = () => rows.map((r) => ({ enrollmentId: r.enrollmentId, scores: numbersOf(r.enrollmentId), remark: remarks[r.enrollmentId]?.trim() || undefined }));
 
+  // Scores this device kept but never managed to send (the phone switched off, the network dropped): bring them back.
+  useEffect(() => {
+    if (!canEdit) return writeBackup(key, null); // submitted or locked: an old device copy must never come back
+    const b = readBackup(key);
+    if (!b) return;
+    const known = new Set(rows.map((r) => r.enrollmentId));
+    setCells((cur) => {
+      const next = { ...cur };
+      for (const [id, v] of Object.entries(b.cells)) if (known.has(id)) next[id] = { ...cur[id], ...v };
+      return next;
+    });
+    setRemarks((cur) => {
+      const next = { ...cur };
+      for (const [id, v] of Object.entries(b.remarks)) if (known.has(id)) next[id] = v;
+      return next;
+    });
+    version.current++;
+    setDirty(true);
+    setRestored(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const change = (id: string, comp: string, value: string) => {
-    setCells({ ...cells, [id]: { ...cells[id], [comp]: value } });
+    const next = { ...cells, [id]: { ...cells[id], [comp]: value } };
+    setCells(next);
+    writeBackup(key, { cells: next, remarks, at: Date.now() });
+    version.current++;
     setDirty(true);
     setMessage(null);
   };
+
+  const changeRemark = (id: string, value: string) => {
+    const next = { ...remarks, [id]: value };
+    setRemarks(next);
+    writeBackup(key, { cells, remarks: next, at: Date.now() });
+    version.current++;
+    setDirty(true);
+  };
+
+  const autosave = useCallback(async () => {
+    if (!canEdit || hasErrors || inFlight.current) return;
+    inFlight.current = true;
+    const sentVersion = version.current;
+    setSaveState({ kind: "saving" });
+    try {
+      const r = await saveScoresAction({ classId, subjectId, rows: payload() });
+      if (!r.ok) {
+        setSaveState({ kind: "offline" });
+        setMessage({ kind: "error", text: r.error });
+        return;
+      }
+      if (version.current === sentVersion) {
+        writeBackup(key, null);
+        setDirty(false);
+      }
+      setSaveState({ kind: "saved", at: Date.now() });
+    } catch {
+      setSaveState({ kind: "offline" }); // no connection: the device copy is kept and sent on the next change
+    } finally {
+      inFlight.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cells, remarks, canEdit, hasErrors, classId, subjectId, key]);
+
+  // Send to the server shortly after the last change.
+  useEffect(() => {
+    if (!dirty || !canEdit || hasErrors) return;
+    const t = window.setTimeout(autosave, AUTOSAVE_MS);
+    return () => window.clearTimeout(t);
+  }, [dirty, canEdit, hasErrors, autosave]);
+
+  // And at once when the teacher switches app, locks the phone or leaves the page.
+  useEffect(() => {
+    const flush = () => { if (document.visibilityState === "hidden" && dirty) void autosave(); };
+    const retry = () => { if (dirty) void autosave(); }; // the connection came back
+    document.addEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("online", retry);
+    return () => {
+      document.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("online", retry);
+    };
+  }, [dirty, autosave]);
 
   function down(e: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) {
     if (e.key !== "Enter") return;
@@ -56,8 +154,10 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
     start(async () => {
       const r = await saveScoresAction({ classId, subjectId, rows: payload() });
       if (!r.ok) return setMessage({ kind: "error", text: r.error });
+      writeBackup(key, null);
       setDirty(false);
-      setMessage({ kind: "success", text: "Draft saved." });
+      setSaveState({ kind: "saved", at: Date.now() });
+      setMessage({ kind: "success", text: "Saved." });
       router.refresh();
     });
 
@@ -71,6 +171,7 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
       if (!saved.ok) return setMessage({ kind: "error", text: saved.error });
       const sent = await submitSubjectAction({ classId, subjectId });
       if (!sent.ok) return setMessage({ kind: "error", text: sent.error });
+      writeBackup(key, null);
       setDirty(false);
       router.refresh();
     });
@@ -113,7 +214,7 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
                           min={0}
                           max={c.maxScore}
                           step="0.01"
-                          disabled={!canEdit || pending}
+                          disabled={!canEdit}
                           value={cells[r.enrollmentId][c.id]}
                           onChange={(e) => change(r.enrollmentId, c.id, e.target.value)}
                           onKeyDown={(e) => down(e, ri, ci)}
@@ -129,9 +230,9 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
                       aria-label={`${r.fullName} remark`}
                       className="h-9 w-44"
                       maxLength={200}
-                      disabled={!canEdit || pending}
+                      disabled={!canEdit}
                       value={remarks[r.enrollmentId]}
-                      onChange={(e) => { setRemarks({ ...remarks, [r.enrollmentId]: e.target.value }); setDirty(true); }}
+                      onChange={(e) => changeRemark(r.enrollmentId, e.target.value)}
                       placeholder="Optional"
                     />
                   </td>
@@ -142,14 +243,29 @@ export function ScoreGrid({ classId, subjectId, components, bands, rows, canEdit
         </table>
       </div>
 
+      {restored && (
+        <p role="status" className="rounded-xl bg-accent-soft px-4 py-2 text-sm text-navy">
+          Scores you typed earlier on this device that had not been saved were brought back. They are being saved now.
+        </p>
+      )}
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {complete} of {rows.length} students complete{dirty ? " · unsaved changes" : ""}. Press Enter to move down a column.
+        {complete} of {rows.length} students complete.{" "}
+        {canEdit && (
+          <span className={saveState.kind === "offline" ? "font-semibold text-destructive" : "font-semibold text-navy"}>
+            {hasErrors && dirty ? "Not saved yet: fix the red boxes." :
+              saveState.kind === "saving" ? "Saving…" :
+              saveState.kind === "offline" ? "Saved on this device only. It will upload when you are back online." :
+              dirty ? "Saving shortly…" :
+              saveState.kind === "saved" ? `All changes saved (${clock(saveState.at)}).` : "Changes save automatically."}
+          </span>
+        )}{" "}
+        Press Enter to move down a column.
       </p>
       {hasErrors && <p role="alert" className="text-sm text-destructive">Some scores are not allowed (negative or above the maximum). Fix the red boxes first.</p>}
 
       {canEdit && (
         <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" variant="outline" disabled={pending || hasErrors || !dirty} onClick={saveDraft}>{pending ? "Working…" : "Save draft"}</Button>
+          <Button type="button" variant="outline" disabled={pending || hasErrors || !dirty} onClick={saveDraft}>{pending ? "Working…" : "Save now"}</Button>
           <Button type="button" disabled={pending || hasErrors || complete !== rows.length || rows.length === 0} onClick={submit}>
             {byFormTeacher ? "Submit results" : "Submit to Form Teacher"}
           </Button>
