@@ -45,7 +45,7 @@ export default async function HomePage() {
       {/* Apple-style opening: a big, calm headline on white, the three sections as colour chips, then the photo. */}
       <div className="relative overflow-hidden bg-white">
         <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-10 size-[26rem] rounded-full bg-sky/20 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-40 size-[26rem] rounded-full bg-grape/15 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-40 size-[26rem] rounded-full bg-sun/25 blur-3xl" />
         <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-14 text-center sm:px-8 md:pb-24 md:pt-24">
           <div className="fade-up flex flex-wrap justify-center gap-2">
             {SECTIONS.map((sec) => (
@@ -58,7 +58,7 @@ export default async function HomePage() {
           <p className="fade-up mx-auto mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground md:text-2xl" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
           <div className="fade-up mt-9 flex flex-wrap justify-center gap-3" style={{ animationDelay: "240ms" }}>
             <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-            <Button asChild size="lg" variant="outline"><Link href="/events">See our events</Link></Button>
+            <Button asChild size="lg" variant="yellow"><Link href="/events">See our events</Link></Button>
           </div>
           {notice && (
             <p className="fade-up mx-auto mt-7 inline-flex items-center gap-2 rounded-full bg-sun/20 px-4 py-2 text-sm font-medium text-navy" style={{ animationDelay: "320ms" }}>
@@ -66,7 +66,7 @@ export default async function HomePage() {
             </p>
           )}
           <div className="fade-up relative mt-14" style={{ animationDelay: "300ms" }}>
-            <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-grape/30 to-rose/30 blur-2xl" />
+            <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-sun/40 to-sky/40 blur-2xl" />
             <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1600} priority className="relative aspect-[16/9] w-full rounded-[2.25rem] object-[60%_center] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] md:aspect-[21/9]" />
           </div>
         </div>
@@ -151,13 +151,14 @@ export default async function HomePage() {
       )}
 
       <Section>
-        <div className="flex flex-col items-start justify-between gap-6 rounded-[2.25rem] bg-gradient-to-br from-primary via-indigo to-grape p-8 text-white md:flex-row md:items-center md:p-12">
+        <div className="flex flex-col items-start justify-between gap-6 relative overflow-hidden rounded-[2.25rem] bg-primary p-8 text-white md:flex-row md:items-center md:p-12">
           <div>
             <h2 className="text-3xl text-white md:text-4xl">Ready to give your child a giant step?</h2>
+            <span aria-hidden="true" className="mt-4 block h-1.5 w-16 rounded-full bg-sun" />
             <p className="mt-2 max-w-xl text-white/80">{notice || "Talk to us about admission into Nursery, Primary or Secondary."}</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg" variant="outline" className="border-white bg-white text-navy hover:bg-white/90"><Link href="/admissions">How to apply</Link></Button>
+            <Button asChild size="lg" variant="yellow"><Link href="/admissions">How to apply</Link></Button>
             <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/contact">Contact us</Link></Button>
           </div>
         </div>

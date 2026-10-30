@@ -24,7 +24,7 @@ export function PageHero({ eyebrow, title, intro }: { eyebrow?: string; title: s
   return (
     <div className="relative overflow-hidden bg-muted">
       <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-sky/25 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 right-1/3 size-72 rounded-full bg-grape/15 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 right-1/3 size-72 rounded-full bg-sun/25 blur-3xl" />
       <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-8 md:py-24">
         {eyebrow && <p className="mb-3 text-sm font-semibold text-primary">{eyebrow}</p>}
         <h1 className="fade-up max-w-3xl text-5xl text-navy md:text-6xl">{title}</h1>
