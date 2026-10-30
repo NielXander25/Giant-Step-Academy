@@ -28,6 +28,10 @@ export const teacherRegistrationInput = z
   });
 
 export const approveRequestInput = z.object({ requestId: id });
+
+export const passwordResetRequestInput = z
+  .object({ email, password: passwordSchema, confirmPassword: z.string() })
+  .refine((v) => v.password === v.confirmPassword, { message: "The passwords do not match.", path: ["confirmPassword"] });
 export const rejectRequestInput = z.object({
   requestId: id,
   reason: z.string().trim().min(3, "Give a short reason.").max(300),

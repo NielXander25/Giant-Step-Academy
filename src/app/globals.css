@@ -2,27 +2,27 @@
 
 /*
   Giant Step Academy — design tokens
-  Blue and white with a small touch of brown (from the client).
-  These are TEMPORARY brand values. When the official colours arrive,
-  change them here and the whole platform follows.
+  Deep navy, school maroon and warm cream, after the look the Proprietress chose (giantstepacademy.com).
+  Change them here and the whole platform follows.
 */
 :root {
   --background: #ffffff;
-  --foreground: #0f1b33;
+  --foreground: #161f2e;
   --card: #ffffff;
-  --card-foreground: #0f1b33;
-  --primary: #12408f; /* school blue */
+  --card-foreground: #161f2e;
+  --primary: #1d3866; /* navy blue: links and everyday buttons */
   --primary-foreground: #ffffff;
-  --primary-soft: #eaf0fb;
-  --navy: #0a2150;
-  --accent: #8a5a36; /* brown — use sparingly */
+  --primary-soft: #eaeff7;
+  --navy: #142a4c;
+  --accent: #800020; /* school maroon: main calls to action and highlights */
   --accent-foreground: #ffffff;
-  --accent-soft: #f3ebe3;
-  --muted: #f3f6fb;
-  --muted-foreground: #53607a;
-  --border: #d9e2f1;
-  --input: #c3d0e6;
-  --ring: #2f63c4;
+  --accent-soft: #f8ebee;
+  --cream: #fcf7f1;
+  --muted: #f9f4ed;
+  --muted-foreground: #586273;
+  --border: #e8e1d7;
+  --input: #ddd4c7;
+  --ring: #1d3866;
   --destructive: #b42318;
   --success: #1a7f4b;
   --radius: 0.625rem;
@@ -37,6 +37,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);
   --color-navy: var(--navy);
+  --color-cream: var(--cream);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
@@ -71,7 +72,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-serif);
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   line-height: 1.15;
 }
 

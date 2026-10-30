@@ -93,3 +93,46 @@ export const rejectRequest = defineAction({
     return { id: request.id };
   },
 });
+
+// ─── Forgotten passwords ───
+
+export const approvePasswordReset = defineAction({
+  roles: ADMIN_ROLES,
+  input: approveRequestInput,
+  handler: async ({ user, input }) => {
+    assertAllowed(canReviewTeacherRequests(user));
+    const request = await db.passwordResetRequest.findUnique({ where: { id: input.requestId }, include: { user: { select: { id: true, email: true, name: true } } } });
+    if (!request) throw new NotFoundError("That request could not be found.");
+    if (request.user.id === user.id) throw new ConflictError("Someone else must approve a reset of your own password.");
+    await db.$transaction(async (tx) => {
+      const claimed = await tx.passwordResetRequest.updateMany({
+        where: { id: request.id, status: "PENDING" },
+        data: { status: "APPROVED", reviewedById: user.id, reviewedAt: new Date() },
+      });
+      if (claimed.count !== 1) throw new ConflictError(ALREADY_REVIEWED);
+      await tx.user.update({ where: { id: request.userId }, data: { passwordHash: request.passwordHash, mustChangePassword: false } });
+    });
+    await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.PASSWORD_RESET_APPROVED, entityType: "User", entityId: request.userId });
+    await sendEmail({
+      to: request.user.email,
+      subject: "Your Giant Step Academy password has been reset",
+      text: `Hello ${request.user.name},\n\nYour request for a new password has been approved. You can now sign in with the new password you chose.\n\nGiant Step Academy`,
+    });
+    return { id: request.id };
+  },
+});
+
+export const rejectPasswordReset = defineAction({
+  roles: ADMIN_ROLES,
+  input: approveRequestInput,
+  handler: async ({ user, input }) => {
+    assertAllowed(canReviewTeacherRequests(user));
+    const claimed = await db.passwordResetRequest.updateMany({
+      where: { id: input.requestId, status: "PENDING" },
+      data: { status: "REJECTED", reviewedById: user.id, reviewedAt: new Date() },
+    });
+    if (claimed.count !== 1) throw new ConflictError(ALREADY_REVIEWED);
+    await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.PASSWORD_RESET_REJECTED, entityType: "PasswordResetRequest", entityId: input.requestId });
+    return { id: input.requestId };
+  },
+});

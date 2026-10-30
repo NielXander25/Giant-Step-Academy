@@ -22,7 +22,8 @@ export async function submitEnquiryAction(_prev: EnquiryState, formData: FormDat
     phone: formData.get("phone"),
     email: formData.get("email") || undefined,
     interest: formData.get("interest") || undefined,
-    message: formData.get("message"),
+    // The admissions pop-up has no message box: its "class of interest" becomes the message.
+    message: formData.get("message") ?? `Admissions enquiry from the website pop-up.${formData.get("classOfInterest") ? ` Class of interest: ${String(formData.get("classOfInterest")).slice(0, 80)}.` : ""}`,
   });
   if (!parsed.success) return { error: "Please check the highlighted boxes.", fieldErrors: parsed.error.flatten().fieldErrors };
 

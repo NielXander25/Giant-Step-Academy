@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
+import { AuthLabel, authField } from "@/components/auth/auth-shell";
 import { FieldError, FormMessage } from "@/components/shared/form-message";
 import { registerTeacherAction } from "./actions";
 
@@ -36,39 +36,39 @@ export function RegisterForm() {
 
   const errors = state && !state.ok ? (state.fieldErrors ?? {}) : {};
   return (
-    <form action={formAction} className="flex flex-col gap-4" noValidate>
+    <form action={formAction} className="flex flex-col gap-5" noValidate>
       {/* Spam trap: hidden from people, visible to bots */}
       <div aria-hidden="true" className="absolute -left-[9999px]">
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="fullName">Full name</Label>
-        <Input id="fullName" name="fullName" autoComplete="name" required />
+      <div className="flex flex-col gap-2.5">
+        <AuthLabel htmlFor="fullName">Full name</AuthLabel>
+        <Input id="fullName" name="fullName" autoComplete="name" className={authField} required />
         <FieldError messages={errors.fullName} />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email address</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" inputMode="email" required />
+      <div className="flex flex-col gap-2.5">
+        <AuthLabel htmlFor="email">Email address</AuthLabel>
+        <Input id="email" name="email" type="email" autoComplete="email" inputMode="email" className={authField} required />
         <FieldError messages={errors.email} />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="phone">Phone (optional)</Label>
-        <Input id="phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" />
+      <div className="flex flex-col gap-2.5">
+        <AuthLabel htmlFor="phone">Phone (optional)</AuthLabel>
+        <Input id="phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" className={authField} />
         <FieldError messages={errors.phone} />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Choose a password</Label>
-        <PasswordInput id="password" name="password" autoComplete="new-password" required />
+      <div className="flex flex-col gap-2.5">
+        <AuthLabel htmlFor="password">Choose a password</AuthLabel>
+        <PasswordInput id="password" name="password" autoComplete="new-password" className={authField} required />
         <p className="text-xs text-muted-foreground">At least 10 characters.</p>
         <FieldError messages={errors.password} />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="confirmPassword">Confirm password</Label>
-        <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password" required />
+      <div className="flex flex-col gap-2.5">
+        <AuthLabel htmlFor="confirmPassword">Confirm password</AuthLabel>
+        <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password" className={authField} required />
         <FieldError messages={errors.confirmPassword} />
       </div>
       <FormMessage error={state && !state.ok ? state.error : null} />
-      <Button type="submit" size="lg" disabled={pending}>{pending ? "Sending…" : "Request an account"}</Button>
+      <Button type="submit" size="lg" variant="accent" disabled={pending} className="h-14 rounded-2xl text-lg">{pending ? "Sending…" : "Request an account"}</Button>
     </form>
   );
 }

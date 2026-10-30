@@ -3,7 +3,9 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { getAnnouncements, getSchool } from "@/lib/cms/site-data";
 import { isPlaceholder, mapsHref, splitPhones, telHref, whatsappHref } from "@/lib/cms/helpers";
 import { SchoolLogo } from "./school-logo";
+import { AdmissionPopup } from "./admission-popup";
 import { SiteNav } from "./site-nav";
+import { WhatsAppButton } from "./whatsapp-button";
 import { SITE_LINKS } from "./nav";
 
 /** The header, footer and notice bar that wrap every public page. */
@@ -76,6 +78,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      {phones[0] && <WhatsAppButton href={whatsappHref(phones[0])} />}
+      <AdmissionPopup />
     </>
   );
 }

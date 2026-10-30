@@ -42,29 +42,29 @@ export default async function HomePage() {
     <SiteShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
-      {/* A bright, warm banner built around the school's own photos. */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#fff6e0] via-white to-primary-soft">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-[#ffd34d]/40 blur-2xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 right-0 size-96 rounded-full bg-[#e07a2f]/15 blur-3xl" />
+      {/* A deep navy banner with a gold touch, around the school's own photo. */}
+      <div className="relative overflow-hidden bg-navy">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-[#2c4f86]/60 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 right-0 size-[28rem] rounded-full bg-accent/35 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-10 sm:px-8 md:grid-cols-[1fr_1.05fr] md:pb-24 md:pt-16">
           <div>
-            <p className="fade-up mb-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-navy shadow-sm">
-              <span aria-hidden="true" className="size-2 rounded-full bg-[#e07a2f]" />{b["home.hero.eyebrow"] as string}
+            <p className="fade-up mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[#f2c14e]">
+              <span aria-hidden="true" className="size-2 rounded-full bg-[#f2c14e]" />{b["home.hero.eyebrow"] as string}
             </p>
-            <h1 className="fade-up text-4xl leading-[1.08] text-navy sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
-            <p className="fade-up mt-5 max-w-xl text-lg text-muted-foreground" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
+            <h1 className="fade-up text-4xl leading-[1.08] text-white sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
+            <p className="fade-up mt-5 max-w-xl text-lg text-white/85" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
             <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
-              <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/events">See our events</Link></Button>
+              <Button asChild size="lg" variant="accent"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/events">See our events</Link></Button>
             </div>
             {notice && (
-              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white px-4 py-3 text-sm text-navy shadow-sm" style={{ animationDelay: "320ms" }}>
-                <BellRing className="mt-0.5 size-4 shrink-0 text-[#e07a2f]" aria-hidden="true" />{notice}
+              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white" style={{ animationDelay: "320ms" }}>
+                <BellRing className="mt-0.5 size-4 shrink-0 text-[#f2c14e]" aria-hidden="true" />{notice}
               </p>
             )}
           </div>
           <div className="fade-up relative" style={{ animationDelay: "200ms" }}>
-            <div aria-hidden="true" className="absolute -right-3 -top-3 h-full w-full rotate-2 rounded-[2rem] bg-[#ffd34d]" />
+            <div aria-hidden="true" className="absolute -right-3 -top-3 h-full w-full rotate-2 rounded-[2rem] bg-[#d9a520]" />
             <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1400} priority className="relative aspect-[4/3] w-full rounded-[2rem] object-[60%_center] shadow-xl sm:aspect-[16/10]" />
           </div>
         </div>

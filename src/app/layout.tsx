@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, Newsreader } from "next/font/google";
+import { Nunito, Playfair_Display } from "next/font/google";
 import { siteUrl } from "@/lib/site-url";
 import { isDemoSite } from "@/lib/demo/mode";
 import "./globals.css";
 
-const display = Newsreader({ subsets: ["latin"], variable: "--font-display", display: "swap" });
-const body = Figtree({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const display = Playfair_Display({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display", display: "swap" });
+const body = Nunito({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#12408f",
+  themeColor: "#142a4c",
   width: "device-width",
   initialScale: 1,
 };

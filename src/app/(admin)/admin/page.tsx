@@ -14,7 +14,7 @@ export default async function AdminOverview() {
 
   const [teachers, pendingRequests, students, classes, sessions] = await Promise.all([
     db.user.count({ where: { role: "TEACHER", status: "ACTIVE" } }),
-    db.teacherRequest.count({ where: { status: "PENDING" } }),
+    Promise.all([db.teacherRequest.count({ where: { status: "PENDING" } }), db.passwordResetRequest.count({ where: { status: "PENDING" } })]).then(([a, b]) => a + b),
     db.student.count({ where: { status: "ACTIVE" } }),
     db.schoolClass.count({ where: { isActive: true } }),
     db.academicSession.count(),
