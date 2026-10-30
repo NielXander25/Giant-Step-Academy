@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHero, Section } from "@/components/site/section";
 import { SiteImage } from "@/components/site/site-image";
 import { optimizeImage } from "@/lib/cms/helpers";
+import { galleryOrDefaults } from "@/lib/cms/school-photos";
 import { getGallery } from "@/lib/cms/site-data";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: "Gallery", description: "Pictures fro
 
 export default async function GalleryPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const sp = await searchParams;
-  const all = await getGallery();
+  const all = galleryOrDefaults(await getGallery());
   const categories = [...new Set(all.map((g) => g.category).filter((c): c is string => Boolean(c)))];
   const category = categories.find((c) => c === sp.category);
   const items = category ? all.filter((g) => g.category === category) : all;

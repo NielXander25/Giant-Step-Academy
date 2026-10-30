@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import type { ImageValue, ListValue } from "@/lib/cms/blocks";
 import { isPlaceholder, splitPhones } from "@/lib/cms/helpers";
 import { plainText } from "@/lib/cms/rich-text";
-import { getBlocks, getEvents, getNews, getSchool, getTestimonials } from "@/lib/cms/site-data";
+import { getBlocks, getEvents, getGallery, getNews, getSchool, getTestimonials } from "@/lib/cms/site-data";
+import { galleryOrDefaults, PHOTOS } from "@/lib/cms/school-photos";
 import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +24,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [b, school, news, events, testimonials] = await Promise.all([
-    getBlocks(["home", "academics"]), getSchool(), getNews(3, 1), getEvents(), getTestimonials(),
+  const [b, school, news, events, testimonials, galleryRows] = await Promise.all([
+    getBlocks(["home", "academics"]), getSchool(), getNews(3, 1), getEvents(), getTestimonials(), getGallery(),
   ]);
+
   const hero = b["home.hero.image"] as ImageValue;
+  const photos = galleryOrDefaults(galleryRows).filter((ph) => ph.imageUrl !== hero?.url).slice(0, 5); // never repeat the banner picture
   const aboutImage = b["home.about.image"] as ImageValue;
   const values = b["home.values"] as ListValue;
   const notice = b["admissions.notice"] as string;
@@ -41,35 +44,42 @@ export default async function HomePage() {
     <SiteShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
-      <div className="relative overflow-hidden bg-navy text-white">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-28 pt-14 sm:px-8 md:grid-cols-[1.1fr_0.9fr] md:pb-36 md:pt-20">
+      {/* A bright, warm banner built around the school's own photos. */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#fff6e0] via-white to-primary-soft">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-[#ffd34d]/40 blur-2xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 right-0 size-96 rounded-full bg-[#e07a2f]/15 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-10 sm:px-8 md:grid-cols-[1fr_1.05fr] md:pb-24 md:pt-16">
           <div>
-            <p className="fade-up mb-5 inline-flex rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/85">{b["home.hero.eyebrow"] as string}</p>
-            <h1 className="fade-up text-4xl leading-[1.08] sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
-            <p className="fade-up mt-5 max-w-xl text-lg text-white/80" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
+            <p className="fade-up mb-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-navy shadow-sm">
+              <span aria-hidden="true" className="size-2 rounded-full bg-[#e07a2f]" />{b["home.hero.eyebrow"] as string}
+            </p>
+            <h1 className="fade-up text-4xl leading-[1.08] text-navy sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>{b["home.hero.title"] as string}</h1>
+            <p className="fade-up mt-5 max-w-xl text-lg text-muted-foreground" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
             <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "240ms" }}>
-              <Button asChild size="lg" variant="accent"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Link href="/about">About the school</Link></Button>
+              <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+              <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/gallery">See school life</Link></Button>
             </div>
             {notice && (
-              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm text-white/90" style={{ animationDelay: "320ms" }}>
-                <BellRing className="mt-0.5 size-4 shrink-0 text-accent-soft" aria-hidden="true" />{notice}
+              <p className="fade-up mt-8 inline-flex items-start gap-3 rounded-xl bg-white px-4 py-3 text-sm text-navy shadow-sm" style={{ animationDelay: "320ms" }}>
+                <BellRing className="mt-0.5 size-4 shrink-0 text-[#e07a2f]" aria-hidden="true" />{notice}
               </p>
             )}
           </div>
-          <div className="relative">
-            <div aria-hidden="true" className="absolute -bottom-4 -right-4 h-full w-full rounded-[2rem] bg-accent/80" />
-            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1000} priority className="relative aspect-[4/3] w-full rounded-[2rem] shadow-2xl" />
+          <div className="fade-up relative" style={{ animationDelay: "200ms" }}>
+            <div aria-hidden="true" className="absolute -right-3 -top-3 h-full w-full rotate-2 rounded-[2rem] bg-[#ffd34d]" />
+            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1400} priority className="relative aspect-[4/3] w-full rounded-[2rem] object-[60%_center] shadow-xl sm:aspect-[16/10]" />
+            <div className="absolute -bottom-6 -left-4 hidden w-40 -rotate-3 overflow-hidden rounded-2xl border-4 border-white shadow-lg sm:block md:-left-8 md:w-48">
+              <SiteImage src={PHOTOS.girlsBasketball.src} alt={PHOTOS.girlsBasketball.alt} width={400} className="aspect-square w-full" />
+            </div>
           </div>
         </div>
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-1 left-0 right-0 flex justify-end opacity-50"><StepsMotif className="mr-6 w-72" /></div>
       </div>
 
-      <div className="relative z-10 mx-auto -mt-16 max-w-6xl px-5 sm:px-8 md:-mt-20">
+      <div className="mx-auto max-w-6xl px-5 pt-12 sm:px-8 md:pt-16">
         <ul className="grid gap-4 md:grid-cols-3">
           {SECTIONS.map((s) => (
             <li key={s.key}>
-              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-2xl border border-border bg-white shadow-lg transition-transform hover:-translate-y-1">
+              <Link href={`/academics#${s.key}`} className="group block h-full overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md">
                 <div className="h-2" style={{ background: s.color }} />
                 <div className="p-6">
                   <h2 className="font-serif text-2xl text-navy">{s.name}</h2>
@@ -107,6 +117,23 @@ export default async function HomePage() {
           </ul>
         </Section>
       )}
+
+      <Section>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading eyebrow="Life at Giant Step" title="Learning, playing and growing together" className="mb-0" />
+          <Link href="/gallery" className="text-sm font-medium text-primary hover:underline">See all pictures</Link>
+        </div>
+        <ul className="grid auto-rows-[9rem] grid-cols-2 gap-3 sm:auto-rows-[11rem] md:grid-cols-4">
+          {photos.map((ph, i) => (
+            <li key={ph.id} className={`group relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
+              <Link href="/gallery" className="block h-full">
+                <SiteImage src={ph.imageUrl} alt={ph.caption ?? "School picture"} width={i === 0 ? 900 : 500} className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                {ph.caption && <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-2 pt-6 text-xs font-medium text-white sm:text-sm">{ph.caption}</span>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
       {news.items.length > 0 && (
         <Section>
