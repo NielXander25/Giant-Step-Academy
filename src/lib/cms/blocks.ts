@@ -128,11 +128,16 @@ export const BLOCKS: BlockDef[] = [
 
   // ── School life ──
   area("schoollife", "Introduction", "schoollife.intro", "Introduction", "School is more than lessons. Here is a look at the places and activities that shape a child's day."),
-  list("schoollife", "Facilities", "schoollife.facilities", "Facilities", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [], 12, "Add the real facilities with their photos."),
-  list("schoollife", "Activities", "schoollife.activities", "Activities and clubs", [T("title", "Name"), A("text", "Short description")], [
-    { title: "Basketball", text: "Boys' and girls' teams train on the school court and play in inter-school competitions." },
-    { title: "Football", text: "Our football team trains through the term and represents the school in matches." },
-    { title: "Sports for the little ones", text: "Nursery and Primary pupils enjoy games and sports that build teamwork and confidence." },
+  list("schoollife", "Facilities", "schoollife.facilities", "Facilities", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [
+    { title: "Classrooms", text: "Students read, write and work together at their own desks.", image: PHOTOS.classroom.src },
+    { title: "Basketball court", text: "The outdoor court where our teams train and play their matches.", image: PHOTOS.court.src },
+    { title: "Playground", text: "Swings and space to play for our Nursery and Primary pupils.", image: CLASS_PHOTOS.nursery[0].src },
+  ], 12),
+  list("schoollife", "Activities", "schoollife.activities", "Activities and clubs", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [
+    { title: "Basketball", text: "Boys' and girls' teams train on the school court and play in inter-school competitions.", image: PHOTOS.girlsBasketball.src },
+    { title: "Football", text: "Our football team trains through the term and represents the school in matches.", image: PHOTOS.footballTeam.src },
+    { title: "Sports for the little ones", text: "Nursery and Primary pupils enjoy games and sports that build teamwork and confidence.", image: PHOTOS.family.src },
+    { title: "Graduation day", text: "Each year we celebrate the pupils and students moving on to their next stage.", image: "/images/school/graduation-class.jpg" },
   ], 12),
 
   // ── Contact ──

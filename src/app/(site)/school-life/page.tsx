@@ -32,7 +32,14 @@ export default async function SchoolLifePage() {
       {activities.length > 0 && (
         <Section tone="soft">
           <SectionHeading eyebrow="Activities" title="Clubs and activities" />
-          <ul className="grid gap-4 md:grid-cols-2">{activities.map((a, i) => <li key={i} className="rounded-2xl border border-border bg-white p-5"><h3 className="font-serif text-lg text-navy">{a.title}</h3><p className="mt-1 text-sm text-muted-foreground">{a.text}</p></li>)}</ul>
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {activities.map((a, i) => (
+              <Reveal as="li" key={i} delay={i * 70} className="overflow-hidden rounded-2xl border border-border bg-white">
+                {a.image && <SiteImage src={a.image} alt={a.title} width={640} className="aspect-[4/3] w-full" />}
+                <div className="p-5"><h3 className="font-serif text-lg text-navy">{a.title}</h3><p className="mt-1 text-sm text-muted-foreground">{a.text}</p></div>
+              </Reveal>
+            ))}
+          </ul>
         </Section>
       )}
       {gallery.length > 0 && (
