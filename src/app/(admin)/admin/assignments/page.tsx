@@ -106,7 +106,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
                   <CardTitle>{selected.name} · Subjects and teachers</CardTitle>
                   <CardDescription>
                     {wholeClass
-                      ? "Choose the subjects this class offers. In Nursery and Primary the Form Teacher teaches them all, so there are no subject teachers to assign."
+                      ? "Choose the subjects this class offers. In Nursery and Primary the Form Teacher handles the whole class and can enter every subject; assign a subject teacher only where a specialist teaches that subject."
                       : "Choose the subjects this class offers, then assign one teacher to each."}
                   </CardDescription>
                 </CardHeader>
@@ -120,12 +120,10 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
                         {classSubjects.map((cs) => (
                           <TR key={cs.id}>
                             <TD className="font-medium">
-                              {cs.subject.name} {!wholeClass && !teacherFor.has(cs.subjectId) && <Badge variant="outline">No teacher</Badge>}
+                              {cs.subject.name} {!teacherFor.has(cs.subjectId) && <Badge variant="outline">{wholeClass ? "Form Teacher" : "No teacher"}</Badge>}
                             </TD>
                             <TD>
-                              {wholeClass
-                                ? <span className="text-sm text-muted-foreground">Form Teacher</span>
-                                : <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} />}
+                              <SubjectTeacherPicker classId={selected.id} subjectId={cs.subjectId} teachers={teacherOptions} currentId={teacherFor.get(cs.subjectId) ?? null} />
                             </TD>
                             <TD className="text-right">
                               <RemoveSubjectButton classId={selected.id} subjectId={cs.subjectId} name={cs.subject.name} />

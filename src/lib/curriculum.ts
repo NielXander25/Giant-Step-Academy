@@ -65,8 +65,8 @@ export function stageOfLevel(levelName: string): Stage | null {
 }
 
 /**
- * Nursery and Primary classes (everything below Basic 7) are taught by their Form Teacher alone: students, every
- * subject's scores and the remarks. Subject teachers are only assigned from Basic 7 up.
+ * Nursery and Primary classes (everything below Basic 7) are run by their Form Teacher: students, every subject's
+ * scores and the remarks. A subject teacher may still be assigned where a specialist teaches one subject.
  */
 export const formTeacherTeachesAll = (levelName: string) => {
   const stage = stageOfLevel(levelName);

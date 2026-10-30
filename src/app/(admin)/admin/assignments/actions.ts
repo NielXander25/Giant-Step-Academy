@@ -5,7 +5,6 @@ import { defineAction } from "@/lib/action";
 import { AuditAction, writeAudit } from "@/lib/audit";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import { getCurrentSessionId } from "@/lib/permissions/assignments";
-import { formTeacherTeachesAll } from "@/lib/curriculum";
 import { isUniqueViolation } from "@/lib/prisma-errors";
 import { ADMIN_ROLES } from "@/lib/permissions/roles";
 import { assertAllowed, canAssignTeachers } from "@/lib/permissions/policies";
@@ -125,10 +124,6 @@ export const assignSubjectTeacher = defineAction({
       select: { id: true },
     });
     if (!offered) throw new ConflictError("That subject is not offered by this class.");
-    const cls = await db.schoolClass.findUnique({ where: { id: input.classId }, select: { level: { select: { name: true } } } });
-    if (cls && formTeacherTeachesAll(cls.level.name)) {
-      throw new ConflictError("Nursery and Primary classes have no subject teachers: their Form Teacher enters every subject.");
-    }
     await db.subjectAssignment.upsert({
       where: { classId_subjectId_sessionId: { classId: input.classId, subjectId: input.subjectId, sessionId } },
       update: { teacherId: input.teacherId },
