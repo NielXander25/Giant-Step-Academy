@@ -53,6 +53,13 @@ export const CLASS_PHOTOS: Record<"nursery" | "primary" | "secondary", SchoolPho
   ],
 };
 
+/** Portraits of the school's leaders, shown first on the Staff page. */
+export const LEADER_PHOTOS: SchoolPhoto[] = [
+  p("principal.jpg", "The Principal of Giant Step Academy", "Principal", "Staff"),
+  p("vice-principal.jpg", "Mrs Ozioma Uzo, Vice Principal", "Mrs. Ozioma Uzo, Vice Principal", "Staff"),
+  p("pta-chairman.jpg", "Mr Chinedu Ogbe, P.T.A. Chairman", "Mr. Chinedu Ogbe, P.T.A. Chairman", "Staff"),
+];
+
 /** Group photos of the school's staff, shown on the Staff page. */
 export const STAFF_PHOTOS: SchoolPhoto[] = [
   p("staff-secondary.jpg", "The Secondary section staff", "Secondary section staff", "Staff"),
