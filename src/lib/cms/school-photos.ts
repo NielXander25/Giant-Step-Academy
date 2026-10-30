@@ -22,6 +22,7 @@ export const PHOTOS = {
   firstAid: p("first-aid-practice.jpg", "Pupils in white coats and gloves practising bandaging a hand", "Practising first aid", "Health"),
   healthTalk: p("health-talk.jpg", "Pupils in white coats listening to a health talk", "A health talk for our pupils", "Health"),
   outdoorLesson: p("outdoor-lesson.jpg", "Students writing at desks during a lesson under a shaded canopy", "Learning outdoors", "Classroom"),
+  studentsGroup: p("students-group.jpg", "Secondary students in grey uniforms seated and standing in rows with a teacher", "Our students", "Classroom"),
   proprietress: p("proprietress.jpg", "Bernice Nwaorah Nwabunike, Proprietress of Giant Step Academy", "Our Proprietress", "Staff"),
 };
 

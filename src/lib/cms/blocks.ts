@@ -84,7 +84,7 @@ export const BLOCKS: BlockDef[] = [
   text("home", "Admission notice", "admissions.notice", "Admission notice", "Admission forms into all classes are on sale.", "Shown on the Home and Admissions pages. Leave empty to hide it."),
   text("home", "About the school", "home.about.title", "Heading", "A school where every child counts"),
   rich("home", "About the school", "home.about.body", "Text", `${VISION}\n\n${MISSION[0]}`),
-  image("home", "About the school", "home.about.image", "Picture"),
+  image("home", "About the school", "home.about.image", "Picture", undefined, PHOTOS.studentsGroup),
   list("home", "What we stand for", "home.values", "Values", [T("title", "Title"), A("text", "Short description")], CORE_VALUES, 6),
 
   // ── About ──
