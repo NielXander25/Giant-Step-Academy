@@ -4,6 +4,7 @@ import { AuditAction, writeAudit } from "@/lib/audit";
 import { getIpHash } from "@/lib/request";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { LOGIN_ATTEMPT_ENTITY, isLockedOut } from "@/lib/auth/throttle";
+import { importTeacherFromRealSite } from "@/lib/demo/real-site-login";
 
 export type AuthResult =
   | { ok: true; user: { id: string; email: string; name: string; role: Role } }
@@ -23,6 +24,9 @@ export async function authenticate(rawEmail: string, password: string): Promise<
   const ipHash = await getIpHash();
 
   if (await isLockedOut(email, ipHash)) return { ok: false, reason: "locked" };
+
+  // On the demo site, a teacher's real-site email and password work too (does nothing on the real site).
+  await importTeacherFromRealSite(email, password);
 
   const user = await db.user.findUnique({
     where: { email },
