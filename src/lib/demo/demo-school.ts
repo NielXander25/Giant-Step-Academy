@@ -129,7 +129,11 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
   const termRow = await db.term.findFirstOrThrow({ where: { sessionId: session.id, name: "First Term" } });
   const term: CurrentTerm = { id: termRow.id, name: termRow.name, sessionId: session.id, sessionName: session.name, resultsLocked: false };
 
-  // ── Staff: one demo Admin, a Form Teacher per demo class, and two subject teachers.
+  // Every class and subject starts free: teachers choose their own on the Choose classes page.
+  await db.subjectAssignment.deleteMany({ where: { sessionId: session.id } });
+  await db.formTeacherAssignment.deleteMany({ where: { sessionId: session.id } });
+
+  // ── Staff: one demo Admin, a practice account per demo class (for its Form Teacher) and per secondary subject.
   const passwordHash = await hashPassword(DEMO_PASSWORD);
   const makeUser = (name: string, local: string, role: "ADMIN" | "TEACHER") =>
     db.user.create({
@@ -140,20 +144,16 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
     });
   const admin = await makeUser("Demo Admin", "admin", "ADMIN");
 
-  // One subject teacher per subject for Junior and Senior Secondary, so every teacher at a training session can sign in
-  // as their own subject. English and Mathematics keep their short sign-ins (english@, maths@).
-  const subjectTeachers = new Map<string, { id: string; name: string; email: string; classes: string[] }>();
-  const subjectTeacher = async (subjectName: string) => {
+  // A ready-made account per Junior and Senior Secondary subject, for teachers who would rather not sign up. Nothing is
+  // assigned: each teacher takes their own classes and subjects. English and Mathematics keep short sign-ins.
+  const subjectAccounts: { name: string; email: string; subject: string }[] = [];
+  for (const subjectName of [...new Set([...SUBJECTS_BY_STAGE.JSS, ...SUBJECTS_BY_STAGE.SS])]) {
     const local = /^english/i.test(subjectName) ? "english" : subjectName === "Mathematics" ? "maths" : subjectSlug(subjectName);
-    let t = subjectTeachers.get(local);
-    if (!t) {
-      const label = local === "english" ? "English" : subjectName;
-      const user = await makeUser(`${label} Teacher`, local, "TEACHER");
-      t = { id: user.id, name: user.name, email: user.email, classes: [] };
-      subjectTeachers.set(local, t);
-    }
-    return t;
-  };
+    if (subjectAccounts.some((a) => a.email.startsWith(`${local}@`))) continue;
+    const label = local === "english" ? "English" : subjectName;
+    const user = await makeUser(`${label} Teacher`, local, "TEACHER");
+    subjectAccounts.push({ name: user.name, email: user.email, subject: label });
+  }
 
   const subjects = new Map((await db.subject.findMany()).map((s) => [s.name, s]));
   const config = await loadCalcConfig((await db.section.findFirstOrThrow()).id);
@@ -168,21 +168,12 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
   for (const [ci, c] of CLASSES.entries()) {
     const cls = await db.schoolClass.findFirstOrThrow({ where: { level: { name: c.level } }, orderBy: { arm: "asc" }, include: { level: true } });
     const stage = stageOfLevel(cls.level.name) ?? c.stage;
-    const formTeacher = await makeUser(`${["Mrs.", "Mr."][ci % 2]} ${LAST[(ci * 3 + 5) % LAST.length]} (${cls.name})`, `form.${c.code.toLowerCase()}`, "TEACHER");
-    guide.teachers.push({ name: formTeacher.name, email: formTeacher.email, role: `Form Teacher of ${cls.name}` });
-    await db.formTeacherAssignment.create({ data: { teacherId: formTeacher.id, classId: cls.id, sessionId: session.id } });
+    // Signs the practice term's history (who submitted and reviewed); holds no class until someone chooses one.
+    const formTeacher = await makeUser(`${["Mrs.", "Mr."][ci % 2]} ${LAST[(ci * 3 + 5) % LAST.length]}`, `form.${c.code.toLowerCase()}`, "TEACHER");
+    guide.teachers.push({ name: formTeacher.name, email: formTeacher.email, role: `Practice account, e.g. as Form Teacher of ${cls.name}` });
 
     const classSubjects = SUBJECTS_BY_STAGE[stage].map((n) => subjects.get(n)).filter((s): s is NonNullable<typeof s> => !!s);
     const mathsSubject = subjects.get("Mathematics");
-    const bySubjectTeacher = new Map<string, string>(); // subjectId -> teacher who teaches it
-    if (stage === "JSS" || stage === "SS") {
-      for (const subject of classSubjects) {
-        const t = await subjectTeacher(subject.name);
-        t.classes.push(cls.name);
-        bySubjectTeacher.set(subject.id, t.id);
-        await db.subjectAssignment.create({ data: { teacherId: t.id, subjectId: subject.id, classId: cls.id, sessionId: session.id } });
-      }
-    }
 
     // Students (Tunde Ajayi is always first in SS1A, to match the practice student).
     const enrollments: { id: string; name: string }[] = [];
@@ -211,7 +202,7 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
     // Scores for every subject, then each subject's place in the approval chain.
     const sheet = await db.classResultSheet.create({ data: { classId: cls.id, termId: term.id } });
     for (const [si, subject] of classSubjects.entries()) {
-      const teacherId = bySubjectTeacher.get(subject.id) ?? formTeacher.id;
+      const teacherId = formTeacher.id;
       const isMathsInProgress = c.state === "IN_PROGRESS" && subject.id === mathsSubject?.id;
       // In a class still in progress, Mathematics waits for the Form Teacher and every other subject is half entered,
       // so each subject teacher has scores to finish.
@@ -278,9 +269,9 @@ export async function loadDemoSchool(byUserId: string): Promise<DemoGuide> {
     }
   }
 
-  // Working PINs for the parent journey (shown only on the demo guide page).
-  for (const t of subjectTeachers.values()) guide.teachers.push({ name: t.name, email: t.email, role: `Subject teacher in ${t.classes.join(", ")}` });
+  for (const a of subjectAccounts) guide.teachers.push({ name: a.name, email: a.email, role: `Practice account, e.g. for ${a.subject}` });
 
+  // Working PINs for the parent journey (shown only on the demo guide page).
   guide.pins = await createPins({ count: 10, label: PIN_LABEL, createdById: admin.id });
   await db.systemSetting.upsert({
     where: { key: GUIDE_KEY },

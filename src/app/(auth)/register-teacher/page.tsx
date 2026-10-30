@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { isDemoSite } from "@/lib/demo/mode";
 import { RegisterForm } from "./register-form";
 
 export const metadata: Metadata = { title: "Teacher registration", robots: { index: false, follow: false } };
@@ -10,7 +11,9 @@ export default function RegisterTeacherPage() {
       <div className="mb-6 font-serif text-2xl text-navy">Giant Step Academy</div>
       <h1 className="text-3xl text-navy">Teacher registration</h1>
       <p className="mb-8 mt-2 text-sm text-muted-foreground">
-        Request a staff account. An administrator reviews every request before you can sign in.
+        {isDemoSite()
+          ? "Create a practice account. It is ready at once: no approval is needed on the demo site."
+          : "Request a staff account. An administrator reviews every request before you can sign in."}
       </p>
       <RegisterForm />
       <p className="mt-6 text-sm text-muted-foreground">

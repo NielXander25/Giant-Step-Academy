@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen, CalendarDays, Check, ClipboardList, Globe, GraduationCap, Home, Inbox, KeyRound,
-  Link2, Pencil, School, ScrollText, Settings, ShieldCheck, User, Users, type LucideIcon,
+  Link2, Loader2, Pencil, School, ScrollText, Settings, ShieldCheck, User, Users, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { IconKey, NavItem } from "./nav-config";
@@ -15,6 +15,12 @@ const ICONS: Record<IconKey, LucideIcon> = {
   chart: ClipboardList, key: KeyRound, shield: ShieldCheck, globe: Globe, pencil: Pencil,
   check: Check, user: User,
 };
+
+/** A spinner beside a menu link from the moment it is tapped until its page arrives. */
+function LinkPending() {
+  const { pending } = useLinkStatus();
+  return pending ? <Loader2 className="ml-auto size-4 shrink-0 animate-spin" aria-label="Loading" /> : null;
+}
 
 export function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -52,6 +58,7 @@ export function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?:
               >
                 <Icon className="size-4 shrink-0" aria-hidden="true" />
                 {item.label}
+                <LinkPending />
               </Link>
             );
           })}

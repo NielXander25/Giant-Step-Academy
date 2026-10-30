@@ -3,12 +3,13 @@
 import { db } from "@/lib/db";
 import { AuditAction, writeAudit } from "@/lib/audit";
 import { hashPassword } from "@/lib/auth/password";
+import { isDemoSite } from "@/lib/demo/mode";
 import { getIpHash } from "@/lib/request";
 import { teacherRegistrationInput } from "@/lib/validators/people";
 
 export type RegisterState =
   | { ok?: false; error?: string; fieldErrors?: Record<string, string[] | undefined> }
-  | { ok: true }
+  | { ok: true; instant?: boolean }
   | undefined;
 
 // Generous enough for a staff room of teachers signing up together on the school Wi-Fi.
@@ -45,6 +46,20 @@ export async function registerTeacherAction(_prev: RegisterState, formData: Form
     db.teacherRequest.findFirst({ where: { email: input.email, status: "PENDING" }, select: { id: true } }),
   ]);
   if (existingUser || existingRequest) return { ok: true };
+
+  // On the demo site a practice account is ready at once: there is nothing real to protect, and a training session
+  // should not wait on an Admin approving every teacher.
+  if (isDemoSite()) {
+    const user = await db.user.create({
+      data: {
+        name: input.fullName, email: input.email, passwordHash: await hashPassword(input.password), role: "TEACHER",
+        teacherProfile: { create: { phone: input.phone || null } },
+      },
+      select: { id: true },
+    });
+    await writeAudit({ action: AuditAction.TEACHER_APPROVED, entityType: "User", entityId: user.id, ipHash, metadata: { demoSelfSignUp: true } });
+    return { ok: true, instant: true };
+  }
 
   const request = await db.teacherRequest.create({
     data: {

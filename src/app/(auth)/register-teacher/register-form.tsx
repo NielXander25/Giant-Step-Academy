@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,17 @@ import { registerTeacherAction } from "./actions";
 export function RegisterForm() {
   const [state, formAction, pending] = useActionState(registerTeacherAction, undefined);
 
+  if (state?.ok && state.instant) {
+    return (
+      <div role="status" className="rounded-xl border border-border bg-primary-soft p-5">
+        <p className="font-serif text-xl text-navy">Your practice account is ready</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sign in with the email and password you just chose, then open <strong>Choose classes</strong> to pick your classes and subjects.
+        </p>
+        <Link href="/login" className="mt-4 inline-block font-medium text-primary underline underline-offset-4">Sign in</Link>
+      </div>
+    );
+  }
   if (state?.ok) {
     return (
       <div role="status" className="rounded-xl border border-border bg-primary-soft p-5">

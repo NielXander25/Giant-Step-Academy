@@ -26,11 +26,9 @@ export function LiveRefresh() {
     const timer = window.setInterval(refresh, EVERY_MS);
     const onVisible = () => document.visibilityState === "visible" && refresh();
     document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", refresh);
     return () => {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", refresh);
     };
   }, [router]);
   return null;

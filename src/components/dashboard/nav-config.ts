@@ -12,6 +12,8 @@ export type NavItem = {
   ready: boolean;
   phase?: number;
   group?: string;
+  /** Shown only on the demo site. */
+  demoOnly?: boolean;
 };
 
 // When a later phase builds a page, flip `ready` to true for that item.
@@ -45,6 +47,7 @@ export const NAV: Record<Role, NavItem[]> = {
   ],
   TEACHER: [
     { label: "Overview", href: "/teacher", icon: "home", ready: true, group: "Overview" },
+    { label: "Choose classes", href: "/teacher/choose", icon: "link", ready: true, group: "Overview", demoOnly: true },
     { label: "My students", href: "/teacher/students", icon: "graduation", ready: true, group: "My class" },
     { label: "Result entry", href: "/teacher/results", icon: "pencil", ready: true, group: "My class" },
     { label: "Reviews", href: "/teacher/reviews", icon: "check", ready: true, group: "My class" },
