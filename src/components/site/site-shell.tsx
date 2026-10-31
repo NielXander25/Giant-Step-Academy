@@ -8,6 +8,9 @@ import { SiteNav } from "./site-nav";
 import { WhatsAppButton } from "./whatsapp-button";
 import { RESULTS_LINK, SITE_LINKS } from "./nav";
 
+// The school's WhatsApp line for the floating button, whatever other numbers the school profile lists.
+const SCHOOL_WHATSAPP = "+234 813 913 9020";
+
 /** The header, footer and notice bar that wrap every public page. */
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const [school, announcements] = await Promise.all([getSchool(), getAnnouncements()]);
@@ -78,7 +81,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
-      {phones[0] && <WhatsAppButton href={whatsappHref(phones[0])} />}
+      <WhatsAppButton href={whatsappHref(SCHOOL_WHATSAPP)} />
       <AdmissionPopup />
     </>
   );
