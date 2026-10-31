@@ -1,10 +1,9 @@
 // Every piece of editable text and every editable image on the public pages is defined here.
 // The default text is SAMPLE copy so the site looks finished from day one. It never states facts the school has
 // not confirmed (no founding year, fees, hours or results). An Admin replaces any of it from the content manager.
-// The default home banner is the school's own classroom photo (see school-photos.ts). The vision, mission, core
+// No page has a built-in picture: an Admin adds pictures in the content manager. The vision, mission, core
 // values, school anthem and the Proprietress's message come from the school's magazine.
 
-import { CLASS_PHOTOS, PHOTOS, type SchoolPhoto } from "./school-photos";
 
 export type PageKey = "home" | "about" | "academics" | "admissions" | "schoollife" | "contact" | "privacy";
 
@@ -40,8 +39,8 @@ export type BlockDef = {
 const text = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "text", default: def, help });
 const area = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "textarea", default: def, help });
 const rich = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "richtext", default: def, help });
-const image = (page: PageKey, group: string, key: string, label: string, help?: string, photo?: SchoolPhoto): BlockDef =>
-  ({ key, page, group, label, type: "image", default: photo ? { url: photo.src, alt: photo.alt } : null, help });
+const image = (page: PageKey, group: string, key: string, label: string, help?: string): BlockDef =>
+  ({ key, page, group, label, type: "image", default: null, help });
 const list = (page: PageKey, group: string, key: string, label: string, itemFields: ItemField[], def: ListValue, maxItems = 12, help?: string): BlockDef => ({ key, page, group, label, type: "list", itemFields, default: def, maxItems, help });
 
 const T = (key: string, label: string): ItemField => ({ key, label, type: "text" });
@@ -80,11 +79,11 @@ export const BLOCKS: BlockDef[] = [
   text("home", "Top banner", "home.hero.eyebrow", "Small line above the headline", "Nursery · Primary · Secondary"),
   text("home", "Top banner", "home.hero.title", "Headline", "Securing a bright future, one giant step at a time"),
   area("home", "Top banner", "home.hero.subtitle", "Introduction", "A school in Sabon Tasha, Kaduna, for children from Nursery to Secondary."),
-  image("home", "Top banner", "home.hero.image", "Banner picture", "A wide, bright photo works best (at least 1600 pixels across).", PHOTOS.classroom),
+  image("home", "Top banner", "home.hero.image", "Banner picture", "A wide, bright photo works best (at least 1600 pixels across)."),
   text("home", "Admission notice", "admissions.notice", "Admission notice", "Admission forms into all classes are on sale.", "Shown on the Home and Admissions pages. Leave empty to hide it."),
   text("home", "About the school", "home.about.title", "Heading", "A school where every child counts"),
   rich("home", "About the school", "home.about.body", "Text", `${VISION}\n\n${MISSION[0]}`),
-  image("home", "About the school", "home.about.image", "Picture", undefined, PHOTOS.studentsGroup),
+  image("home", "About the school", "home.about.image", "Picture"),
   list("home", "What we stand for", "home.values", "Values", [T("title", "Title"), A("text", "Short description")], CORE_VALUES, 6),
 
   // ── About ──
@@ -98,16 +97,16 @@ export const BLOCKS: BlockDef[] = [
   text("about", "Principal's message", "about.principal.name", "Name", "Bernice Nwaorah Nwabunike"),
   text("about", "Principal's message", "about.principal.title", "Title", "Proprietress"),
   rich("about", "Principal's message", "about.principal.message", "Message", PROPRIETRESS_MESSAGE),
-  image("about", "Principal's message", "about.principal.photo", "Photo", undefined, PHOTOS.proprietress),
+  image("about", "Principal's message", "about.principal.photo", "Photo"),
 
   // ── Academics ──
   area("academics", "Introduction", "academics.intro", "Introduction", "From the first day in Nursery to the final year of Secondary school, learning here is planned, steady and supported."),
   rich("academics", "Nursery", "academics.nursery.body", "Nursery", "Our Nursery section gives young children a gentle start: early reading, numbers, play and good habits.\n\nReplace this with the school's own description."),
-  image("academics", "Nursery", "academics.nursery.image", "Nursery picture", undefined, CLASS_PHOTOS.nursery[1]),
+  image("academics", "Nursery", "academics.nursery.image", "Nursery picture"),
   rich("academics", "Primary", "academics.primary.body", "Primary", "In Primary school, pupils build strong skills in English, mathematics, science and more.\n\nReplace this with the school's own description."),
-  image("academics", "Primary", "academics.primary.image", "Primary picture", undefined, CLASS_PHOTOS.primary[1]),
+  image("academics", "Primary", "academics.primary.image", "Primary picture"),
   rich("academics", "Secondary", "academics.secondary.body", "Secondary", "Our Secondary section prepares students for their external examinations and for life after school.\n\nReplace this with the school's own description."),
-  image("academics", "Secondary", "academics.secondary.image", "Secondary picture", undefined, CLASS_PHOTOS.secondary[3]),
+  image("academics", "Secondary", "academics.secondary.image", "Secondary picture"),
   rich("academics", "Subjects", "academics.subjects", "Subjects and programmes", "", "List the subjects, clubs or special programmes. Leave empty to hide this part."),
 
   // ── Admissions ──
@@ -129,18 +128,18 @@ export const BLOCKS: BlockDef[] = [
   // ── School life ──
   area("schoollife", "Introduction", "schoollife.intro", "Introduction", "School is more than lessons. Here is a look at the places and activities that shape a child's day."),
   list("schoollife", "Facilities", "schoollife.facilities", "Facilities", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [
-    { title: "Classrooms", text: "Students read, write and work together at their own desks.", image: PHOTOS.classroom.src },
-    { title: "Basketball court", text: "The outdoor court where our teams train and play their matches.", image: PHOTOS.court.src },
-    { title: "Playground", text: "Swings and space to play for our Nursery and Primary pupils.", image: CLASS_PHOTOS.nursery[0].src },
-    { title: "Outdoor learning space", text: "A shaded space where students also study and take lessons in the open air.", image: PHOTOS.outdoorLesson.src },
+    { title: "Classrooms", text: "Students read, write and work together at their own desks." },
+    { title: "Basketball court", text: "The outdoor court where our teams train and play their matches." },
+    { title: "Playground", text: "Swings and space to play for our Nursery and Primary pupils." },
+    { title: "Outdoor learning space", text: "A shaded space where students also study and take lessons in the open air." },
   ], 12),
   list("schoollife", "Activities", "schoollife.activities", "Activities and clubs", [T("title", "Name"), A("text", "Short description"), I("image", "Picture")], [
-    { title: "Basketball", text: "Boys' and girls' teams train on the school court and play in inter-school competitions.", image: PHOTOS.girlsBasketball.src },
-    { title: "Football", text: "Our football team trains through the term and represents the school in matches.", image: PHOTOS.footballTeam.src },
-    { title: "Sports for the little ones", text: "Nursery and Primary pupils enjoy games and sports that build teamwork and confidence.", image: PHOTOS.family.src },
-    { title: "Health and first aid", text: "Pupils learn to care for themselves and others, and practise basic first aid in white coats and gloves.", image: PHOTOS.firstAid.src },
-    { title: "Health talks", text: "Talks that teach our pupils how to keep themselves healthy.", image: PHOTOS.healthTalk.src },
-    { title: "Graduation day", text: "Each year we celebrate the pupils and students moving on to their next stage.", image: "/images/school/graduation-class.jpg" },
+    { title: "Basketball", text: "Boys' and girls' teams train on the school court and play in inter-school competitions." },
+    { title: "Football", text: "Our football team trains through the term and represents the school in matches." },
+    { title: "Sports for the little ones", text: "Nursery and Primary pupils enjoy games and sports that build teamwork and confidence." },
+    { title: "Health and first aid", text: "Pupils learn to care for themselves and others, and practise basic first aid in white coats and gloves." },
+    { title: "Health talks", text: "Talks that teach our pupils how to keep themselves healthy." },
+    { title: "Graduation day", text: "Each year we celebrate the pupils and students moving on to their next stage." },
   ], 12),
 
   // ── Contact ──

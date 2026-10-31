@@ -8,7 +8,7 @@ import * as q from "./site-queries";
 const options = { tags: ["site"], revalidate: 600 };
 
 export const getSchool = unstable_cache(q.loadSchool, ["site-school"], options);
-export const getBlocks = unstable_cache(q.loadBlocks, ["site-blocks-v5"], options);
+export const getBlocks = unstable_cache(q.loadBlocks, ["site-blocks-v6"], options);
 export const getAnnouncements = unstable_cache(async () => q.loadAnnouncements(), ["site-announcements"], { tags: ["site"], revalidate: 300 });
 export const getNews = unstable_cache(async (limit: number, page: number) => q.loadNews({ limit, page }), ["site-news"], options);
 export const getNewsBySlug = unstable_cache(async (slug: string) => q.loadNewsBySlug(slug), ["site-news-item"], options);

@@ -2,34 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EventRow } from "@/components/site/cards";
 import { PageHero, Section, SectionHeading } from "@/components/site/section";
-import { flyFor, PhotoGrid } from "@/components/site/photo-grid";
-import { Reveal } from "@/components/site/reveal";
+import { flyFor, Reveal } from "@/components/site/reveal";
 import { SiteImage } from "@/components/site/site-image";
-import { SECTIONS } from "@/components/site/nav";
 import type { ListValue } from "@/lib/cms/blocks";
 import { optimizeImage } from "@/lib/cms/helpers";
 import { getBlocks, getEvents, getGallery } from "@/lib/cms/site-data";
-import { CLASS_PHOTOS, EVENT_GROUPS } from "@/lib/cms/school-photos";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Gallery and Events", description: "What's coming up, and life at Giant Step Academy in pictures." };
 
-// One page for everything visual: upcoming events, photos the school uploads, event albums, our classes and school life.
+// Upcoming events, then any pictures the school uploads in the content manager (the site has none of its own).
 export default async function GalleryAndEventsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const sp = await searchParams;
   const [{ upcoming, past }, gallery, b] = await Promise.all([getEvents(), getGallery(), getBlocks(["schoollife"])]);
   const categories = [...new Set(gallery.map((g) => g.category).filter((c): c is string => Boolean(c)))];
   const category = categories.find((c) => c === sp.category);
   const uploads = category ? gallery.filter((g) => g.category === category) : gallery;
-  // Graduation closes the page, so its school-life card is left out above it.
-  const life = [...(b["schoollife.facilities"] as ListValue), ...(b["schoollife.activities"] as ListValue)].filter((i) => i.image && !/graduation/i.test(i.title));
-  const graduation = EVENT_GROUPS.find((g) => /graduation/i.test(g.title));
-  const albums = EVENT_GROUPS.filter((g) => g !== graduation);
+  const life = [...(b["schoollife.facilities"] as ListValue), ...(b["schoollife.activities"] as ListValue)].filter((i) => i.image);
   const chip = (on: boolean) => cn("rounded-full px-4 py-1.5 text-sm font-medium", on ? "bg-navy text-white" : "bg-white text-navy hover:bg-white/70");
 
   return (
     <>
-      <PageHero eyebrow="Gallery and Events" title="Life at Giant Step" intro="What's coming up, and our school in pictures." />
+      <PageHero eyebrow="Gallery and Events" title="Life at Giant Step" intro="What's coming up at the school." />
 
       <Section>
         <SectionHeading eyebrow="Coming up" title="Upcoming events" />
@@ -58,24 +52,7 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
         </Section>
       )}
 
-      {albums.map((g, i) => (
-        <Section key={g.title} tone={(i + (gallery.length > 0 ? 1 : 0)) % 2 ? "soft" : "white"}>
-          <SectionHeading eyebrow="In pictures" title={g.title} />
-          <PhotoGrid photos={g.photos} />
-        </Section>
-      ))}
 
-      <Section tone="soft" id="classes">
-        <SectionHeading eyebrow="Our classes" title="From Pre-Nursery to SS" />
-        <div className="flex flex-col gap-12">
-          {SECTIONS.map((s) => (
-            <div key={s.key}>
-              <h3 className="mb-4 flex items-center gap-3 text-2xl text-navy"><span className="h-1.5 w-10 rounded-full" style={{ background: s.color }} />{s.name}</h3>
-              <PhotoGrid photos={CLASS_PHOTOS[s.key]} columns="grid-cols-2 lg:grid-cols-4" />
-            </div>
-          ))}
-        </div>
-      </Section>
 
       {life.length > 0 && (
         <Section>
@@ -92,13 +69,6 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
       )}
 
       {past.length > 0 && <Section tone="soft"><SectionHeading title="Recent events" /><ul className="grid gap-4 md:grid-cols-2">{past.map((e) => <EventRow key={e.id} event={e} />)}</ul></Section>}
-
-      {graduation && (
-        <Section tone={past.length > 0 ? "white" : "soft"} id="graduation">
-          <SectionHeading eyebrow="In pictures" title={graduation.title} />
-          <PhotoGrid photos={graduation.photos} />
-        </Section>
-      )}
     </>
   );
 }

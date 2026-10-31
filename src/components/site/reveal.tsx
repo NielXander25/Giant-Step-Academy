@@ -14,6 +14,10 @@ const START: Record<RevealFrom, string> = {
   zoom: "scale-90 opacity-0",
 };
 
+// Pictures fly in one after another across a row: from the left, from below, from the right, then a zoom.
+const FLIGHT: RevealFrom[] = ["left", "up", "right", "zoom"];
+export const flyFor = (i: number) => ({ from: FLIGHT[i % FLIGHT.length], delay: (i % 4) * 110 });
+
 /**
  * Brings content in as it scrolls into view: a gentle fade by default, or a fly-in from below, the left, the right,
  * or a zoom. Once per element, switched off for visitors who prefer reduced motion, and fully visible without JavaScript.

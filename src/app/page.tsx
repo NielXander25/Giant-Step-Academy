@@ -66,10 +66,12 @@ export default async function HomePage() {
               <BellRing className="size-4 shrink-0 text-tangerine" aria-hidden="true" />{notice}
             </p>
           )}
-          <div className="fade-up relative mt-14" style={{ animationDelay: "300ms" }}>
-            <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-sun/40 to-sky/40 blur-2xl" />
-            <SiteImage src={hero?.url} alt={hero?.alt ?? ""} width={1600} priority className="relative aspect-[16/9] w-full rounded-[2.25rem] object-[60%_center] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] md:aspect-[21/9]" />
-          </div>
+          {hero?.url && (
+            <div className="fade-up relative mt-14" style={{ animationDelay: "300ms" }}>
+              <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-sun/40 to-sky/40 blur-2xl" />
+              <SiteImage src={hero.url} alt={hero.alt ?? ""} width={1600} priority className="relative aspect-[16/9] w-full rounded-[2.25rem] object-[60%_center] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] md:aspect-[21/9]" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -91,13 +93,13 @@ export default async function HomePage() {
       </div>
 
       <Section>
-        <div className="grid items-center gap-10 md:grid-cols-2">
+        <div className={aboutImage?.url ? "grid items-center gap-10 md:grid-cols-2" : "max-w-3xl"}>
           <div>
             <SectionHeading eyebrow="About us" title={b["home.about.title"] as string} className="mb-5" />
             <RichText source={b["home.about.body"] as string} />
             <Button asChild variant="outline" className="mt-6"><Link href="/about">More about the school</Link></Button>
           </div>
-          <Reveal from="right"><SiteImage src={aboutImage?.url} alt={aboutImage?.alt ?? ""} width={900} className="aspect-[5/4] w-full rounded-3xl" /></Reveal>
+          {aboutImage?.url && <Reveal from="right"><SiteImage src={aboutImage.url} alt={aboutImage.alt ?? ""} width={900} className="aspect-[5/4] w-full rounded-3xl" /></Reveal>}
         </div>
       </Section>
 

@@ -5,9 +5,8 @@ import { PageHero, Section, SectionHeading } from "@/components/site/section";
 import { SiteImage } from "@/components/site/site-image";
 import type { ImageValue, ListValue } from "@/lib/cms/blocks";
 import { getBlocks, getSchool, getStaff } from "@/lib/cms/site-data";
-import { LEADER_PHOTOS, STAFF_PHOTOS } from "@/lib/cms/school-photos";
+import { LEADERS } from "@/lib/cms/school-photos";
 import { StaffCard } from "@/components/site/cards";
-import { PhotoGrid } from "@/components/site/photo-grid";
 
 export const metadata: Metadata = { title: "About us", description: "Our story, mission, vision and values." };
 
@@ -25,9 +24,9 @@ export default async function AboutPage() {
     <>
       <PageHero eyebrow="About us" title={`Welcome to ${school.name}`} intro={b["about.intro"] as string} />
       <Section>
-        <div className="grid items-center gap-10 md:grid-cols-2">
+        <div className={image?.url ? "grid items-center gap-10 md:grid-cols-2" : "max-w-3xl"}>
           <Reveal><RichText source={b["about.story"] as string} /></Reveal>
-          <Reveal from="right"><SiteImage src={image?.url} alt={image?.alt ?? ""} width={900} className="aspect-[4/3] w-full rounded-3xl" /></Reveal>
+          {image?.url && <Reveal from="right"><SiteImage src={image.url} alt={image.alt ?? ""} width={900} className="aspect-[4/3] w-full rounded-3xl" /></Reveal>}
         </div>
       </Section>
       <Section tone="soft">
@@ -63,8 +62,8 @@ export default async function AboutPage() {
       )}
       {(principal || message) && (
         <Section tone="sand">
-          <div className="grid items-start gap-10 md:grid-cols-[0.8fr_1.2fr]">
-            <Reveal from="left"><SiteImage src={photo?.url} alt={photo?.alt || principal} width={600} className="aspect-[4/5] w-full rounded-3xl" /></Reveal>
+          <div className={photo?.url ? "grid items-start gap-10 md:grid-cols-[0.8fr_1.2fr]" : "max-w-3xl"}>
+            {photo?.url && <Reveal from="left"><SiteImage src={photo.url} alt={photo.alt || principal} width={600} className="aspect-[4/5] w-full rounded-3xl" /></Reveal>}
             <Reveal delay={100}>
               <SectionHeading eyebrow={`From the ${role.toLowerCase()}`} title={principal ? `A message from ${principal}` : `A message from the ${role.toLowerCase()}`} className="mb-5" />
               <RichText source={message} />
@@ -77,9 +76,15 @@ export default async function AboutPage() {
         <SectionHeading eyebrow="Our staff" title="The people behind the school" />
         {staff.length > 0 && <ul className="mb-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">{staff.map((p) => <StaffCard key={p.id} person={p} />)}</ul>}
         <h3 className="mb-4 text-2xl text-navy">Leading the school</h3>
-        <PhotoGrid photos={LEADER_PHOTOS} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[4/5]" />
-        <h3 className="mb-4 mt-12 text-2xl text-navy">Teachers, carers and partners</h3>
-        <PhotoGrid photos={STAFF_PHOTOS} />
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {LEADERS.map((l, i) => (
+            <Reveal as="li" key={l.name} from="up" delay={i * 100} className="rounded-3xl bg-muted p-6">
+              <span aria-hidden="true" className="mb-4 block h-1.5 w-10 rounded-full" style={{ background: ["#0071e3", "#ffcc00", "#34c759", "#af52de"][i % 4] }} />
+              <p className="text-lg font-semibold text-navy">{l.name}</p>
+              <p className="text-sm text-muted-foreground">{l.role}</p>
+            </Reveal>
+          ))}
+        </ul>
       </Section>
     </>
   );
