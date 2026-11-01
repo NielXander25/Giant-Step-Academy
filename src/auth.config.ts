@@ -14,12 +14,14 @@ export default {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.authAt = Date.now(); // kept for the session's life (unlike iat, which renews)
       }
       return token;
     },
     session({ session, token }) {
       if (token.id) session.user.id = token.id;
       if (token.role) session.user.role = token.role;
+      if (token.authAt) session.authAt = token.authAt;
       return session;
     },
   },

@@ -27,8 +27,9 @@ export async function isSetupComplete(): Promise<boolean> {
 export async function runSetup(token: string): Promise<SetupResult> {
   const cfg = getSetupEnv();
   if (!cfg) return { ok: false, reason: "not_configured" };
-  if (!safeEqual(token, cfg.SETUP_TOKEN)) return { ok: false, reason: "invalid_token" };
+  // Once setup is done, nothing else is checked: the token can no longer be tried at all.
   if (await isSetupComplete()) return { ok: false, reason: "already_completed" };
+  if (!safeEqual(token, cfg.SETUP_TOKEN)) return { ok: false, reason: "invalid_token" };
 
   const email = cfg.SUPER_ADMIN_EMAIL.trim().toLowerCase();
   const passwordHash = await hashPassword(cfg.SUPER_ADMIN_PASSWORD);

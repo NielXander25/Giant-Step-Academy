@@ -1,5 +1,6 @@
 "use server";
 
+import { signIn } from "@/auth";
 import { db } from "@/lib/db";
 import { defineAction } from "@/lib/action";
 import { AuditAction, writeAudit } from "@/lib/audit";
@@ -22,8 +23,10 @@ export const changePassword = defineAction({
     }
     await db.user.update({
       where: { id: user.id },
-      data: { passwordHash: await hashPassword(input.newPassword), mustChangePassword: false },
+      data: { passwordHash: await hashPassword(input.newPassword), mustChangePassword: false, passwordChangedAt: new Date() },
     });
+    // Every other session is now signed out; keep this one going by signing in again with the new password.
+    await signIn("credentials", { email: user.email, password: input.newPassword, redirect: false });
     await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.PASSWORD_CHANGED, entityType: "User", entityId: user.id });
     return { done: true };
   },

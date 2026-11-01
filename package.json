@@ -14,7 +14,7 @@
     "clsx": "^2.1.1",
     "exceljs": "^4.4.0",
     "lucide-react": "^1.49.0",
-    "next": "^15.5.27",
+    "next": "^15.5.28",
     "next-auth": "^5.0.0-beta.32",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

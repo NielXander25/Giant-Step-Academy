@@ -110,7 +110,7 @@ export const approvePasswordReset = defineAction({
         data: { status: "APPROVED", reviewedById: user.id, reviewedAt: new Date() },
       });
       if (claimed.count !== 1) throw new ConflictError(ALREADY_REVIEWED);
-      await tx.user.update({ where: { id: request.userId }, data: { passwordHash: request.passwordHash, mustChangePassword: false } });
+      await tx.user.update({ where: { id: request.userId }, data: { passwordHash: request.passwordHash, mustChangePassword: false, passwordChangedAt: new Date() } });
     });
     await writeAudit({ actorId: user.id, actorRole: user.role, action: AuditAction.PASSWORD_RESET_APPROVED, entityType: "User", entityId: request.userId });
     await sendEmail({

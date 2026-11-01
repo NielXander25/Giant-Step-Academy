@@ -4,6 +4,8 @@ import { securityHeaders } from "./src/lib/security-headers";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The site never uses Next's image resizer, so its endpoint (/_next/image) is switched off: nothing to attack there.
+  images: { unoptimized: true },
   serverExternalPackages: ["@node-rs/argon2", "exceljs", "@react-pdf/renderer"],
   // The PDF library loads its built-in fonts (Helvetica, Times) by a file name it works out at run time, so the
   // build cannot see them and leaves them out of the deployed PDF routes. Ship them explicitly.

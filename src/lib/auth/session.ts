@@ -26,9 +26,11 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
 
   const user = await db.user.findUnique({
     where: { id },
-    select: { id: true, email: true, name: true, role: true, status: true, canCreateAdmins: true, mustChangePassword: true },
+    select: { id: true, email: true, name: true, role: true, status: true, canCreateAdmins: true, mustChangePassword: true, passwordChangedAt: true },
   });
   if (!user || user.status !== "ACTIVE") return null;
+  // A password change or an approved reset ends every session that signed in before it (a stolen session included).
+  if (user.passwordChangedAt && (session?.authAt ?? 0) < user.passwordChangedAt.getTime()) return null;
   return {
     id: user.id,
     email: user.email,
