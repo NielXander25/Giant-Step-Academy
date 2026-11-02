@@ -3,15 +3,17 @@ import Link from "next/link";
 import { EventRow } from "@/components/site/cards";
 import { PageHero, Section, SectionHeading } from "@/components/site/section";
 import { flyFor, Reveal } from "@/components/site/reveal";
+import { GalleryAlbum } from "@/components/site/gallery-album";
 import { SiteImage } from "@/components/site/site-image";
 import type { ListValue } from "@/lib/cms/blocks";
 import { optimizeImage } from "@/lib/cms/helpers";
 import { getBlocks, getEvents, getGallery } from "@/lib/cms/site-data";
+import { GALLERY_ALBUMS } from "@/lib/cms/school-photos";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Gallery and Events", description: "What's coming up, and life at Giant Step Academy in pictures." };
 
-// Upcoming events, then any pictures the school uploads in the content manager (the site has none of its own).
+// Upcoming events, then the photo albums (Graduation always last), with any pictures an Admin uploads before it.
 export default async function GalleryAndEventsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const sp = await searchParams;
   const [{ upcoming, past }, gallery, b] = await Promise.all([getEvents(), getGallery(), getBlocks(["schoollife"])]);
@@ -19,16 +21,42 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
   const category = categories.find((c) => c === sp.category);
   const uploads = category ? gallery.filter((g) => g.category === category) : gallery;
   const life = [...(b["schoollife.facilities"] as ListValue), ...(b["schoollife.activities"] as ListValue)].filter((i) => i.image);
+  const graduation = GALLERY_ALBUMS.find((a) => a.key === "graduation");
+  const albums = GALLERY_ALBUMS.filter((a) => a !== graduation);
   const chip = (on: boolean) => cn("rounded-full px-4 py-1.5 text-sm font-medium", on ? "bg-navy text-white" : "bg-white text-navy hover:bg-white/70");
 
   return (
     <>
-      <PageHero eyebrow="Gallery and Events" title="Life at Giant Step" intro="What's coming up at the school." />
+      <PageHero eyebrow="Gallery and Events" title="Life at Giant Step" intro="What's coming up, and our school in pictures." />
 
-      <Section>
+      <nav aria-label="Albums" className="border-b border-black/5 bg-white">
+        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-5 py-3 sm:px-8 [scrollbar-width:none]">
+          <a href="#upcoming" className="shrink-0 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-navy hover:bg-black/5">Events</a>
+          {GALLERY_ALBUMS.map((a) => (
+            <a key={a.key} href={`#${a.key}`} className="flex shrink-0 items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm font-medium text-navy hover:bg-black/5">
+              <span aria-hidden="true" className="size-2 rounded-full" style={{ background: a.color }} />{a.title}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <Section id="upcoming">
         <SectionHeading eyebrow="Coming up" title="Upcoming events" />
         {upcoming.length === 0 ? <p className="text-muted-foreground">No upcoming events are listed right now.</p> : <ul className="grid gap-4 md:grid-cols-2">{upcoming.map((e) => <EventRow key={e.id} event={e} />)}</ul>}
       </Section>
+
+      {albums.map((a, i) => (
+        <Section key={a.key} id={a.key} tone={i % 2 ? "white" : "soft"}>
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: a.color === "#ffcc00" ? "#b38f00" : a.color }}>
+              <span aria-hidden="true" className="h-1.5 w-8 rounded-full" style={{ background: a.color }} />Album
+            </p>
+            <h2 className="text-4xl text-navy md:text-5xl">{a.title}</h2>
+            <p className="mt-4 text-xl leading-relaxed text-muted-foreground">{a.intro}</p>
+          </div>
+          <GalleryAlbum photos={a.photos} color={a.color} />
+        </Section>
+      ))}
 
       {gallery.length > 0 && (
         <Section tone="soft" id="gallery">
@@ -69,6 +97,17 @@ export default async function GalleryAndEventsPage({ searchParams }: { searchPar
       )}
 
       {past.length > 0 && <Section tone="soft"><SectionHeading title="Recent events" /><ul className="grid gap-4 md:grid-cols-2">{past.map((e) => <EventRow key={e.id} event={e} />)}</ul></Section>}
+
+      {graduation && (
+        <Section id={graduation.key}>
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#b38f00]"><span aria-hidden="true" className="h-1.5 w-8 rounded-full bg-sun" />Album</p>
+            <h2 className="text-4xl text-navy md:text-5xl">{graduation.title}</h2>
+            <p className="mt-4 text-xl leading-relaxed text-muted-foreground">{graduation.intro}</p>
+          </div>
+          <GalleryAlbum photos={graduation.photos} color={graduation.color} />
+        </Section>
+      )}
     </>
   );
 }

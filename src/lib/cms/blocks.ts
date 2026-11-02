@@ -4,6 +4,7 @@
 // No page has a built-in picture: an Admin adds pictures in the content manager. The vision, mission, core
 // values, school anthem and the Proprietress's message come from the school's magazine.
 
+import { PROPRIETRESS_PHOTO } from "./school-photos";
 
 export type PageKey = "home" | "about" | "academics" | "admissions" | "schoollife" | "contact" | "privacy";
 
@@ -39,8 +40,8 @@ export type BlockDef = {
 const text = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "text", default: def, help });
 const area = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "textarea", default: def, help });
 const rich = (page: PageKey, group: string, key: string, label: string, def: string, help?: string): BlockDef => ({ key, page, group, label, type: "richtext", default: def, help });
-const image = (page: PageKey, group: string, key: string, label: string, help?: string): BlockDef =>
-  ({ key, page, group, label, type: "image", default: null, help });
+const image = (page: PageKey, group: string, key: string, label: string, help?: string, photo?: { src: string; alt: string }): BlockDef =>
+  ({ key, page, group, label, type: "image", default: photo ? { url: photo.src, alt: photo.alt } : null, help });
 const list = (page: PageKey, group: string, key: string, label: string, itemFields: ItemField[], def: ListValue, maxItems = 12, help?: string): BlockDef => ({ key, page, group, label, type: "list", itemFields, default: def, maxItems, help });
 
 const T = (key: string, label: string): ItemField => ({ key, label, type: "text" });
@@ -97,7 +98,7 @@ export const BLOCKS: BlockDef[] = [
   text("about", "Principal's message", "about.principal.name", "Name", "Bernice Nwaorah Nwabunike"),
   text("about", "Principal's message", "about.principal.title", "Title", "Proprietress"),
   rich("about", "Principal's message", "about.principal.message", "Message", PROPRIETRESS_MESSAGE),
-  image("about", "Principal's message", "about.principal.photo", "Photo"),
+  image("about", "Principal's message", "about.principal.photo", "Photo", undefined, PROPRIETRESS_PHOTO),
 
   // ── Academics ──
   area("academics", "Introduction", "academics.intro", "Introduction", "From the first day in Nursery to the final year of Secondary school, learning here is planned, steady and supported."),

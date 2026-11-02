@@ -11,7 +11,7 @@ export const RESULTS_LINK = { href: "/results", label: "Check results" } as cons
 
 // The three sections of the school and the colours from the school's own banner.
 export const SECTIONS = [
-  { key: "nursery", name: "Nursery", color: "#ff9500", block: "academics.nursery.body" },
-  { key: "primary", name: "Primary", color: "#34c759", block: "academics.primary.body" },
-  { key: "secondary", name: "Secondary", color: "#af52de", block: "academics.secondary.body" },
+  { key: "nursery", name: "Nursery", color: "#ff8a00", block: "academics.nursery.body" },
+  { key: "primary", name: "Primary", color: "#1fae4b", block: "academics.primary.body" },
+  { key: "secondary", name: "Secondary", color: "#9b3fd4", block: "academics.secondary.body" },
 ] as const;

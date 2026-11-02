@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BellRing } from "lucide-react";
+import { ArrowRight, BellRing, Sparkles } from "lucide-react";
 import { Reveal } from "@/components/site/reveal";
 import { SiteShell } from "@/components/site/site-shell";
 import { EventRow, NewsCard } from "@/components/site/cards";
@@ -43,49 +43,55 @@ export default async function HomePage() {
     <SiteShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
-      {/* Apple-style opening: a big, calm headline on white, the three sections as colour chips, then the photo. */}
-      <div className="relative overflow-hidden bg-white">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-10 size-[26rem] rounded-full bg-sky/20 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-40 size-[26rem] rounded-full bg-sun/25 blur-3xl" />
-        <div className="relative mx-auto max-w-5xl px-5 pb-16 pt-14 text-center sm:px-8 md:pb-24 md:pt-24">
-          <div className="fade-up flex flex-wrap justify-center gap-2">
+      {/* Bold opening: a deep school-blue banner with a photo behind it, yellow highlights and the three sections in
+          full colour. */}
+      <div className="relative overflow-hidden bg-[#0a3d8f] text-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={hero?.url || "/images/gallery/students-in-uniform.jpg"} alt="" aria-hidden="true" className="absolute inset-0 size-full object-cover object-[50%_30%] opacity-30" />
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-[#0a3d8f]/80 via-[#0a3d8f]/85 to-[#0b1d3d]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 size-[26rem] rounded-full bg-sun/30 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-24 size-[26rem] rounded-full bg-sky/40 blur-3xl" />
+
+        <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
+          <p className="fade-up inline-flex items-center gap-2 rounded-full border border-sun/50 bg-white/10 px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.22em] text-sun">
+            <Sparkles className="size-4" aria-hidden="true" />Welcome to Giant Step
+          </p>
+          <h1 className="fade-up mt-7 max-w-4xl text-5xl font-extrabold leading-[1.02] text-white sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
+            Securing a <span className="text-sun">bright future</span>, one giant step at a time
+          </h1>
+          <p className="fade-up mt-6 max-w-2xl text-xl leading-relaxed text-white/85 md:text-2xl" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
+
+          <div className="fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: "220ms" }}>
             {SECTIONS.map((sec) => (
-              <Link key={sec.key} href="/admissions" className="rounded-full px-4 py-1.5 text-sm font-semibold transition-transform hover:-translate-y-0.5" style={{ color: sec.color, background: `${sec.color}1a` }}>{sec.name}</Link>
+              <Link key={sec.key} href="/admissions" className="rounded-full px-5 py-2 text-base font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5" style={{ background: sec.color }}>{sec.name}</Link>
             ))}
           </div>
-          <h1 className="fade-up mx-auto mt-6 max-w-4xl text-5xl leading-[1.05] text-navy sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
-            {b["home.hero.title"] as string}
-          </h1>
-          <p className="fade-up mx-auto mt-6 max-w-2xl text-xl leading-relaxed text-muted-foreground md:text-2xl" style={{ animationDelay: "160ms" }}>{b["home.hero.subtitle"] as string}</p>
-          <div className="fade-up mt-9 flex flex-wrap justify-center gap-3" style={{ animationDelay: "240ms" }}>
-            <Button asChild size="lg"><Link href="/admissions">Admissions <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-            <Button asChild size="lg" variant="yellow"><Link href="/events">See our events</Link></Button>
+
+          <div className="fade-up mt-10 flex flex-wrap gap-3" style={{ animationDelay: "280ms" }}>
+            <Button asChild size="lg" variant="yellow" className="h-14 px-8 text-lg font-bold"><Link href="/admissions">Apply for admission <ArrowRight className="size-5" aria-hidden="true" /></Link></Button>
+            <Button asChild size="lg" variant="outline" className="h-14 border-white/50 bg-transparent px-8 text-lg font-semibold text-white hover:bg-white/10"><Link href="/events">See our events</Link></Button>
           </div>
           {notice && (
-            <p className="fade-up mx-auto mt-7 inline-flex items-center gap-2 rounded-full bg-sun/20 px-4 py-2 text-sm font-medium text-navy" style={{ animationDelay: "320ms" }}>
-              <BellRing className="size-4 shrink-0 text-tangerine" aria-hidden="true" />{notice}
+            <p className="fade-up mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white ring-1 ring-white/20" style={{ animationDelay: "340ms" }}>
+              <BellRing className="size-4 shrink-0 text-sun" aria-hidden="true" />{notice}
             </p>
           )}
-          {hero?.url && (
-            <div className="fade-up relative mt-14" style={{ animationDelay: "300ms" }}>
-              <div aria-hidden="true" className="absolute inset-x-10 -bottom-6 h-24 rounded-full bg-gradient-to-r from-sky/40 via-sun/40 to-sky/40 blur-2xl" />
-              <SiteImage src={hero.url} alt={hero.alt ?? ""} width={1600} priority className="relative aspect-[16/9] w-full rounded-[2.25rem] object-[60%_center] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] md:aspect-[21/9]" />
-            </div>
-          )}
+        </div>
+        <div aria-hidden="true" className="relative flex h-2">
+          <span className="flex-1 bg-sun" /><span className="flex-1" style={{ background: SECTIONS[0].color }} /><span className="flex-1" style={{ background: SECTIONS[1].color }} /><span className="flex-1" style={{ background: SECTIONS[2].color }} />
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 pt-12 sm:px-8 md:pt-16">
-        <ul className="grid gap-4 md:grid-cols-3">
+      <div className="mx-auto max-w-6xl px-5 pt-14 sm:px-8 md:pt-20">
+        <ul className="grid gap-5 md:grid-cols-3">
           {SECTIONS.map((s, i) => (
             <Reveal as="li" key={s.key} from="up" delay={i * 120}>
-              <Link href="/admissions" className="group block h-full overflow-hidden rounded-3xl bg-muted transition-transform hover:-translate-y-1">
-                <div className="mx-6 mt-6 h-1.5 w-12 rounded-full" style={{ background: s.color }} />
-                <div className="p-6">
-                  <h2 className="font-serif text-2xl text-navy">{s.name}</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">{plainText(b[s.block] as string, 110)}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">Learn more <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
-                </div>
+              <Link href="/admissions" className="group relative block h-full overflow-hidden rounded-3xl p-7 text-white shadow-[0_20px_50px_-25px_rgba(0,0,0,0.45)] transition-transform hover:-translate-y-1" style={{ background: s.color }}>
+                <span aria-hidden="true" className="absolute -right-10 -top-10 size-36 rounded-full bg-white/15" />
+                <span className="relative block text-sm font-bold uppercase tracking-[0.16em] text-white/80">{["Pre-Nursery to Nursery 3", "Basic 1 to 6", "Basic 7 to SS3"][i]}</span>
+                <h2 className="relative mt-2 text-3xl font-extrabold text-white">{s.name}</h2>
+                <p className="relative mt-3 text-[15px] leading-relaxed text-white/90">{plainText(b[s.block] as string, 110)}</p>
+                <span className="relative mt-5 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-bold" style={{ color: s.color }}>Learn more <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
               </Link>
             </Reveal>
           ))}
