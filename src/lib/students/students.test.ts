@@ -95,8 +95,8 @@ describe("spreadsheet round trip", () => {
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(buffer as unknown as ArrayBuffer);
     const ws = wb.getWorksheet("Students")!;
-    ws.getRow(2).values = ["gsa/ss2/001", "Ada Obi", "Female", new Date(Date.UTC(2010, 2, 25))];
-    ws.getRow(3).values = ["GSA/SS2/002", "Chike Eze", "M", "03/11/2010"];
+    ws.getRow(2).values = ["gsa/ss2/001", "Ada Obi", "Female"];
+    ws.getRow(3).values = ["GSA/SS2/002", "Chike Eze", "M"];
     const filled = Buffer.from(await wb.xlsx.writeBuffer());
 
     const parsed = await parseStudentWorkbook(filled);
@@ -105,8 +105,8 @@ describe("spreadsheet round trip", () => {
     expect(parsed.rows).toHaveLength(2);
     const records = validateRows(parsed.rows, { classId: CLASS_A, existing: new Map(), now: NOW });
     expect(records.map((r) => r.status)).toEqual(["NEW", "NEW"]);
-    expect(records[0].data.dateOfBirth).toBe("2010-03-25");
-    expect(records[1].data.dateOfBirth).toBe("2010-11-03");
+    expect(records[0].data.fullName).toBe("Ada Obi");
+    expect(records[1].data.gender).toBe("MALE");
   });
   it("rejects files that are not spreadsheets or have no matching headings", async () => {
     expect((await parseStudentWorkbook(Buffer.from("not a spreadsheet"))).ok).toBe(false);

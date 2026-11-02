@@ -3,7 +3,7 @@ import { AuditAction, writeAudit } from "@/lib/audit";
 
 /**
  * The nightly tidy-up. Safe to run any time, as often as you like.
- *  - PINs whose 40 days are over are marked Expired (they were already refused; this keeps the lists accurate)
+ *  - PINs with an old expiry date (from before PINs stopped expiring) are marked Expired; new PINs never have one
  *  - viewing passes that ended more than a day ago are deleted
  *  - used or old password-reset tokens are deleted
  */

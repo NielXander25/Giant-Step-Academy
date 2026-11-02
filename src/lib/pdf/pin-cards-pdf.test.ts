@@ -29,6 +29,6 @@ describe("printable PIN list", () => {
     expect(pages[1]).toContain("063");
     expect(text).toContain("GSA 482 915");
     expect(text).toContain("Batch: First Term 2026/2027");
-    expect(text).toContain("any student in any class");
+    expect(text).toContain("Each PIN is for one student");
   });
 });

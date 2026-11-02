@@ -11,7 +11,6 @@ export const PIN_RULES = {
   prefix: "GSA",
   digits: 6, // 1,000,000 possible values
   maxUses: 2,
-  expiryDaysFromFirstUse: 40,
   viewSessionMinutes: 30,
 } as const;
 

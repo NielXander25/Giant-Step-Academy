@@ -120,6 +120,7 @@ enum PinAccessOutcome {
   RESULT_NOT_PUBLISHED
   RATE_LIMITED
   CAPTCHA_FAILED
+  PIN_OTHER_STUDENT
 }
 
 enum EnquiryStatus {
@@ -379,6 +380,7 @@ model Student {
   enrollments  Enrollment[]
   accessLogs   PinAccessLog[]
   viewSessions ResultViewSession[]
+  pins         Pin[]
 
   @@index([normalizedName])
 }
@@ -621,6 +623,8 @@ model Pin {
   lastUsedAt     DateTime?
   expiresAt      DateTime? // set at first successful use (first use + 40 days)
   label          String?
+  studentId      String?   @db.Uuid // the student the PIN belongs to, set at its first successful use
+  student        Student?  @relation(fields: [studentId], references: [id], onDelete: SetNull)
   createdById    String    @db.Uuid
   disabledById   String?   @db.Uuid
   disabledAt     DateTime?
@@ -632,6 +636,7 @@ model Pin {
   viewSessions ResultViewSession[]
 
   @@index([status])
+  @@index([studentId])
 }
 
 model PinAccessLog {

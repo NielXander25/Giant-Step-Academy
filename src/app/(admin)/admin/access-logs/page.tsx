@@ -20,6 +20,7 @@ const OUTCOMES: Record<PinAccessOutcome, { text: string; variant: "success" | "o
   INVALID_CREDENTIALS: { text: "Details did not match", variant: "outline" },
   PIN_EXHAUSTED: { text: "PIN already used up", variant: "outline" },
   PIN_EXPIRED: { text: "PIN expired", variant: "outline" },
+  PIN_OTHER_STUDENT: { text: "PIN belongs to another student", variant: "destructive" },
   PIN_DISABLED: { text: "PIN disabled", variant: "destructive" },
   RESULT_NOT_PUBLISHED: { text: "Result not published", variant: "accent" },
   RATE_LIMITED: { text: "Blocked: too many tries", variant: "destructive" },
@@ -53,7 +54,7 @@ export default async function AccessLogsPage({ searchParams }: { searchParams: P
       <PageHeader title="Access logs" description="Every attempt to open a result, successful or not. Only a scrambled network code is kept, never an IP address." />
       <div className="mb-4 flex flex-wrap gap-2" role="navigation" aria-label="Filter">
         <Link href={href()} className={tab(!outcome)}>All</Link>
-        {(["SUCCESS", "INVALID_CREDENTIALS", "PIN_EXHAUSTED", "PIN_EXPIRED", "RESULT_NOT_PUBLISHED", "RATE_LIMITED"] as const).map((o) => (
+        {(["SUCCESS", "INVALID_CREDENTIALS", "PIN_EXHAUSTED", "PIN_OTHER_STUDENT", "RESULT_NOT_PUBLISHED", "RATE_LIMITED"] as const).map((o) => (
           <Link key={o} href={href(o)} className={tab(outcome === o)}>{OUTCOMES[o].text}</Link>
         ))}
       </div>

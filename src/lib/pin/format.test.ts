@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PIN_PATTERN, maskPin, makePin, normalizePin } from "./format";
 import { hashPin } from "./hash";
-import { canEnable, effectivePinStatus, expiryFrom } from "./lifecycle";
+import { canEnable, effectivePinStatus } from "./lifecycle";
 import { hashViewToken, newViewToken, viewSessionExpiry } from "./view-session";
 
 describe("PIN format", () => {
@@ -62,11 +62,8 @@ describe("PIN lifecycle", () => {
     expect(effectivePinStatus(pin({ usageCount: 1 }), now)).toBe("ACTIVE");
     expect(effectivePinStatus(pin({ usageCount: 2 }), now)).toBe("EXHAUSTED");
   });
-  it("expires 40 days after the first use", () => {
-    const first = new Date("2026-10-01T00:00:00Z");
-    expect(expiryFrom(first).toISOString()).toBe("2026-11-10T00:00:00.000Z");
-    expect(effectivePinStatus(pin({ usageCount: 1, expiresAt: expiryFrom(first) }), new Date("2026-11-09T23:59:00Z"))).toBe("ACTIVE");
-    expect(effectivePinStatus(pin({ usageCount: 1, expiresAt: expiryFrom(first) }), new Date("2026-11-10T00:00:00Z"))).toBe("EXPIRED");
+  it("never runs out of time: a used PIN with uses left stays active, however long ago it was first used", () => {
+    expect(effectivePinStatus(pin({ usageCount: 1, expiresAt: null }), new Date("2030-01-01T00:00:00Z"))).toBe("ACTIVE");
   });
   it("disabled always wins, and only a still-usable disabled PIN can be re-enabled", () => {
     expect(effectivePinStatus(pin({ status: "DISABLED", usageCount: 2 }), now)).toBe("DISABLED");

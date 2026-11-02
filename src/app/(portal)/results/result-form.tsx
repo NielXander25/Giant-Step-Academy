@@ -39,7 +39,7 @@ export function ResultForm({ terms }: { terms: { id: string; label: string }[] }
       <TurnstileWidget />
       <FormMessage error={state?.error} />
       <Button type="submit" size="lg" disabled={pending} className="h-14 text-lg">{pending ? "Checking…" : "View result"}</Button>
-      <p className="flex items-start gap-2 text-left text-sm text-muted-foreground"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-leaf" aria-hidden="true" />Each PIN opens a result twice. Wrong details never use up an attempt.</p>
+      <p className="flex items-start gap-2 text-left text-sm text-muted-foreground"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-leaf" aria-hidden="true" />Each PIN is for one student and opens their result twice. Wrong details never use up an attempt.</p>
     </form>
   );
 }

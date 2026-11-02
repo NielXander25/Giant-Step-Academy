@@ -25,7 +25,7 @@ describe("report card PDF", () => {
     const text = await textOf(buffer);
     const s0 = SAMPLE_RESULT.subjects[0];
     for (const expected of [
-      "GIANT STEP ACADEMY", "Termly Report", "Sample Student", "SAMPLE-SS", "SS2A", "2026/2027", "Kaduna", "14 March 2015", "5 January 2027", "112 of 120",
+      "GIANT STEP ACADEMY", "Termly Report", "Sample Student", "SAMPLE-SS", "SS2A", "2026/2027", "Kaduna", "5 January 2027", "112 of 120",
       "COGNITIVE ABILITY", "1st Test", "20%", "Exam", "60%", "Class Av.", "Comment", "English Language", "Mathematics", "Biology",
       String(s0.total), String(s0.classAverage), String(SAMPLE_RESULT.summary.average), "3rd", "No. in Class", "28",
       "PSYCHOMOTOR SKILLS", "Speech Composition", "AFFECTIVE AREAS", "Punctuality", "A = Excellent", "Student's Profile",
@@ -33,6 +33,7 @@ describe("report card PDF", () => {
     ]) {
       expect(text).toContain(expected);
     }
+    expect(text).not.toContain("Date of Birth"); // no longer printed on the card
   });
   it("always carries a badge: the school crest, or the uploaded logo instead", async () => {
     const crest = await renderToBuffer(ResultPdf({ data: SAMPLE_RESULT, logo: null }));

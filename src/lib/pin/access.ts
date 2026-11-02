@@ -5,7 +5,7 @@ import { normalizeName } from "@/lib/utils";
 import { normalizeAdmissionNumber } from "@/lib/students/normalize";
 import { normalizePin } from "./format";
 import { hashPin } from "./hash";
-import { effectivePinStatus, expiryFrom } from "./lifecycle";
+import { effectivePinStatus } from "./lifecycle";
 import { ipThrottled, studentThrottled } from "./throttle";
 import { hashViewToken, newViewToken, viewSessionExpiry } from "./view-session";
 
@@ -21,7 +21,7 @@ export type AccessInput = {
 /** INVALID covers every "details do not match / PIN cannot be used" case on purpose, so nobody can probe for valid PINs or students. */
 export type AccessResult =
   | { ok: true; token: string; attemptsUsed: number; maxUses: number }
-  | { ok: false; reason: "INVALID" | "RATE_LIMITED" | "NOT_PUBLISHED" };
+  | { ok: false; reason: "INVALID" | "RATE_LIMITED" | "NOT_PUBLISHED" | "OTHER_STUDENT" };
 
 /**
  * The only place a result PIN is ever used. In order:
@@ -70,6 +70,12 @@ export async function attemptAccess(input: AccessInput, now: Date = new Date()):
     return { ok: false, reason: "INVALID" };
   }
 
+  // A PIN belongs to the first student it opened a result for: it never works for anyone else.
+  if (pin.studentId && pin.studentId !== matched.id) {
+    await log("PIN_OTHER_STUDENT", { studentId: matched.id, pinId: pin.id, pinStatus: state });
+    return { ok: false, reason: "OTHER_STUDENT" };
+  }
+
   // The result must exist and be published. Only reported once the student AND a usable PIN are confirmed, and it costs no attempt.
   const term = await db.term.findUnique({ where: { id: input.termId }, select: { id: true, sessionId: true } });
   const enrollment = term ? await db.enrollment.findUnique({ where: { studentId_sessionId: { studentId: matched.id, sessionId: term.sessionId } } }) : null;
@@ -89,17 +95,16 @@ export async function attemptAccess(input: AccessInput, now: Date = new Date()):
   const token = newViewToken();
   const used = await db.$transaction(async (tx) => {
     const claimed = await tx.pin.updateMany({
-      where: { id: pin.id, status: "ACTIVE", usageCount: { lt: pin.maxUses }, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+      // Claimed only while it is free or already this student's, so two families racing for one new PIN cannot both get it.
+      where: { id: pin.id, status: "ACTIVE", usageCount: { lt: pin.maxUses }, OR: [{ studentId: null }, { studentId: matched.id }] },
       data: { usageCount: { increment: 1 }, lastUsedAt: now },
     });
     if (claimed.count !== 1) return null;
 
     const fresh = await tx.pin.findUniqueOrThrow({ where: { id: pin.id } });
-    const patch: { firstUsedAt?: Date; expiresAt?: Date; status?: "EXHAUSTED" } = {};
-    if (!fresh.firstUsedAt) {
-      patch.firstUsedAt = now; // the 40 days start now
-      patch.expiresAt = expiryFrom(now);
-    }
+    const patch: { firstUsedAt?: Date; studentId?: string; status?: "EXHAUSTED" } = {};
+    if (!fresh.firstUsedAt) patch.firstUsedAt = now;
+    if (!fresh.studentId) patch.studentId = matched.id; // from now on this PIN is this student's only
     if (fresh.usageCount >= fresh.maxUses) patch.status = "EXHAUSTED";
     if (Object.keys(patch).length) await tx.pin.update({ where: { id: pin.id }, data: patch });
 
@@ -115,6 +120,10 @@ export async function attemptAccess(input: AccessInput, now: Date = new Date()):
   if (!used) {
     // Lost a race for the last attempt (or the PIN just expired). Find out why for the log.
     const now2 = await db.pin.findUnique({ where: { id: pin.id } });
+    if (now2?.studentId && now2.studentId !== matched.id) {
+      await log("PIN_OTHER_STUDENT", { studentId: matched.id, pinId: pin.id, pinStatus: now2.status });
+      return { ok: false, reason: "OTHER_STUDENT" };
+    }
     const why = now2 ? effectivePinStatus(now2, now) : "EXHAUSTED";
     await log(why === "DISABLED" ? "PIN_DISABLED" : why === "EXPIRED" ? "PIN_EXPIRED" : "PIN_EXHAUSTED", { studentId: matched.id, pinId: pin.id, pinStatus: why });
     return { ok: false, reason: "INVALID" };

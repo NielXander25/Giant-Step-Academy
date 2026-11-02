@@ -43,7 +43,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
   const [counts, total, pins, sampleOn] = await Promise.all([
     Promise.all(FILTERS.map((f) => db.pin.count({ where: whereFor(f, now) }))),
     db.pin.count({ where: filter ? whereFor(filter, now) : {} }),
-    db.pin.findMany({ where: filter ? whereFor(filter, now) : {}, orderBy: { createdAt: "desc" }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+    db.pin.findMany({ where: filter ? whereFor(filter, now) : {}, orderBy: { createdAt: "desc" }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, include: { student: { select: { fullName: true, admissionNumber: true } } } }),
     isSampleEnabled(),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -52,7 +52,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <PageHeader title="Result PINs" description="Each PIN opens a result twice and stops working 40 days after its first use. A PIN is not tied to one student." />
+      <PageHeader title="Result PINs" description="Each PIN opens a result twice and never runs out of time. The first student to use a PIN keeps it: from then on it works for that student only." />
 
       {!isPepperConfigured() && (
         <p role="alert" className="mb-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-destructive">
@@ -121,7 +121,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
         <Card>
           <CardContent className="p-2 sm:p-4">
             <Table>
-              <THead><TR><TH>PIN</TH><TH>Note</TH><TH>Status</TH><TH>Used</TH><TH>Created</TH><TH>First used</TH><TH>Expires</TH><TH><span className="sr-only">Actions</span></TH></TR></THead>
+              <THead><TR><TH>PIN</TH><TH>Note</TH><TH>Status</TH><TH>Used</TH><TH>Created</TH><TH>First used</TH><TH>Registered to</TH><TH><span className="sr-only">Actions</span></TH></TR></THead>
               <TBody>
                 {pins.map((p) => {
                   const state = effectivePinStatus(p, now);
@@ -133,7 +133,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
                       <TD>{p.usageCount} / {p.maxUses}</TD>
                       <TD>{formatDate(p.createdAt)}</TD>
                       <TD>{formatDateTime(p.firstUsedAt)}</TD>
-                      <TD>{formatDate(p.expiresAt)}</TD>
+                      <TD>{p.student ? <span className="whitespace-nowrap">{p.student.fullName}<span className="block text-xs text-muted-foreground">{p.student.admissionNumber}</span></span> : <span className="text-muted-foreground">Not used yet</span>}</TD>
                       <TD className="text-right">
                         {state === "ACTIVE" && <ActionButton action={setPinEnabledAction} input={{ pinId: p.id, enabled: false }} label="Disable" confirm="Disable this PIN? It stops working straight away, even for someone viewing a result right now." />}
                         {state === "DISABLED" && <ActionButton action={setPinEnabledAction} input={{ pinId: p.id, enabled: true }} label="Enable" />}

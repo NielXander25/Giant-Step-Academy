@@ -19,7 +19,7 @@ type Initial = {
   status: "ACTIVE" | "INACTIVE" | "WITHDRAWN" | "GRADUATED";
 };
 
-/** Form Teachers edit name, gender and date of birth. Admins can also change the admission number and status. */
+/** Form Teachers edit name, gender and state of origin. Admins can also change the admission number and status. */
 export function EditStudentForm({ initial, isAdmin }: { initial: Initial; isAdmin: boolean }) {
   const [v, setV] = useState(initial);
   const { run, pending, error, fieldErrors, success } = useAction(updateStudent);
@@ -59,11 +59,6 @@ export function EditStudentForm({ initial, isAdmin }: { initial: Initial; isAdmi
           <option value="MALE">Male</option>
           <option value="FEMALE">Female</option>
         </Select>
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="e-dob">Date of birth</Label>
-        <Input id="e-dob" type="date" value={v.dateOfBirth} onChange={(e) => setV({ ...v, dateOfBirth: e.target.value })} />
-        <FieldError messages={fieldErrors.dateOfBirth} />
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="e-origin">State of origin</Label>

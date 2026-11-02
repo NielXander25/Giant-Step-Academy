@@ -22,7 +22,6 @@ export function ResultSheet({ data }: { data: PublishedResult }) {
     ["Admission No.", student.admissionNumber],
     ["Class", data.className],
     ["State of Origin", dash(student.stateOfOrigin)],
-    ["Date of Birth", dash(student.dateOfBirth)],
     ...(layout.showGender ? ([["Gender", student.gender ? (student.gender === "MALE" ? "Male" : "Female") : "—"]] as [string, string][]) : []),
   ];
   const summaryCells: [string, string][] = [

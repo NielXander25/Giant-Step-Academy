@@ -14,9 +14,10 @@ import { isSampleEnabled, matchSample, SAMPLE_COOKIE, SAMPLE_TERM, sampleCookieV
 export type PortalState = { error?: string; values?: { studentName: string; admissionNumber: string; termId: string } } | undefined;
 
 const MESSAGES = {
-  INVALID: "We couldn't open a result with those details. Please check the student's full name, admission number and PIN. If the PIN has already been used twice or has expired, please ask the school office for a new one.",
+  INVALID: "We couldn't open a result with those details. Please check the student's full name, admission number and PIN. If the PIN has already been used twice, please ask the school office for a new one.",
   RATE_LIMITED: "Too many attempts. Please wait 15 minutes and try again.",
   NOT_PUBLISHED: "The results for this term are not available yet. Please check again later.",
+  OTHER_STUDENT: "This PIN has already been used for another student, and a PIN works for one student only. Please use the PIN given for this student, or ask the school office for a new one.",
   CAPTCHA: "Please complete the \"I am not a robot\" check and try again.",
   BAD_INPUT: "Please fill in every box, including the term.",
   DOWN: "The result service is not available right now. Please try again later.",
@@ -65,7 +66,7 @@ export async function openResultAction(_prev: PortalState, formData: FormData): 
     console.error("Result portal error", error);
     return fail(MESSAGES.DOWN);
   }
-  if (!result.ok) return fail(result.reason === "RATE_LIMITED" ? MESSAGES.RATE_LIMITED : result.reason === "NOT_PUBLISHED" ? MESSAGES.NOT_PUBLISHED : MESSAGES.INVALID);
+  if (!result.ok) return fail(result.reason === "RATE_LIMITED" ? MESSAGES.RATE_LIMITED : result.reason === "NOT_PUBLISHED" ? MESSAGES.NOT_PUBLISHED : result.reason === "OTHER_STUDENT" ? MESSAGES.OTHER_STUDENT : MESSAGES.INVALID);
 
   const jar = await cookies();
   jar.delete(SAMPLE_COOKIE);

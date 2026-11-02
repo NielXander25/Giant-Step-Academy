@@ -29,7 +29,7 @@ export function ImportPreview({ records }: { records: PreviewRecord[] }) {
   return (
     <Table>
       <THead>
-        <TR><TH>Row</TH><TH>Admission no.</TH><TH>Name</TH><TH>Gender</TH><TH>Date of birth</TH><TH>Result</TH><TH>What happens</TH></TR>
+        <TR><TH>Row</TH><TH>Admission no.</TH><TH>Name</TH><TH>Gender</TH><TH>Result</TH><TH>What happens</TH></TR>
       </THead>
       <TBody>
         {records.map((r) => {
@@ -42,7 +42,6 @@ export function ImportPreview({ records }: { records: PreviewRecord[] }) {
               <TD className="whitespace-nowrap font-medium">{d.admissionNumber || "—"}</TD>
               <TD>{d.fullName || "—"}</TD>
               <TD>{d.gender ? d.gender.toLowerCase() : "—"}</TD>
-              <TD className="whitespace-nowrap">{d.dateOfBirth ?? "—"}</TD>
               <TD><Badge variant={s.variant}>{s.label}</Badge></TD>
               <TD>
                 <p>{OUTCOME[d.action ?? "SKIP"]}</p>

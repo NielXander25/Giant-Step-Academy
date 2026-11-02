@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import { formatDate } from "@/lib/format";
 import { requireRole } from "@/lib/auth/session";
 import { getCurrentSessionId, loadTeacherScope } from "@/lib/permissions/assignments";
 import { isFormTeacherOf } from "@/lib/permissions/policies";
@@ -101,7 +100,7 @@ export default async function TeacherStudentsPage({ searchParams }: { searchPara
           <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
             <Table>
               <THead>
-                <TR><TH>Admission no.</TH><TH>Name</TH><TH>Gender</TH>{canManage && <TH>Date of birth</TH>}{canManage && <TH><span className="sr-only">Actions</span></TH>}</TR>
+                <TR><TH>Admission no.</TH><TH>Name</TH><TH>Gender</TH>{canManage && <TH><span className="sr-only">Actions</span></TH>}</TR>
               </THead>
               <TBody>
                 {enrollments.map((e) => (
@@ -109,7 +108,6 @@ export default async function TeacherStudentsPage({ searchParams }: { searchPara
                     <TD className="whitespace-nowrap font-medium">{e.student.admissionNumber}</TD>
                     <TD>{e.student.fullName}</TD>
                     <TD>{e.student.gender ? e.student.gender.toLowerCase() : <Badge variant="outline">Not set</Badge>}</TD>
-                    {canManage && <TD>{formatDate(e.student.dateOfBirth)}</TD>}
                     {canManage && (
                       <TD className="text-right">
                         <Button asChild variant="outline" size="sm"><Link href={`/teacher/students/edit?student=${e.student.id}`}>Edit</Link></Button>

@@ -80,7 +80,7 @@ export function PinCardsPdf(data: PinCardsData) {
               <Text style={s.title}>Result PINs</Text>
               {data.label ? <Text style={s.meta}>Batch: {data.label}</Text> : null}
               <Text style={s.meta}>{day(data.createdAt)} · {n} PIN{n === 1 ? "" : "s"}, Nos. {no(0)} to {no(n - 1)}</Text>
-              <Text style={s.meta}>Each PIN works for any student in any class</Text>
+              <Text style={s.meta}>Each PIN is for one student: the first to use it</Text>
             </View>
           </View>
           <View style={s.columns}>

@@ -17,15 +17,14 @@ export function AddStudentForm({ fixedClassId, classes }: { fixedClassId?: strin
   const [admissionNumber, setAdmission] = useState("");
   const [fullName, setName] = useState("");
   const [gender, setGender] = useState<"" | "MALE" | "FEMALE">("");
-  const [dateOfBirth, setDob] = useState("");
   const [stateOfOrigin, setOrigin] = useState("");
   const { run, pending, error, fieldErrors, success } = useAction(addStudent, {
-    onSuccess: () => { setAdmission(""); setName(""); setGender(""); setDob(""); setOrigin(""); },
+    onSuccess: () => { setAdmission(""); setName(""); setGender(""); setOrigin(""); },
   });
 
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); run({ classId, admissionNumber, fullName, gender, dateOfBirth, stateOfOrigin }); }}
+      onSubmit={(e) => { e.preventDefault(); run({ classId, admissionNumber, fullName, gender, stateOfOrigin }); }}
       className="grid gap-4 sm:max-w-2xl sm:grid-cols-2"
     >
       {!fixedClassId && classes && (
@@ -53,11 +52,6 @@ export function AddStudentForm({ fixedClassId, classes }: { fixedClassId?: strin
           <option value="MALE">Male</option>
           <option value="FEMALE">Female</option>
         </Select>
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="add-dob">Date of birth (optional)</Label>
-        <Input id="add-dob" type="date" value={dateOfBirth} onChange={(e) => setDob(e.target.value)} />
-        <FieldError messages={fieldErrors.dateOfBirth} />
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="add-origin">State of origin (optional)</Label>
