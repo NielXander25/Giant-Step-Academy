@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BellRing } from "lucide-react";
-import { CrestMark } from "@/components/site/school-logo";
 import { Reveal } from "@/components/site/reveal";
 import { SiteShell } from "@/components/site/site-shell";
 import { EventRow, NewsCard } from "@/components/site/cards";
@@ -54,13 +53,10 @@ export default async function HomePage() {
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-24 size-[26rem] rounded-full bg-sky/40 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
-          {/* An understated school mark: the crest, a fine yellow rule and the school's name in spaced small capitals. */}
+          {/* An understated welcome: a fine yellow rule and spaced small capitals. */}
           <div className="fade-up flex items-center gap-3 sm:gap-4">
-            <CrestMark onDark size={44} />
             <span aria-hidden="true" className="h-px w-8 shrink-0 bg-sun sm:w-10" />
-            <p className="whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.3em] text-white/85 sm:text-[13px] sm:tracking-[0.32em]">
-              Giant Step Academy<span className="hidden sm:inline"><span className="mx-2 text-sun">·</span><span className="text-white/60">Sabon Tasha, Kaduna</span></span>
-            </p>
+            <p className="whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.3em] text-white/85 sm:text-[13px] sm:tracking-[0.32em]">Welcome to Giant Step</p>
           </div>
           <h1 className="fade-up mt-7 max-w-4xl text-5xl font-extrabold leading-[1.02] text-white sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
             Securing a <span className="text-sun">bright future</span>, one giant step at a time
