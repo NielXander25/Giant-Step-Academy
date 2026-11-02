@@ -5,9 +5,10 @@
 export type Leader = { name: string; role: string };
 
 export const LEADERS: Leader[] = [
-  { name: "Bernice Nwaorah Nwabunike", role: "Proprietress" },
+  { name: "Mrs. Bernice Nwaorah Nwabunike", role: "Proprietress" },
   { name: "Mr. Akpidi Mbagishor Uguge", role: "Principal" },
   { name: "Mrs. Ozioma Uzo", role: "Vice Principal" },
+  { name: "Mrs. Yemisi Festus", role: "Head Mistress" },
   { name: "Mr. Chinedu Ogbe", role: "P.T.A. Chairman" },
 ];
 

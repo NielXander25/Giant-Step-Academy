@@ -76,10 +76,10 @@ export default async function AboutPage() {
         <SectionHeading eyebrow="Our staff" title="The people behind the school" />
         {staff.length > 0 && <ul className="mb-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">{staff.map((p) => <StaffCard key={p.id} person={p} />)}</ul>}
         <h3 className="mb-4 text-2xl text-navy">Leading the school</h3>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {LEADERS.map((l, i) => (
             <Reveal as="li" key={l.name} from="up" delay={i * 100} className="rounded-3xl bg-muted p-6">
-              <span aria-hidden="true" className="mb-4 block h-1.5 w-10 rounded-full" style={{ background: ["#0071e3", "#ffcc00", "#34c759", "#af52de"][i % 4] }} />
+              <span aria-hidden="true" className="mb-4 block h-1.5 w-10 rounded-full" style={{ background: ["#0071e3", "#ffcc00", "#34c759", "#ff8a00", "#af52de"][i % 5] }} />
               <p className="text-lg font-semibold text-navy">{l.name}</p>
               <p className="text-sm text-muted-foreground">{l.role}</p>
             </Reveal>
