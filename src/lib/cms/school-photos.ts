@@ -25,7 +25,6 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
     photos: [
       g("science-lab.jpg", 1080, 809, "Practical science in our laboratory", "Secondary students in white lab coats carrying out experiments in the school laboratory"),
       g("nursery-classroom.jpg", 1020, 765, "Creche class", "Creche pupils at small orange tables with toys and picture books, with their teacher"),
-      g("outdoor-lesson.jpg", 1020, 765, "A lesson in the open air", "Students taking notes at desks under a canopy while a teacher speaks"),
       g("students-in-uniform.jpg", 1080, 809, "Our secondary students", "Five secondary students in grey sweaters and checked uniforms"),
     ],
   },
@@ -35,6 +34,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
       g("career-summit.jpg", 1033, 1077, "Future engineers in hard hats and vests", "Students wearing hard hats and high-visibility vests at the 2025 Career Summit"),
       g("first-aid-demonstration.jpg", 1280, 720, "First aid demonstration by students", "Pupils in white coats and gloves demonstrating first aid on a classmate"),
       g("career-talk.jpg", 1120, 504, "Guest speaker, Dr. Adebayo", "Dr. Adebayo on a stage addressing pupils seated under a decorated canopy"),
+      g("outdoor-lesson.jpg", 1020, 765, "A Career Summit session", "Students taking notes at desks under a canopy during a Career Summit session"),
     ],
   },
   {
