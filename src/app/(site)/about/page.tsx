@@ -65,7 +65,7 @@ export default async function AboutPage() {
           <div className={photo?.url ? "grid items-start gap-10 md:grid-cols-[0.8fr_1.2fr]" : "max-w-3xl"}>
             {photo?.url && <Reveal from="left"><SiteImage src={photo.url} alt={photo.alt || principal} width={600} className="aspect-[4/5] w-full rounded-3xl" /></Reveal>}
             <Reveal delay={100}>
-              <SectionHeading eyebrow={`From the ${role.toLowerCase()}`} title={principal ? `A message from ${principal}` : `A message from the ${role.toLowerCase()}`} className="mb-5" />
+              <SectionHeading eyebrow={`A welcome from our ${role.toLowerCase()}`} title="Every great journey begins with a small step" className="mb-5" />
               <RichText source={message} />
               {principal && <p className="mt-6 font-serif text-lg text-navy">{principal}<span className="block text-sm font-sans text-muted-foreground">{role}</span></p>}
             </Reveal>

@@ -69,10 +69,15 @@ const ANTHEM = [
   "Fountain of knowledge",
   "Inspiration! Inspiration!!",
 ].join("\n");
+// Built on the words of the school's welcome video.
 const PROPRIETRESS_MESSAGE = [
-  "It is with great joy that I extend my heartfelt congratulations to those graduating from different levels of studies in this prestigious institution. I return all glory to God Almighty for granting you the grace and strength to pass through the process successfully.",
-  "And a special congratulations to those who are graduating from Giant Step Academy to a higher level of institution. Your accomplishments are a testament to your determination and drive to succeed. Today, as you stand on the threshold of new beginnings, I am confident that you are well-equipped to take on any challenges that come your way.",
-  "Your graduation is not just a personal achievement, but it is also a milestone for your families, Giant Step Academy Family, and friends. A special thanks to my Teaching and Non-Teaching Staff for molding these ones to become what they are.",
+  "Dear parents, guardians and friends, welcome to Giant Step Academy.",
+  "For a child, the small steps happen every single day: the first time they confidently answer a question, the first time they make a new friend, the first time they try something they thought they could not do. At Giant Step Academy, we celebrate every one of those steps.",
+  "From Pre-Nursery and Nursery, through our Basic classes, to Senior Secondary, we want our children to know their numbers, discover what they want to do, develop confidence in who they are and learn how to use their gifts. Our teachers give each child careful attention, and we work closely with every family, because a child's success is a journey we share with you.",
+  "But while we prepare them academically, we do not only want to raise children who know a lot. **We want to raise children who know how to love, how to lead, how to serve and how to do what is right.** That is why character and good values sit at the heart of everything we do, alongside academic excellence.",
+  "Whatever the age or stage, our commitment is the same: to create a safe, nurturing and stimulating environment where every child can learn, grow and become more.",
+  "Because we know that today's little steps are preparing them for tomorrow's big moments.",
+  "You are warmly invited to visit us, meet our teachers and see our classrooms for yourself. We look forward to welcoming your child into the Giant Step Academy family.",
 ].join("\n\n");
 
 export const BLOCKS: BlockDef[] = [
@@ -95,7 +100,7 @@ export const BLOCKS: BlockDef[] = [
   area("about", "Mission and vision", "about.vision", "Vision", VISION),
   list("about", "Values", "about.values", "Values", [T("title", "Title"), A("text", "Short description")], CORE_VALUES, 8),
   area("about", "School anthem", "about.anthem", "School anthem", ANTHEM, "One line of the anthem per line. Leave empty to hide it."),
-  text("about", "Principal's message", "about.principal.name", "Name", "Bernice Nwaorah Nwabunike"),
+  text("about", "Principal's message", "about.principal.name", "Name", "Mrs. Bernice Nwaorah Nwabunike"),
   text("about", "Principal's message", "about.principal.title", "Title", "Proprietress"),
   rich("about", "Principal's message", "about.principal.message", "Message", PROPRIETRESS_MESSAGE),
   image("about", "Principal's message", "about.principal.photo", "Photo", undefined, PROPRIETRESS_PHOTO),
