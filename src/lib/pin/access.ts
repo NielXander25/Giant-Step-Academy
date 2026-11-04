@@ -5,7 +5,7 @@ import { normalizeName } from "@/lib/utils";
 import { normalizeAdmissionNumber } from "@/lib/students/normalize";
 import { normalizePin } from "./format";
 import { hashPin } from "./hash";
-import { effectivePinStatus } from "./lifecycle";
+import { effectivePinStatus, isLaterTerm } from "./lifecycle";
 import { ipThrottled, studentThrottled } from "./throttle";
 import { hashViewToken, newViewToken, viewSessionExpiry } from "./view-session";
 
@@ -21,7 +21,7 @@ export type AccessInput = {
 /** INVALID covers every "details do not match / PIN cannot be used" case on purpose, so nobody can probe for valid PINs or students. */
 export type AccessResult =
   | { ok: true; token: string; attemptsUsed: number; maxUses: number }
-  | { ok: false; reason: "INVALID" | "RATE_LIMITED" | "NOT_PUBLISHED" | "OTHER_STUDENT" };
+  | { ok: false; reason: "INVALID" | "RATE_LIMITED" | "NOT_PUBLISHED" | "OTHER_STUDENT" | "LATER_TERM" };
 
 /**
  * The only place a result PIN is ever used. In order:
@@ -76,6 +76,18 @@ export async function attemptAccess(input: AccessInput, now: Date = new Date()):
     return { ok: false, reason: "OTHER_STUDENT" };
   }
 
+  // A PIN is tied to the term it first opened: it can open that term and earlier ones, never a later one.
+  if (pin.termId && pin.termId !== input.termId) {
+    const [bound, asked] = await Promise.all([
+      db.term.findUnique({ where: { id: pin.termId }, select: { sortOrder: true, session: { select: { name: true } } } }),
+      db.term.findUnique({ where: { id: input.termId }, select: { sortOrder: true, session: { select: { name: true } } } }),
+    ]);
+    if (bound && asked && isLaterTerm({ sessionName: asked.session.name, sortOrder: asked.sortOrder }, { sessionName: bound.session.name, sortOrder: bound.sortOrder })) {
+      await log("PIN_LATER_TERM", { studentId: matched.id, pinId: pin.id, pinStatus: state });
+      return { ok: false, reason: "LATER_TERM" };
+    }
+  }
+
   // The result must exist and be published. Only reported once the student AND a usable PIN are confirmed, and it costs no attempt.
   const term = await db.term.findUnique({ where: { id: input.termId }, select: { id: true, sessionId: true } });
   const enrollment = term ? await db.enrollment.findUnique({ where: { studentId_sessionId: { studentId: matched.id, sessionId: term.sessionId } } }) : null;
@@ -102,9 +114,10 @@ export async function attemptAccess(input: AccessInput, now: Date = new Date()):
     if (claimed.count !== 1) return null;
 
     const fresh = await tx.pin.findUniqueOrThrow({ where: { id: pin.id } });
-    const patch: { firstUsedAt?: Date; studentId?: string; status?: "EXHAUSTED" } = {};
+    const patch: { firstUsedAt?: Date; studentId?: string; termId?: string; status?: "EXHAUSTED" } = {};
     if (!fresh.firstUsedAt) patch.firstUsedAt = now;
     if (!fresh.studentId) patch.studentId = matched.id; // from now on this PIN is this student's only
+    if (!fresh.termId) patch.termId = input.termId; // and it can never open a term after this one
     if (fresh.usageCount >= fresh.maxUses) patch.status = "EXHAUSTED";
     if (Object.keys(patch).length) await tx.pin.update({ where: { id: pin.id }, data: patch });
 

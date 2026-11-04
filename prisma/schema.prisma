@@ -121,6 +121,7 @@ enum PinAccessOutcome {
   RATE_LIMITED
   CAPTCHA_FAILED
   PIN_OTHER_STUDENT
+  PIN_LATER_TERM
 }
 
 enum EnquiryStatus {
@@ -264,6 +265,7 @@ model Term {
 
   resultBatches SubjectResultBatch[]
   classSheets   ClassResultSheet[]
+  pins          Pin[]
   accessLogs    PinAccessLog[]
   viewSessions  ResultViewSession[]
 
@@ -625,6 +627,8 @@ model Pin {
   label          String?
   studentId      String?   @db.Uuid // the student the PIN belongs to, set at its first successful use
   student        Student?  @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  termId         String?   @db.Uuid // the term it was first used for: it opens that term and earlier ones, never a later one
+  term           Term?     @relation(fields: [termId], references: [id], onDelete: SetNull)
   createdById    String    @db.Uuid
   disabledById   String?   @db.Uuid
   disabledAt     DateTime?

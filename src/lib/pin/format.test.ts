@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { PIN_PATTERN, maskPin, makePin, normalizePin } from "./format";
 import { hashPin } from "./hash";
-import { canEnable, effectivePinStatus } from "./lifecycle";
+import { canEnable, effectivePinStatus, isLaterTerm } from "./lifecycle";
 import { hashViewToken, newViewToken, viewSessionExpiry } from "./view-session";
 
 describe("PIN format", () => {
@@ -61,6 +61,13 @@ describe("PIN lifecycle", () => {
   it("after two uses it is exhausted, even if the stored status was not updated", () => {
     expect(effectivePinStatus(pin({ usageCount: 1 }), now)).toBe("ACTIVE");
     expect(effectivePinStatus(pin({ usageCount: 2 }), now)).toBe("EXHAUSTED");
+  });
+  it("knows which terms come later: a later term in the same year, or any term of a later year", () => {
+    const first = { sessionName: "2026/2027", sortOrder: 1 };
+    expect(isLaterTerm({ sessionName: "2026/2027", sortOrder: 2 }, first)).toBe(true);
+    expect(isLaterTerm({ sessionName: "2027/2028", sortOrder: 1 }, { sessionName: "2026/2027", sortOrder: 3 })).toBe(true);
+    expect(isLaterTerm(first, first)).toBe(false);
+    expect(isLaterTerm({ sessionName: "2025/2026", sortOrder: 3 }, first)).toBe(false);
   });
   it("never runs out of time: a used PIN with uses left stays active, however long ago it was first used", () => {
     expect(effectivePinStatus(pin({ usageCount: 1, expiresAt: null }), new Date("2030-01-01T00:00:00Z"))).toBe("ACTIVE");

@@ -43,7 +43,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
   const [counts, total, pins, sampleOn] = await Promise.all([
     Promise.all(FILTERS.map((f) => db.pin.count({ where: whereFor(f, now) }))),
     db.pin.count({ where: filter ? whereFor(filter, now) : {} }),
-    db.pin.findMany({ where: filter ? whereFor(filter, now) : {}, orderBy: { createdAt: "desc" }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, include: { student: { select: { fullName: true, admissionNumber: true } } } }),
+    db.pin.findMany({ where: filter ? whereFor(filter, now) : {}, orderBy: { createdAt: "desc" }, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, include: { student: { select: { fullName: true, admissionNumber: true } }, term: { select: { name: true, session: { select: { name: true } } } } } }),
     isSampleEnabled(),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -52,7 +52,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <PageHeader title="Result PINs" description="Each PIN opens a result twice and never runs out of time. The first student to use a PIN keeps it: from then on it works for that student only." />
+      <PageHeader title="Result PINs" description="Each PIN opens a result twice and never runs out of time. The first student and term it opens are kept: from then on it works for that student only, for that term and earlier ones (never a later term, which needs a new PIN)." />
 
       {!isPepperConfigured() && (
         <p role="alert" className="mb-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-destructive">
@@ -133,7 +133,7 @@ export default async function PinsPage({ searchParams }: { searchParams: Promise
                       <TD>{p.usageCount} / {p.maxUses}</TD>
                       <TD>{formatDate(p.createdAt)}</TD>
                       <TD>{formatDateTime(p.firstUsedAt)}</TD>
-                      <TD>{p.student ? <span className="whitespace-nowrap">{p.student.fullName}<span className="block text-xs text-muted-foreground">{p.student.admissionNumber}</span></span> : <span className="text-muted-foreground">Not used yet</span>}</TD>
+                      <TD>{p.student ? <span className="whitespace-nowrap">{p.student.fullName}<span className="block text-xs text-muted-foreground">{p.student.admissionNumber}{p.term ? ` · ${p.term.session.name} ${p.term.name}` : ""}</span></span> : <span className="text-muted-foreground">Not used yet</span>}</TD>
                       <TD className="text-right">
                         {state === "ACTIVE" && <ActionButton action={setPinEnabledAction} input={{ pinId: p.id, enabled: false }} label="Disable" confirm="Disable this PIN? It stops working straight away, even for someone viewing a result right now." />}
                         {state === "DISABLED" && <ActionButton action={setPinEnabledAction} input={{ pinId: p.id, enabled: true }} label="Enable" />}

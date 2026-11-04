@@ -18,3 +18,14 @@ export function canEnable(pin: PinState, now: Date = new Date()): boolean {
   return pin.status === "DISABLED" && pin.usageCount < pin.maxUses && (pin.expiresAt === null || pin.expiresAt > now);
 }
 
+
+export type TermOrder = { sessionName: string; sortOrder: number };
+
+/**
+ * True when `term` comes after `bound` in the school calendar: a later school year (session names such as
+ * "2026/2027" sort in year order), or the same year and a later term.
+ */
+export function isLaterTerm(term: TermOrder, bound: TermOrder): boolean {
+  const byYear = term.sessionName.localeCompare(bound.sessionName, "en", { numeric: true });
+  return byYear !== 0 ? byYear > 0 : term.sortOrder > bound.sortOrder;
+}

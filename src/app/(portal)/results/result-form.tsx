@@ -28,7 +28,7 @@ export function ResultForm({ terms }: { terms: { id: string; label: string; grou
             </optgroup>
           ))}
         </Select>
-        <p className="text-xs text-muted-foreground">Past results stay available: choose any earlier school year to see the result from the class the student was in then.</p>
+        <p className="text-xs text-muted-foreground">Past results stay available: choose an earlier school year to see the result from the class the student was in then.</p>
       </div>
       <div className="flex flex-col gap-2">
         <Label className="text-sm font-semibold text-navy" htmlFor="studentName">Student's full name</Label>
@@ -46,7 +46,7 @@ export function ResultForm({ terms }: { terms: { id: string; label: string; grou
       <TurnstileWidget />
       <FormMessage error={state?.error} />
       <Button type="submit" size="lg" disabled={pending} className="h-14 text-lg">{pending ? "Checking…" : "View result"}</Button>
-      <p className="flex items-start gap-2 text-left text-sm text-muted-foreground"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-leaf" aria-hidden="true" />Each PIN is for one student and opens their result twice. Wrong details never use up an attempt.</p>
+      <p className="flex items-start gap-2 text-left text-sm text-muted-foreground"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-leaf" aria-hidden="true" />Each PIN is for one student and opens their result twice: for the term you first use it for, or an earlier one. A later term needs a new PIN. Wrong details never use up an attempt.</p>
     </form>
   );
 }
