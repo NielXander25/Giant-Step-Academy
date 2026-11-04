@@ -21,9 +21,9 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
     }),
     isSampleEnabled(),
   ]);
-  const options = terms.map((t) => ({ id: t.id, label: `${t.session.name} · ${t.name}` }));
+  const options = terms.map((t) => ({ id: t.id, label: t.name, group: t.session.name }));
   // Before any result is published, the practice result still needs a term to choose.
-  if (options.length === 0 && sample) options.push({ id: SAMPLE_TERM, label: "Practice term (sample result)" });
+  if (options.length === 0 && sample) options.push({ id: SAMPLE_TERM, label: "Practice term (sample result)", group: "Practice" });
 
   const name = school?.name ?? "Giant Step Academy";
   const logo = optimizeImage(school?.logoUrl, 320);

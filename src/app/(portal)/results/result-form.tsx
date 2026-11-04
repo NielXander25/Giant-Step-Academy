@@ -12,16 +12,23 @@ import { openResultAction } from "./actions";
 
 const field = "h-13 rounded-2xl bg-muted border-transparent px-4 text-base focus:bg-white";
 
-export function ResultForm({ terms }: { terms: { id: string; label: string }[] }) {
+export function ResultForm({ terms }: { terms: { id: string; label: string; group: string }[] }) {
+  // Grouped by school year, newest first, so a past term (e.g. Basic 8, First Term) is easy to find.
+  const years = [...new Set(terms.map((t) => t.group))];
   const [state, formAction, pending] = useActionState(openResultAction, undefined);
 
   return (
     <form action={formAction} className="flex flex-col gap-5" autoComplete="off">
       <div className="flex flex-col gap-2">
-        <Label className="text-sm font-semibold text-navy" htmlFor="termId">Term</Label>
+        <Label className="text-sm font-semibold text-navy" htmlFor="termId">School year and term</Label>
         <Select className={field} key={state?.values?.termId} id="termId" name="termId" required defaultValue={state?.values?.termId || terms[0]?.id}>
-          {terms.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+          {years.map((y) => (
+            <optgroup key={y} label={y}>
+              {terms.filter((t) => t.group === y).map((t) => <option key={t.id} value={t.id}>{y} · {t.label}</option>)}
+            </optgroup>
+          ))}
         </Select>
+        <p className="text-xs text-muted-foreground">Past results stay available: choose any earlier school year to see the result from the class the student was in then.</p>
       </div>
       <div className="flex flex-col gap-2">
         <Label className="text-sm font-semibold text-navy" htmlFor="studentName">Student's full name</Label>
