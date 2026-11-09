@@ -7,7 +7,7 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
     <main className="flex min-h-screen flex-col items-center bg-cream px-5 py-10 sm:py-16">
       <Link href="/" className="mb-8 flex items-center gap-4" aria-label="Giant Step Academy home">
         <span className="flex size-16 items-center justify-center rounded-2xl border border-border bg-white shadow-sm">
-          <CrestMark size={40} />
+          <CrestMark size={48} />
         </span>
         <span className="font-serif text-2xl font-bold text-navy sm:text-3xl">Giant Step Academy</span>
       </Link>
