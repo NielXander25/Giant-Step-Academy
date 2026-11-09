@@ -104,10 +104,11 @@ export function SchoolLogo({ school, height = 44, onDark = false, compact = fals
   if (compact || !isBrandName(school.name)) {
     return (
       <span className="inline-flex items-center gap-3">
-        <CrestMark onDark={onDark} size={height} title={compact ? school.name : undefined} />
+        <span className={onDark ? "inline-flex rounded-xl bg-white p-1.5" : "inline-flex"}><CrestMark size={height} title={compact ? school.name : undefined} /></span>
         {!compact && <span className={`font-serif text-xl leading-tight ${onDark ? "text-white" : "text-navy"}`}>{school.name}</span>}
       </span>
     );
   }
-  return <Lockup onDark={onDark} height={height} />;
+  // The logo always sits on white: on the navy footer it goes on a white card.
+  return onDark ? <span className="inline-flex rounded-2xl bg-white px-4 py-3"><Lockup onDark={false} height={height} /></span> : <Lockup onDark={false} height={height} />;
 }
