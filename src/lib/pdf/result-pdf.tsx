@@ -28,7 +28,7 @@ const s = StyleSheet.create({
   photoRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 6 },
   photo: { width: 76, height: 90, borderWidth: 0.75, borderColor: LINE, alignItems: "center", justifyContent: "center", backgroundColor: SOFT },
   photoImg: { width: 76, height: 90, objectFit: "cover" },
-  badge: { width: 60, height: 90, objectFit: "contain", marginLeft: 14 },
+  badge: { width: 86, height: 90, objectFit: "contain", marginLeft: 14 },
   box: { borderWidth: 0.5, borderColor: LINE },
   line: { flexDirection: "row", borderBottomWidth: 0.5, borderColor: LINE, paddingVertical: 4.5, paddingHorizontal: 4 },
   label: { color: MUTED, width: 104 },

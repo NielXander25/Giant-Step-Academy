@@ -1,7 +1,8 @@
+import { useId } from "react";
 import { optimizeImage } from "@/lib/cms/helpers";
 import type { SchoolInfo } from "@/lib/cms/site-queries";
 
-const INK = "#2d3780"; // the school's navy, as photographed on its banner
+const INK = "#00245a"; // the school's navy, from the official logo
 
 // Five-pointed star centred on (cx, cy)
 const star = (cx: number, cy: number, r: number) =>
@@ -11,69 +12,76 @@ const star = (cx: number, cy: number, r: number) =>
     return `${(cx + rad * Math.cos(a)).toFixed(2)},${(cy + rad * Math.sin(a)).toFixed(2)}`;
   }).join(" ");
 
+// The rising sun: a half disc with a saw-tooth edge, sitting on y = 77
+const SUN = (() => {
+  const teeth = 30;
+  const pts = Array.from({ length: teeth * 2 + 1 }, (_, i) => {
+    const a = Math.PI + (Math.PI * i) / (teeth * 2);
+    const out = i % 2 === 1;
+    const rx = out ? 28 : 25.6;
+    const ry = out ? 22 : 19.6;
+    return `${(60 + rx * Math.cos(a)).toFixed(2)},${(77 + ry * Math.sin(a)).toFixed(2)}`;
+  });
+  return pts.join(" ");
+})();
+
+const SHIELD = "M10 4H110V50C110 72 90 87 60 96C30 87 10 72 10 50Z";
+const MOTTO_PATH = "M0 90Q60 152 120 90";
+const FONT = "var(--font-body), Inter, Arial, sans-serif";
+
+/** The crest artwork in a 120 × 126 box: shield with the name panel, five stars, rising sun, open book, and the motto curving beneath. */
+function CrestArt({ ink, paper, id }: { ink: string; paper: string; id: string }) {
+  return (
+    <>
+      <path d={SHIELD} fill={paper} stroke={ink} strokeWidth="3.4" strokeLinejoin="round" />
+      <path d="M10 34H110" stroke={ink} strokeWidth="3.4" />
+      <g fill={ink} fontFamily={FONT} fontWeight="800" textAnchor="middle">
+        <text x="60" y="18.6" fontSize="12.4" textLength="86" lengthAdjust="spacingAndGlyphs">GIANT STEP</text>
+        <text x="60" y="30.4" fontSize="12.4" textLength="80" lengthAdjust="spacingAndGlyphs">ACADEMY</text>
+      </g>
+      <g fill={ink}>
+        <polygon points={star(60, 44.5, 7.2)} />
+        <polygon points={star(37, 49.5, 6)} />
+        <polygon points={star(83, 49.5, 6)} />
+        <polygon points={star(23.5, 60.5, 6)} />
+        <polygon points={star(96.5, 60.5, 6)} />
+        <polygon points={SUN} />
+        <path d="M59 81.5C51 76.5 41 76 32.5 80L35 87.5C43.5 85 52 86 59 90.5Z" />
+        <path d="M61 81.5C69 76.5 79 76 87.5 80L85 87.5C76.5 85 68 86 61 90.5Z" />
+      </g>
+      <path id={id} d={MOTTO_PATH} fill="none" />
+      <text fill={ink} fontFamily={FONT} fontWeight="800" fontSize="8.7" letterSpacing="0.2">
+        <textPath href={`#${id}`} startOffset="50%" textAnchor="middle">SECURING A BRIGHT FUTURE</textPath>
+      </text>
+    </>
+  );
+}
+
 /**
- * The school crest drawn as a clean vector (so it stays sharp at any size): shield, name label, five stars,
- * rising sun, path and the motto. `onDark` swaps navy and white for use on the navy footer.
+ * The school crest drawn as a clean vector (so it stays sharp at any size), matching the official logo.
+ * Navy on white by default; `onDark` gives the white-line version for the navy footer.
  */
 export function CrestMark({ onDark = false, size = 44, title }: { onDark?: boolean; size?: number; title?: string }) {
-  const ink = onDark ? "#ffffff" : INK;
-  const paper = onDark ? "var(--navy)" : "#ffffff";
+  const id = `gsa-motto-${useId().replace(/:/g, "")}`;
   return (
-    <svg viewBox="0 0 100 150" width={(size * 100) / 150} height={size} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true} className="shrink-0">
-      <path d="M3 3H97V93C97 124 75 143 50 149C25 143 3 124 3 93Z" fill={ink} />
-      <rect x="9" y="9" width="82" height="31" fill={paper} />
-      <g fill={ink} fontFamily="var(--font-body), Arial, sans-serif" fontWeight="800" textAnchor="middle">
-        <text x="50" y="23" fontSize="12.5" textLength="72" lengthAdjust="spacing">GIANT STEP</text>
-        <text x="50" y="36" fontSize="12.5" textLength="72" lengthAdjust="spacing">ACADEMY</text>
-      </g>
-      <g fill={paper}>
-        <polygon points={star(28.5, 53, 4.6)} />
-        <polygon points={star(48.5, 50.5, 5.8)} />
-        <polygon points={star(75, 61, 5.8)} />
-        <polygon points={star(19.5, 67.5, 4.2)} />
-        <polygon points={star(81.5, 78, 4.6)} />
-        <path d="M21 90A30 27 0 0 1 82 90Z" />
-        <path d="M20 112C30 110 41 105 49 101L49 112Z" />
-        <path d="M52.5 101C62 106 75 110.5 87 113L52.5 112Z" />
-      </g>
-      <path id="gsa-motto" d="M19.5 117C24 134 38 142 51 142C65 142 77 133 82 118" fill="none" />
-      <text fill={paper} fontFamily="var(--font-body), Arial, sans-serif" fontWeight="800" fontSize="6.4">
-        <textPath href="#gsa-motto" startOffset="50%" textAnchor="middle" textLength="60" lengthAdjust="spacing">SECURING A BRIGHT FUTURE</textPath>
-      </text>
+    <svg viewBox="0 0 120 126" width={(size * 120) / 126} height={size} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true} className="shrink-0">
+      <CrestArt ink={onDark ? "#ffffff" : INK} paper={onDark ? "none" : "#ffffff"} id={id} />
     </svg>
   );
 }
 
-/** Crest + name in one lockup, like the school's own banner: shield on the left, GIANT STEP / ACADEMY on the right. */
+/** Crest + name in one lockup: the crest on the left, GIANT STEP / ACADEMY on the right. */
 function Lockup({ onDark, height }: { onDark: boolean; height: number }) {
   const ink = onDark ? "#ffffff" : INK;
+  const id = `gsa-motto-${useId().replace(/:/g, "")}`;
   return (
-    <svg viewBox="0 0 610 150" height={height} width={(height * 610) / 150} role="img" aria-label="Giant Step Academy" className="shrink-0">
-      <g transform="translate(0 0)">
-        <foreignObject width="0" height="0" />
-      </g>
-      <g aria-hidden="true">
-        <svg x="0" y="0" width="100" height="150" viewBox="0 0 100 150">
-          <path d="M3 3H97V93C97 124 75 143 50 149C25 143 3 124 3 93Z" fill={ink} />
-          <rect x="9" y="9" width="82" height="31" fill={onDark ? "var(--navy)" : "#fff"} />
-          <g fill={ink} fontFamily="var(--font-body), Arial, sans-serif" fontWeight="800" textAnchor="middle">
-            <text x="50" y="23" fontSize="12.5" textLength="72" lengthAdjust="spacing">GIANT STEP</text>
-            <text x="50" y="36" fontSize="12.5" textLength="72" lengthAdjust="spacing">ACADEMY</text>
-          </g>
-          <g fill={onDark ? "var(--navy)" : "#fff"}>
-            <polygon points={star(28.5, 53, 4.6)} /><polygon points={star(48.5, 50.5, 5.8)} /><polygon points={star(75, 61, 5.8)} />
-            <polygon points={star(19.5, 67.5, 4.2)} /><polygon points={star(81.5, 78, 4.6)} />
-            <path d="M21 90A30 27 0 0 1 82 90Z" /><path d="M20 112C30 110 41 105 49 101L49 112Z" /><path d="M52.5 101C62 106 75 110.5 87 113L52.5 112Z" />
-          </g>
-          <path id="gsa-motto-l" d="M19.5 117C24 134 38 142 51 142C65 142 77 133 82 118" fill="none" />
-          <text fill={onDark ? "var(--navy)" : "#fff"} fontFamily="var(--font-body), Arial, sans-serif" fontWeight="800" fontSize="6.4">
-            <textPath href="#gsa-motto-l" startOffset="50%" textAnchor="middle" textLength="60" lengthAdjust="spacing">SECURING A BRIGHT FUTURE</textPath>
-          </text>
-        </svg>
-        <g fill={ink} fontFamily="var(--font-body), 'Arial Black', Arial, sans-serif" fontWeight="900">
-          <text x="124" y="64" fontSize="73" textLength="478" lengthAdjust="spacing">GIANT STEP</text>
-          <text x="124" y="132" fontSize="73" textLength="478" lengthAdjust="spacing">ACADEMY</text>
-        </g>
+    <svg viewBox="0 0 640 150" height={height} width={(height * 640) / 150} role="img" aria-label="Giant Step Academy" className="shrink-0">
+      <svg x="0" y="0" width="143" height="150" viewBox="0 0 120 126" aria-hidden="true">
+        <CrestArt ink={ink} paper={onDark ? "none" : "#ffffff"} id={id} />
+      </svg>
+      <g fill={ink} fontFamily={FONT} fontWeight="900" aria-hidden="true">
+        <text x="160" y="70" fontSize="70" textLength="452" lengthAdjust="spacing">GIANT STEP</text>
+        <text x="160" y="136" fontSize="70" textLength="452" lengthAdjust="spacing">ACADEMY</text>
       </g>
     </svg>
   );

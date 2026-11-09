@@ -21,7 +21,7 @@ export type PinCardsData = {
 const s = StyleSheet.create({
   page: { paddingTop: 28, paddingBottom: 34, paddingHorizontal: 34, fontFamily: "Helvetica", fontSize: 10, color: NAVY },
   header: { flexDirection: "row", alignItems: "center", paddingBottom: 8, marginBottom: 12, borderBottomWidth: 1.2, borderBottomColor: NAVY },
-  crest: { width: 26, height: 32, marginRight: 9 },
+  crest: { width: 31, height: 32, objectFit: "contain", marginRight: 9 },
   school: { fontFamily: "Helvetica-Bold", fontSize: 13 },
   meta: { fontSize: 8.5, color: MUTED, marginTop: 2 },
   left: { flex: 1, paddingRight: 12 },

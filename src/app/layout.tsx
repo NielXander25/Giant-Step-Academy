@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: { default: "Giant Step Academy", template: "%s | Giant Step Academy" },
   description: "Giant Step Academy: Nursery, Primary and Secondary school in Sabon Tasha, Kaduna.",
   openGraph: { type: "website", siteName: "Giant Step Academy", locale: "en_NG" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
