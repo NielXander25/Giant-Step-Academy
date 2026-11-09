@@ -19,9 +19,9 @@ import { siteUrl } from "@/lib/site-url";
 export const dynamic = "force-dynamic";
 
 const DAY = [
-  { src: "/images/school/campus.jpg", color: "#0071e3", title: "Our campus", text: "A bright, welcoming school in Sabon Tasha, Kaduna, with safe, well-kept grounds where children feel at home from the moment they arrive.", alt: "The front of Giant Step Academy: a colourful school sign, the school crest and flower beds along the blue and cream wall" },
-  { src: "/images/school/assembly.jpg", color: "#ffb800", title: "Morning assembly", text: "Every day begins together. Pupils and students line up in their uniforms for assembly, building discipline, unity and a sense of belonging.", alt: "Pupils and students in uniform lined up for morning assembly in the school courtyard" },
-  { src: "/images/school/classroom.jpg", color: "#1fae4b", title: "In the classroom", text: "Then the learning begins: attentive teachers, engaged students and lessons that build strong foundations. Learn, practise, excel.", alt: "Secondary students in a bright classroom listening to their teacher during a mathematics lesson" },
+  { src: "/images/school/campus.jpg", color: "#0071e3", title: "Somewhere they belong", text: "The gates open, the colours wave hello, and every child walks in knowing they are expected, known and safe. Here, they are not just another face.", alt: "The front of Giant Step Academy: a colourful school sign, the school crest and flower beds along the blue and cream wall" },
+  { src: "/images/school/assembly.jpg", color: "#ffb800", title: "Stand tall, together", text: "Before the first bell, hundreds of young voices become one. Shoulders back, heads high, ready for whatever today will ask of them.", alt: "Pupils and students in uniform lined up for morning assembly in the school courtyard" },
+  { src: "/images/school/classroom.jpg", color: "#1fae4b", title: "Curiosity, switched on", text: "A hand goes up. A question lands. Something that felt impossible yesterday finally makes sense today. That quiet moment is the giant step we live for.", alt: "Secondary students in a bright classroom listening to their teacher during a mathematics lesson" },
 ];
 
 export const metadata: Metadata = {
@@ -106,13 +106,13 @@ export default async function HomePage() {
         </ul>
       </div>
 
-      {/* A walk through the school day: the campus, morning assembly, then the classroom. */}
+      {/* A walk through the school day (the gate, assembly, the classroom), told as feelings rather than labels. */}
       <section className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="mb-12 max-w-2xl">
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary"><span aria-hidden="true" className="h-1.5 w-8 rounded-full bg-sun" />A day at Giant Step</p>
-            <h2 className="text-4xl text-navy md:text-5xl">Step inside our school</h2>
-            <p className="mt-4 text-xl leading-relaxed text-muted-foreground">From the moment children walk through our gates to the start of the first lesson.</p>
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary"><span aria-hidden="true" className="h-1.5 w-8 rounded-full bg-sun" />Every day, a little further</p>
+            <h2 className="text-4xl text-navy md:text-5xl">Where small steps become giant ones</h2>
+            <p className="mt-4 text-xl leading-relaxed text-muted-foreground">It starts at the gate and never really ends. Come and feel it for yourself.</p>
           </div>
           <ol className="flex flex-col gap-14 md:gap-20">
             {DAY.map((d, i) => (
