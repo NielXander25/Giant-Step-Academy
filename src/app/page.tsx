@@ -18,6 +18,12 @@ import { siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
+const DAY = [
+  { src: "/images/school/campus.jpg", color: "#0071e3", title: "Our campus", text: "A bright, welcoming school in Sabon Tasha, Kaduna, with safe, well-kept grounds where children feel at home from the moment they arrive.", alt: "The front of Giant Step Academy: a colourful school sign, the school crest and flower beds along the blue and cream wall" },
+  { src: "/images/school/assembly.jpg", color: "#ffb800", title: "Morning assembly", text: "Every day begins together. Pupils and students line up in their uniforms for assembly, building discipline, unity and a sense of belonging.", alt: "Pupils and students in uniform lined up for morning assembly in the school courtyard" },
+  { src: "/images/school/classroom.jpg", color: "#1fae4b", title: "In the classroom", text: "Then the learning begins: attentive teachers, engaged students and lessons that build strong foundations. Learn, practise, excel.", alt: "Secondary students in a bright classroom listening to their teacher during a mathematics lesson" },
+];
+
 export const metadata: Metadata = {
   title: { absolute: "Giant Step Academy | Nursery, Primary and Secondary School" },
   description: "Giant Step Academy, a school in Sabon Tasha, Kaduna, for children from Nursery to Secondary. See admissions, news and events.",
@@ -100,7 +106,34 @@ export default async function HomePage() {
         </ul>
       </div>
 
-      <Section>
+      {/* A walk through the school day: the campus, morning assembly, then the classroom. */}
+      <section className="py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="mb-12 max-w-2xl">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary"><span aria-hidden="true" className="h-1.5 w-8 rounded-full bg-sun" />A day at Giant Step</p>
+            <h2 className="text-4xl text-navy md:text-5xl">Step inside our school</h2>
+            <p className="mt-4 text-xl leading-relaxed text-muted-foreground">From the moment children walk through our gates to the start of the first lesson.</p>
+          </div>
+          <ol className="flex flex-col gap-14 md:gap-20">
+            {DAY.map((d, i) => (
+              <li key={d.src} className="grid items-center gap-7 md:grid-cols-12 md:gap-10">
+                <Reveal from={i % 2 ? "right" : "left"} className={`relative md:col-span-7 ${i % 2 ? "md:order-2" : ""}`}>
+                  <div aria-hidden="true" className="absolute -inset-3 rounded-[2.5rem] opacity-25 blur-2xl" style={{ background: d.color }} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={d.src} alt={d.alt} width={1080} height={810} loading="lazy" decoding="async" className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-[0_30px_70px_-35px_rgba(0,0,0,0.5)]" />
+                </Reveal>
+                <Reveal from="up" delay={120} className="md:col-span-5">
+                  <span className="text-6xl font-extrabold tracking-tight md:text-7xl" style={{ color: d.color }}>{String(i + 1).padStart(2, "0")}</span>
+                  <h3 className="mt-2 text-3xl font-extrabold text-navy md:text-4xl">{d.title}</h3>
+                  <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{d.text}</p>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <Section tone="soft">
         <div className={aboutImage?.url ? "grid items-center gap-10 md:grid-cols-2" : "max-w-3xl"}>
           <div>
             <SectionHeading eyebrow="About us" title={b["home.about.title"] as string} className="mb-5" />
@@ -112,11 +145,11 @@ export default async function HomePage() {
       </Section>
 
       {values.length > 0 && (
-        <Section tone="soft">
+        <Section>
           <SectionHeading eyebrow="What we stand for" title="The values behind every school day" />
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
-              <Reveal as="li" key={i} from="zoom" delay={i * 110} className="rounded-3xl bg-white p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+              <Reveal as="li" key={i} from="zoom" delay={i * 110} className="rounded-3xl bg-muted p-7">
                 <span className="text-5xl font-bold tracking-tight" style={{ color: ["#0071e3", "#ff9500", "#34c759", "#af52de", "#ff2d55", "#32ade6"][i % 6] }}>{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mt-2 font-serif text-xl text-navy">{v.title}</h3>
                 {v.text && <p className="mt-2 text-sm text-muted-foreground">{v.text}</p>}
